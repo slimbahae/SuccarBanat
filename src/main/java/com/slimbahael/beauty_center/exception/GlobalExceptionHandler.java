@@ -7,6 +7,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.core.AuthenticationException;
 
 import jakarta.validation.ConstraintViolationException;
 import java.util.HashMap;
@@ -21,9 +23,15 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiError> handleBadCredentialsException() {
-        ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED.value(), "Invalid email or password");
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiError> handleAuthenticationException(AuthenticationException ex) {
+        String message = ex.getMessage();
+        if (ex instanceof DisabledException) {
+            message = "Your account is disabled.";
+        } else if (ex instanceof BadCredentialsException) {
+            message = "Invalid email or password.";
+        }
+        ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED.value(), message);
         return new ResponseEntity<>(apiError, HttpStatus.UNAUTHORIZED);
     }
 
@@ -51,6 +59,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGenericException(Exception ex) {
+        ex.printStackTrace();
         ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "An unexpected error occurred");
         return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
     }

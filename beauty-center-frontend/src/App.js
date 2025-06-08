@@ -21,6 +21,12 @@ import Register from './pages/auth/Register';
 import CustomerDashboard from './pages/customer/Dashboard';
 import OrderConfirmation from './pages/customer/OrderConfirmation';
 
+// Admin pages
+import AdminDashboard from './pages/admin/Dashboard';
+import AdminProducts from './pages/admin/Products';
+import AdminServices from './pages/admin/Services';
+import AdminUsers from './pages/admin/Users';
+
 // Placeholder pages
 import {
   Cart,
@@ -28,10 +34,6 @@ import {
   CustomerOrders,
   CustomerReservations,
   BookService,
-  AdminDashboard,
-  AdminProducts,
-  AdminServices,
-  AdminUsers,
   AdminOrders,
   AdminReservations,
   StaffDashboard,

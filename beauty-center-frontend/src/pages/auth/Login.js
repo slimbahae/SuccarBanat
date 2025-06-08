@@ -25,9 +25,16 @@ const Login = () => {
     if (result.success) {
       navigate(from, { replace: true });
     } else {
+      console.error('Login failed:', result);
+      let errorMessage = result.message || 'An unexpected error occurred';
+      if (errorMessage.includes('User is disabled')) {
+        errorMessage = 'Your account is disabled. Please contact support.';
+      } else if (errorMessage.includes('Bad credentials')) {
+        errorMessage = 'Invalid email or password.';
+      }
       setError('email', {
         type: 'manual',
-        message: result.message || 'Invalid credentials',
+        message: errorMessage,
       });
     }
   };

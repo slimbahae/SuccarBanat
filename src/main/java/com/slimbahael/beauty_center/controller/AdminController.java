@@ -1,6 +1,7 @@
 package com.slimbahael.beauty_center.controller;
 
 import com.slimbahael.beauty_center.dto.CreateUserRequest;
+import com.slimbahael.beauty_center.dto.UpdateUserRequest;
 import com.slimbahael.beauty_center.dto.UserResponse;
 import com.slimbahael.beauty_center.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +49,7 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable String id,
-            @Valid @RequestBody CreateUserRequest request) {
+            @Valid @RequestBody UpdateUserRequest request) {
         return ResponseEntity.ok(userService.updateUser(id, request));
     }
 

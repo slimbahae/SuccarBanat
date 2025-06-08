@@ -1,6 +1,7 @@
 package com.slimbahael.beauty_center.service;
 
 import com.slimbahael.beauty_center.dto.CreateUserRequest;
+import com.slimbahael.beauty_center.dto.UpdateUserRequest;
 import com.slimbahael.beauty_center.dto.UserResponse;
 import com.slimbahael.beauty_center.exception.ResourceAlreadyExistsException;
 import com.slimbahael.beauty_center.exception.ResourceNotFoundException;
@@ -64,7 +65,7 @@ public class UserService {
         return mapUserToUserResponse(savedUser);
     }
 
-    public UserResponse updateUser(String id, CreateUserRequest request) {
+    public UserResponse updateUser(String id, UpdateUserRequest request) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
@@ -78,6 +79,7 @@ public class UserService {
         existingUser.setLastName(request.getLastName());
         existingUser.setEmail(request.getEmail());
 
+        // Only update password if a new one is provided
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
             existingUser.setPassword(passwordEncoder.encode(request.getPassword()));
         }
@@ -89,6 +91,7 @@ public class UserService {
         existingUser.setWorkDays(request.getWorkDays());
         existingUser.setMorningShift(request.getMorningShift());
         existingUser.setEveningShift(request.getEveningShift());
+        existingUser.setEnabled(request.isEnabled());
 
         User updatedUser = userRepository.save(existingUser);
         return mapUserToUserResponse(updatedUser);
