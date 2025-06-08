@@ -53,4 +53,16 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(orderService.checkout(request));
     }
+
+    @GetMapping("/api/customer/orders/{id}/invoice")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<byte[]> getInvoice(@PathVariable String id) {
+        byte[] invoice = orderService.generateInvoice(id);
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/pdf")
+                .header("Content-Disposition", "attachment; filename=invoice-" + id + ".pdf")
+                .body(invoice);
+    }
+
+
 }

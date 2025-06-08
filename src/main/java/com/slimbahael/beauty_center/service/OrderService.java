@@ -1,5 +1,8 @@
 package com.slimbahael.beauty_center.service;
 
+import com.lowagie.text.Document;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfWriter;
 import com.slimbahael.beauty_center.dto.CheckoutRequest;
 import com.slimbahael.beauty_center.dto.OrderResponse;
 import com.slimbahael.beauty_center.exception.BadRequestException;
@@ -18,12 +21,18 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 @RequiredArgsConstructor
@@ -35,9 +44,95 @@ public class OrderService {
     private final UserRepository userRepository;
     private final CartService cartService;
     private final SmsService smsService;
+    private final EmailService emailService;
 
     private static final BigDecimal TAX_RATE = new BigDecimal("0.10"); // 10% tax
     private static final BigDecimal SHIPPING_COST = new BigDecimal("5.00"); // $5 shipping
+
+    private static final Logger log = LoggerFactory.getLogger(OrderService.class);
+
+    public byte[] generateInvoice(String orderId) {
+        // Get current authenticated user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+
+        // Check if user is authorized to view this order
+        if (!user.getRole().equals("ADMIN") && !order.getCustomerId().equals(user.getId())) {
+            throw new BadRequestException("You are not authorized to view this order");
+        }
+
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            Document document = new Document();
+            PdfWriter.getInstance(document, baos);
+
+            document.open();
+
+            // Add company header
+            Paragraph header = new Paragraph("Beauty Center - Invoice");
+            header.setAlignment(Paragraph.ALIGN_CENTER);
+            header.setSpacingAfter(20);
+            document.add(header);
+
+            // Add order details
+            document.add(new Paragraph("Order #: " + order.getId()));
+            document.add(new Paragraph("Date: " + order.getCreatedAt()));
+            document.add(new Paragraph("Status: " + order.getOrderStatus()));
+            document.add(new Paragraph("\n"));
+
+            // Add customer details
+            document.add(new Paragraph("Customer Information:"));
+            document.add(new Paragraph("Name: " + order.getShippingAddress().getFullName()));
+            document.add(new Paragraph("Address: " + order.getShippingAddress().getAddressLine1()));
+            if (order.getShippingAddress().getAddressLine2() != null && !order.getShippingAddress().getAddressLine2().isEmpty()) {
+                document.add(new Paragraph("         " + order.getShippingAddress().getAddressLine2()));
+            }
+            document.add(new Paragraph("City: " + order.getShippingAddress().getCity()));
+            document.add(new Paragraph("State: " + order.getShippingAddress().getState()));
+            document.add(new Paragraph("Postal Code: " + order.getShippingAddress().getPostalCode()));
+            document.add(new Paragraph("Country: " + order.getShippingAddress().getCountry()));
+            document.add(new Paragraph("Phone: " + order.getShippingAddress().getPhoneNumber()));
+            document.add(new Paragraph("\n"));
+
+            // Add items table header
+            document.add(new Paragraph("Order Items:"));
+            document.add(new Paragraph("\n"));
+
+            // Add items
+            for (Order.OrderItem item : order.getItems()) {
+                document.add(new Paragraph(item.getProductName()));
+                document.add(new Paragraph("Quantity: " + item.getQuantity()));
+                document.add(new Paragraph("Unit Price: $" + item.getUnitPrice()));
+                document.add(new Paragraph("Total: $" + item.getTotalPrice()));
+                document.add(new Paragraph("\n"));
+            }
+
+            // Add totals
+            document.add(new Paragraph("Subtotal: $" + order.getSubtotal()));
+            document.add(new Paragraph("Tax: $" + order.getTax()));
+            document.add(new Paragraph("Shipping: $" + order.getShippingCost()));
+            document.add(new Paragraph("Total: $" + order.getTotal()));
+            document.add(new Paragraph("\n"));
+
+            // Add payment information
+            document.add(new Paragraph("Payment Information:"));
+            document.add(new Paragraph("Method: " + order.getPaymentMethod()));
+            document.add(new Paragraph("Status: " + order.getPaymentStatus()));
+
+            document.close();
+
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new BadRequestException("Error generating invoice: " + e.getMessage());
+        }
+    }
+
 
     public List<OrderResponse> getAllOrders() {
         return orderRepository.findAll()
@@ -171,7 +266,21 @@ public class OrderService {
             smsService.sendSms(customer.getPhoneNumber(), message);
         }
 
-        return mapOrderToResponse(savedOrder);
+        // Prepare OrderResponse for email and return
+        OrderResponse orderResponse = mapOrderToResponse(savedOrder);
+
+        // Send order confirmation email
+        try {
+            emailService.sendOrderConfirmationEmail(
+                customer.getEmail(),
+                orderResponse
+            );
+        } catch (Exception e) {
+            // Log the error but don't affect the order processing
+            log.error("Failed to send order confirmation email for order {}: {}", savedOrder.getId(), e.getMessage());
+        }
+
+        return orderResponse;
     }
 
     @Transactional
@@ -248,6 +357,12 @@ public class OrderService {
         User customer = userRepository.findById(order.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
+        // Calculate estimated delivery date (e.g., 5 days from creation)
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(order.getCreatedAt());
+        calendar.add(Calendar.DAY_OF_YEAR, 5);
+        Date estimatedDeliveryDate = calendar.getTime();
+
         return OrderResponse.builder()
                 .id(order.getId())
                 .customerId(order.getCustomerId())
@@ -273,6 +388,9 @@ public class OrderService {
                 .orderStatus(order.getOrderStatus())
                 .createdAt(order.getCreatedAt())
                 .updatedAt(order.getUpdatedAt())
+                .estimatedDeliveryDate(estimatedDeliveryDate)
                 .build();
     }
+
+
 }

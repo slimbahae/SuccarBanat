@@ -39,6 +39,25 @@ const OrderConfirmation = () => {
     }
   );
 
+  // Handle invoice download
+  const handleDownloadInvoice = async () => {
+    try {
+      const response = await ordersAPI.downloadInvoice(orderId);
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `invoice-${orderId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading invoice:', error);
+      toast.error('Failed to download invoice. Please try again later.');
+    }
+  };
+
   // Celebrate effect
   useEffect(() => {
     if (orderData?.data) {
@@ -290,7 +309,11 @@ const OrderConfirmation = () => {
               </Button>
             </Link>
             
-            <Button variant="outline" className="w-full sm:w-auto">
+            <Button 
+              variant="outline" 
+              className="w-full sm:w-auto"
+              onClick={handleDownloadInvoice}
+            >
               <Download className="h-4 w-4 mr-2" />
               Download Receipt
             </Button>

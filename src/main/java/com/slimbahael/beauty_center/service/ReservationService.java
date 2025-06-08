@@ -12,10 +12,13 @@ import com.slimbahael.beauty_center.repository.ServiceAddonRepository;
 import com.slimbahael.beauty_center.repository.ServiceRepository;
 import com.slimbahael.beauty_center.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,6 +31,9 @@ public class ReservationService {
     private final ServiceRepository serviceRepository;
     private final ServiceAddonRepository serviceAddonRepository;
     private final SmsService smsService;
+    private final EmailService emailService;
+
+    private static final Logger log = LoggerFactory.getLogger(ReservationService.class);
 
     public List<ReservationResponse> getAllReservations() {
         return reservationRepository.findAll()
@@ -188,30 +194,30 @@ public class ReservationService {
         Reservation savedReservation = reservationRepository.save(reservation);
 
         // Send SMS notification to staff
-        String staffPhoneNumber = staff.getPhoneNumber();
-        if (staffPhoneNumber != null && !staffPhoneNumber.isEmpty()) {
-            String message = String.format(
-                    "New booking: %s %s has booked %s on %s (%s)",
-                    customer.getFirstName(),
-                    customer.getLastName(),
+        try {
+            String staffPhoneNumber = staff.getPhoneNumber();
+            if (staffPhoneNumber != null && !staffPhoneNumber.isEmpty()) {
+                String message = String.format(
+                    "New reservation for %s on %s at %s. Customer: %s",
                     service.getName(),
-                    new java.text.SimpleDateFormat("yyyy-MM-dd").format(request.getReservationDate()),
-                    request.getTimeSlot()
-            );
-            smsService.sendSms(staffPhoneNumber, message);
+                    new SimpleDateFormat("MM/dd/yyyy").format(request.getReservationDate()),
+                    request.getTimeSlot(),
+                    customer.getFirstName() + " " + customer.getLastName()
+                );
+                smsService.sendSms(staffPhoneNumber, message);
+            }
+        } catch (Exception e) {
+            log.error("Failed to send SMS notification for reservation {}: {}", savedReservation.getId(), e.getMessage());
         }
 
-        // Send confirmation SMS to customer
-        String customerPhoneNumber = customer.getPhoneNumber();
-        if (customerPhoneNumber != null && !customerPhoneNumber.isEmpty()) {
-            String message = String.format(
-                    "Your booking for %s on %s (%s) with %s is confirmed!",
-                    service.getName(),
-                    new java.text.SimpleDateFormat("yyyy-MM-dd").format(request.getReservationDate()),
-                    request.getTimeSlot(),
-                    staff.getFirstName()
+        // Send reservation confirmation email to customer
+        try {
+            emailService.sendReservationConfirmationEmail(
+                customer.getEmail(),
+                mapReservationToResponse(savedReservation)
             );
-            smsService.sendSms(customerPhoneNumber, message);
+        } catch (Exception e) {
+            log.error("Failed to send reservation confirmation email for reservation {}: {}", savedReservation.getId(), e.getMessage());
         }
 
         return mapReservationToResponse(savedReservation);

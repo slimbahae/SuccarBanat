@@ -180,6 +180,14 @@ function AppContent() {
             } 
           />
           <Route 
+            path="/customer/orders/:orderId" 
+            element={
+              <ProtectedRoute allowedRoles={['CUSTOMER']}>
+                <CustomerOrders />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/customer/reservations" 
             element={
               <ProtectedRoute allowedRoles={['CUSTOMER']}>

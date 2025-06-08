@@ -30,6 +30,7 @@ public class OrderResponse {
     private String orderStatus;
     private Date createdAt;
     private Date updatedAt;
+    private Date estimatedDeliveryDate;
 
     @Data
     @Builder

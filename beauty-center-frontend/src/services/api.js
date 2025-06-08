@@ -156,6 +156,12 @@ export const ordersAPI = {
     console.log('Fetching order by ID:', id);
     return api.get(`/customer/orders/${id}`);
   },
+  getInvoice: (id) => {
+    console.log('Fetching invoice for order:', id);
+    return api.get(`/customer/orders/${id}/invoice`, {
+      responseType: 'blob' // Important for handling PDF files
+    });
+  },
   checkout: (checkoutData) => {
     console.log('Processing checkout:', checkoutData);
     return api.post('/customer/checkout', checkoutData);

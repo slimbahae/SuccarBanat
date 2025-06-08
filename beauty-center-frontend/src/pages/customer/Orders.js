@@ -27,7 +27,7 @@ import Button from '../../components/UI/Button';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
 import toast from 'react-hot-toast';
 
-const Orders = () => {
+const CustomerOrders = () => {
   const { user } = useAuth();
   const { orderId } = useParams();
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -107,6 +107,31 @@ const Orders = () => {
     estimatedDate.setDate(orderDate.getDate() + 5); // 5 business days
     
     return `Est. ${estimatedDate.toLocaleDateString()}`;
+  };
+
+  // Add downloadInvoice function
+  const downloadInvoice = async (order) => {
+    try {
+      const response = await ordersAPI.getInvoice(order.id);
+      // Create a blob from the PDF data
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(blob);
+      // Create a temporary link element
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `invoice-${order.id}.pdf`;
+      // Append to body, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      // Clean up the URL
+      window.URL.revokeObjectURL(url);
+      toast.success('Invoice downloaded successfully');
+    } catch (error) {
+      console.error('Error downloading invoice:', error);
+      toast.error('Failed to download invoice');
+    }
   };
 
   // If viewing specific order
@@ -205,7 +230,11 @@ const Orders = () => {
                     <span className="ml-1">{order.orderStatus}</span>
                   </span>
                   <div className="flex space-x-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => downloadInvoice(order)}
+                    >
                       <Download className="h-4 w-4 mr-2" />
                       Invoice
                     </Button>
@@ -625,4 +654,4 @@ const Orders = () => {
   );
 };
 
-export default Orders;
+export default CustomerOrders;
