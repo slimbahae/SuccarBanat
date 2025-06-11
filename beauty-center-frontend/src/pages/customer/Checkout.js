@@ -25,7 +25,7 @@ import {
 } from '@stripe/react-stripe-js';
 
 // Initialize Stripe promise outside component to prevent re-creation
-const stripePromise = loadStripe("pk_test_51RWjd8PDrOVRMnP5KOZWA2WVPxeZ7N2MWmZaujdzsElNhtOB8OPInNaYhdbJYarYaGIPt3ivXmQLG61IYuv0ULMQ00TyLWgIUZ");
+const stripePromise = loadStripe(".");
 
 const CheckoutForm = ({ 
   clientSecret, 
