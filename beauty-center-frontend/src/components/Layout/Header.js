@@ -50,19 +50,13 @@ const Header = () => {
     CUSTOMER: [
       { name: 'Dashboard', href: '/customer/dashboard', icon: User },
       { name: 'My Orders', href: '/customer/orders', icon: Package },
-      { name: 'My Reservations', href: '/customer/reservations', icon: Calendar },
       { name: 'Cart', href: '/customer/cart', icon: ShoppingCart },
     ],
     ADMIN: [
       { name: 'Admin Dashboard', href: '/admin/dashboard', icon: Settings },
       { name: 'Manage Products', href: '/admin/products', icon: Package },
-      { name: 'Manage Services', href: '/admin/services', icon: Sparkles },
       { name: 'Manage Users', href: '/admin/users', icon: User },
-    ],
-    STAFF: [
-      { name: 'Staff Dashboard', href: '/staff/dashboard', icon: User },
-      { name: 'My Schedule', href: '/staff/reservations', icon: Calendar },
-    ],
+    ]
   };
 
   return (

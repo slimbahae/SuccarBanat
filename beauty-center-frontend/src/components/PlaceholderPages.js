@@ -7,13 +7,10 @@ import Button from './UI/Button';
 import Cart from '../pages/customer/Cart';
 import Checkout from '../pages/customer/Checkout';
 import CustomerOrders from '../pages/customer/Orders';
-import CustomerReservations from '../pages/customer/Reservations';
 import BookService from '../pages/customer/BookService';
-import StaffDashboard from '../pages/staff/Dashboard';
-import StaffReservations from '../pages/staff/Reservations';
 
 // Export the real components
-export { Cart, Checkout, CustomerOrders, CustomerReservations, BookService, StaffDashboard, StaffReservations };
+export { Cart, Checkout, CustomerOrders, BookService};
 
 // Generic placeholder component for remaining pages
 const PlaceholderPage = ({ title, description, backLink = "/" }) => (

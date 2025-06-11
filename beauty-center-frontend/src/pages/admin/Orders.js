@@ -18,7 +18,11 @@ import {
   X,
   AlertCircle,
   Copy,
-  Calendar
+  Calendar,
+  ChevronUp,
+  ChevronDown,
+  Trash2,
+  Mail
 } from 'lucide-react';
 import { ordersAPI } from '../../services/api';
 import Button from '../../components/UI/Button';
@@ -31,6 +35,11 @@ const AdminOrders = () => {
   const [paymentFilter, setPaymentFilter] = useState('');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
+  const [selectedOrders, setSelectedOrders] = useState(new Set());
+  const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [bulkStatus, setBulkStatus] = useState('');
   const queryClient = useQueryClient();
 
   // Fetch orders
@@ -54,10 +63,92 @@ const AdminOrders = () => {
     }
   );
 
+  // Bulk delete mutation
+  const bulkDeleteMutation = useMutation(
+    (orderIds) => Promise.all(orderIds.map(id => ordersAPI.deleteOrder(id))),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('admin-orders');
+        toast.success(`${selectedOrders.size} orders deleted successfully`);
+        setSelectedOrders(new Set());
+      },
+      onError: (error) => {
+        toast.error('Failed to delete selected orders');
+      },
+    }
+  );
+
+  // Bulk update status mutation
+  const bulkUpdateStatusMutation = useMutation(
+    async ({ orderIds, status }) => {
+      const results = await Promise.allSettled(
+        orderIds.map(id => ordersAPI.updateStatus(id, status))
+      );
+      
+      const successful = results.filter(result => result.status === 'fulfilled');
+      const failed = results.filter(result => result.status === 'rejected');
+      
+      if (failed.length > 0) {
+        throw new Error(`${failed.length} orders failed to update`);
+      }
+      
+      return successful;
+    },
+    {
+      onSuccess: (results) => {
+        queryClient.invalidateQueries('admin-orders');
+        toast.success(`${results.length} orders updated successfully`);
+        setSelectedOrders(new Set());
+        setShowStatusModal(false);
+        setBulkStatus('');
+      },
+      onError: (error) => {
+        toast.error(error.message || 'Failed to update selected orders');
+        queryClient.invalidateQueries('admin-orders');
+      },
+    }
+  );
+
   const orders = ordersData?.data || [];
 
+  // Sorting function
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Sort orders
+  const sortedOrders = [...orders].sort((a, b) => {
+    const { key, direction } = sortConfig;
+    let aValue = a[key];
+    let bValue = b[key];
+
+    // Handle different data types
+    if (key === 'createdAt') {
+      aValue = new Date(aValue);
+      bValue = new Date(bValue);
+    } else if (key === 'total') {
+      aValue = parseFloat(aValue) || 0;
+      bValue = parseFloat(bValue) || 0;
+    } else if (typeof aValue === 'string') {
+      aValue = aValue.toLowerCase();
+      bValue = bValue.toLowerCase();
+    }
+
+    if (aValue < bValue) {
+      return direction === 'asc' ? -1 : 1;
+    }
+    if (aValue > bValue) {
+      return direction === 'asc' ? 1 : -1;
+    }
+    return 0;
+  });
+
   // Filter orders
-  const filteredOrders = orders.filter(order => {
+  const filteredOrders = sortedOrders.filter(order => {
     const matchesSearch = searchTerm === '' || 
       order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -68,6 +159,139 @@ const AdminOrders = () => {
     
     return matchesSearch && matchesStatus && matchesPayment;
   });
+
+  // Selection handlers
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      setSelectedOrders(new Set(filteredOrders.map(order => order.id)));
+    } else {
+      setSelectedOrders(new Set());
+    }
+  };
+
+  const handleSelectOrder = (orderId, checked) => {
+    const newSelection = new Set(selectedOrders);
+    if (checked) {
+      newSelection.add(orderId);
+    } else {
+      newSelection.delete(orderId);
+    }
+    setSelectedOrders(newSelection);
+  };
+
+  const handleExportOrders = (exportType = 'all') => {
+    let ordersToExport;
+    let filename;
+    
+    if (exportType === 'selected' && selectedOrders.size > 0) {
+      ordersToExport = filteredOrders.filter(order => selectedOrders.has(order.id));
+      filename = `selected-orders-${new Date().toISOString().split('T')[0]}.csv`;
+    } else {
+      ordersToExport = filteredOrders;
+      filename = `all-orders-${new Date().toISOString().split('T')[0]}.csv`;
+    }
+
+    if (ordersToExport.length === 0) {
+      toast.error('No orders to export');
+      return;
+    }
+
+    // Create CSV content
+    const csvHeaders = [
+      'Order ID',
+      'Customer Name',
+      'Customer Email',
+      'Date',
+      'Status',
+      'Payment Status',
+      'Payment Method',
+      'Total',
+      'Items Count',
+      'Shipping Address'
+    ];
+
+    const csvRows = ordersToExport.map(order => [
+      order.id,
+      order.customerName,
+      order.customerEmail,
+      new Date(order.createdAt).toLocaleDateString(),
+      order.orderStatus,
+      order.paymentStatus,
+      order.paymentMethod || 'N/A',
+      order.total.toFixed(2),
+      order.items.length,
+      `"${order.shippingAddress.addressLine1}, ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.postalCode}"`
+    ]);
+
+    const csvContent = [csvHeaders, ...csvRows]
+      .map(row => row.join(','))
+      .join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success(`${ordersToExport.length} orders exported successfully`);
+  };
+
+  const handleBulkAction = (action) => {
+    if (selectedOrders.size === 0) {
+      toast.error('Please select orders first');
+      return;
+    }
+
+    switch (action) {
+      case 'delete':
+        setShowDeleteConfirm(true);
+        break;
+      case 'update-status':
+        setShowStatusModal(true);
+        break;
+      case 'export':
+        handleExportOrders('selected');
+        break;
+      case 'email':
+        // Send email to selected customers logic
+        toast.success('Sending emails to selected customers...');
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleConfirmDelete = () => {
+    bulkDeleteMutation.mutate(Array.from(selectedOrders));
+    setShowDeleteConfirm(false);
+  };
+
+  const handleConfirmStatusUpdate = () => {
+    if (!bulkStatus) {
+      toast.error('Please select a status');
+      return;
+    }
+    bulkUpdateStatusMutation.mutate({
+      orderIds: Array.from(selectedOrders),
+      status: bulkStatus
+    });
+  };
+
+  // Get available status options for bulk update
+  const getAvailableStatusOptions = () => {
+    const selectedOrdersData = filteredOrders.filter(order => selectedOrders.has(order.id));
+    const statuses = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
+    
+    return statuses.filter(status => {
+      const allHaveStatus = selectedOrdersData.every(order => order.orderStatus === status);
+      return !allHaveStatus;
+    });
+  };
 
   // Calculate statistics
   const stats = [
@@ -133,6 +357,25 @@ const AdminOrders = () => {
     }
   };
 
+  const getPaymentMethodIcon = (method) => {
+    switch (method?.toLowerCase()) {
+      case 'credit_card':
+      case 'card':
+        return <CreditCard className="h-4 w-4" />;
+      default:
+        return <CreditCard className="h-4 w-4" />;
+    }
+  };
+
+  const getSortIcon = (columnKey) => {
+    if (sortConfig.key !== columnKey) {
+      return <ChevronUp className="h-4 w-4 text-gray-400" />;
+    }
+    return sortConfig.direction === 'asc' 
+      ? <ChevronUp className="h-4 w-4 text-gray-700" />
+      : <ChevronDown className="h-4 w-4 text-gray-700" />;
+  };
+
   const handleViewOrder = (order) => {
     setSelectedOrder(order);
     setShowOrderModal(true);
@@ -166,6 +409,9 @@ const AdminOrders = () => {
     );
   }
 
+  const allSelected = selectedOrders.size === filteredOrders.length && filteredOrders.length > 0;
+  const someSelected = selectedOrders.size > 0 && selectedOrders.size < filteredOrders.length;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -180,7 +426,7 @@ const AdminOrders = () => {
               <h1 className="text-3xl font-bold text-gray-900">Order Management</h1>
               <p className="text-gray-600">Monitor and manage customer orders</p>
             </div>
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => handleExportOrders('all')}>
               <Download className="h-4 w-4 mr-2" />
               Export Orders
             </Button>
@@ -251,6 +497,53 @@ const AdminOrders = () => {
           </div>
         </div>
 
+        {/* Bulk Actions */}
+        {selectedOrders.size > 0 && (
+          <div className="bg-white shadow-sm rounded-lg p-4 mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <span className="text-sm font-medium text-gray-700">
+                  {selectedOrders.size} order{selectedOrders.size !== 1 ? 's' : ''} selected
+                </span>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleBulkAction('update-status')}
+                  >
+                    <RefreshCw className="h-4 w-4 mr-1" />
+                    Update Status
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleBulkAction('export')}
+                  >
+                    <Download className="h-4 w-4 mr-1" />
+                    Export
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleBulkAction('delete')}
+                    className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Delete
+                  </Button>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedOrders(new Set())}
+              >
+                Clear Selection
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Orders Table */}
         {filteredOrders.length === 0 ? (
           <div className="bg-white shadow-sm rounded-lg p-12 text-center">
@@ -268,23 +561,79 @@ const AdminOrders = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Order
+                    <th className="px-6 py-3 text-left">
+                      <input
+                        type="checkbox"
+                        checked={allSelected}
+                        ref={(el) => {
+                          if (el) el.indeterminate = someSelected;
+                        }}
+                        onChange={(e) => handleSelectAll(e.target.checked)}
+                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                      />
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Customer
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('id')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Order</span>
+                        {getSortIcon('id')}
+                      </div>
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('customerName')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Customer</span>
+                        {getSortIcon('customerName')}
+                      </div>
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Total
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('createdAt')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Date</span>
+                        {getSortIcon('createdAt')}
+                      </div>
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('total')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Total</span>
+                        {getSortIcon('total')}
+                      </div>
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Payment
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('orderStatus')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Status</span>
+                        {getSortIcon('orderStatus')}
+                      </div>
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('paymentMethod')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Payment Method</span>
+                        {getSortIcon('paymentMethod')}
+                      </div>
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('paymentStatus')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Payment Status</span>
+                        {getSortIcon('paymentStatus')}
+                      </div>
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
@@ -293,7 +642,16 @@ const AdminOrders = () => {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredOrders.map((order) => (
-                    <tr key={order.id} className="hover:bg-gray-50">
+                    <tr key={order.id} className={`hover:bg-gray-50 ${selectedOrders.has(order.id) ? 'bg-blue-50' : ''}`}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <input
+                          type="checkbox"
+                          checked={selectedOrders.has(order.id)}
+                          onChange={(e) => handleSelectOrder(order.id, e.target.checked)}
+                          className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                        />
+                      </td>
+                      
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0">
@@ -346,6 +704,15 @@ const AdminOrders = () => {
                       </td>
                       
                       <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center text-sm text-gray-900">
+                          {getPaymentMethodIcon(order.paymentMethod)}
+                          <span className="ml-2 capitalize">
+                            {order.paymentMethod?.replace('_', ' ') || 'N/A'}
+                          </span>
+                        </div>
+                      </td>
+                      
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
                           order.paymentStatus === 'PAID' 
                             ? 'bg-green-100 text-green-800'
@@ -377,7 +744,7 @@ const AdminOrders = () => {
                               {order.orderStatus === 'PENDING' && <option value="PROCESSING">Mark Processing</option>}
                               {order.orderStatus === 'PROCESSING' && <option value="SHIPPED">Mark Shipped</option>}
                               {order.orderStatus === 'SHIPPED' && <option value="DELIVERED">Mark Delivered</option>}
-                              <option value="CANCELLED">Cancel Order</option>
+                              {order.orderStatus !== 'CANCELLED' && <option value="CANCELLED">Cancel Order</option>}
                             </select>
                           )}
                         </div>
@@ -389,184 +756,233 @@ const AdminOrders = () => {
             </div>
           </div>
         )}
-      </div>
 
-      {/* Order Detail Modal */}
-      {showOrderModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Order #{selectedOrder.id.slice(-8)}
-                </h2>
-                <p className="text-sm text-gray-600">
-                  Placed on {new Date(selectedOrder.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-              <button
-                onClick={() => setShowOrderModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="h-6 w-6" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-6">
-              {/* Order Status */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900">Order Status</h3>
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedOrder.orderStatus)}`}>
-                    {getStatusIcon(selectedOrder.orderStatus)}
-                    <span className="ml-1">{selectedOrder.orderStatus}</span>
-                  </span>
-                </div>
-                
-                {selectedOrder.orderStatus !== 'DELIVERED' && selectedOrder.orderStatus !== 'CANCELLED' && (
-                  <div className="flex space-x-2">
-                    {selectedOrder.orderStatus === 'PENDING' && (
-                      <Button
-                        size="sm"
-                        onClick={() => handleStatusUpdate(selectedOrder.id, 'PROCESSING')}
-                        loading={updateStatusMutation.isLoading}
-                      >
-                        Mark Processing
-                      </Button>
-                    )}
-                    {selectedOrder.orderStatus === 'PROCESSING' && (
-                      <Button
-                        size="sm"
-                        onClick={() => handleStatusUpdate(selectedOrder.id, 'SHIPPED')}
-                        loading={updateStatusMutation.isLoading}
-                      >
-                        Mark Shipped
-                      </Button>
-                    )}
-                    {selectedOrder.orderStatus === 'SHIPPED' && (
-                      <Button
-                        size="sm"
-                        onClick={() => handleStatusUpdate(selectedOrder.id, 'DELIVERED')}
-                        loading={updateStatusMutation.isLoading}
-                      >
-                        Mark Delivered
-                      </Button>
-                    )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleStatusUpdate(selectedOrder.id, 'CANCELLED')}
-                      loading={updateStatusMutation.isLoading}
-                    >
-                      Cancel Order
-                    </Button>
-                  </div>
-                )}
-              </div>
-
-              {/* Customer Info */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-3">Customer Information</h3>
-                  <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-                    <p><strong>Name:</strong> {selectedOrder.customerName}</p>
-                    <p><strong>Email:</strong> {selectedOrder.customerEmail}</p>
-                    <p><strong>Payment Method:</strong> {selectedOrder.paymentMethod}</p>
-                    <p><strong>Payment Status:</strong> 
-                      <span className={`ml-2 px-2 py-1 rounded text-xs ${
-                        selectedOrder.paymentStatus === 'PAID' 
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {selectedOrder.paymentStatus}
-                      </span>
-                    </p>
-                  </div>
+        {/* Order Details Modal */}
+        {showOrderModal && selectedOrder && (
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900">Order Details</h2>
+                  <button
+                    onClick={() => setShowOrderModal(false)}
+                    className="text-gray-400 hover:text-gray-500"
+                  >
+                    <X className="h-6 w-6" />
+                  </button>
                 </div>
 
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-3">Shipping Address</h3>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="flex items-start">
-                      <MapPin className="h-5 w-5 text-gray-400 mr-2 mt-0.5" />
-                      <div className="text-sm">
-                        <p>{selectedOrder.shippingAddress.fullName}</p>
-                        <p>{selectedOrder.shippingAddress.addressLine1}</p>
-                        {selectedOrder.shippingAddress.addressLine2 && (
-                          <p>{selectedOrder.shippingAddress.addressLine2}</p>
-                        )}
-                        <p>
-                          {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state} {selectedOrder.shippingAddress.postalCode}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Customer Information</h3>
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Name:</span> {selectedOrder.customerName}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Email:</span> {selectedOrder.customerEmail}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Phone:</span> {selectedOrder.customerPhone || 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Shipping Address</h3>
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">
+                        {selectedOrder.shippingAddress.addressLine1}
+                      </p>
+                      {selectedOrder.shippingAddress.addressLine2 && (
+                        <p className="text-sm text-gray-600">
+                          {selectedOrder.shippingAddress.addressLine2}
                         </p>
-                        <p>{selectedOrder.shippingAddress.country}</p>
-                        <p className="mt-2">{selectedOrder.shippingAddress.phoneNumber}</p>
-                      </div>
+                      )}
+                      <p className="text-sm text-gray-600">
+                        {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state} {selectedOrder.shippingAddress.postalCode}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {selectedOrder.shippingAddress.country}
+                      </p>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Order Items */}
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-3">Order Items</h3>
-                <div className="space-y-3">
-                  {selectedOrder.items.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                      <div className="flex items-center">
-                        <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                <div className="mb-6">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Order Items</h3>
+                  <div className="space-y-4">
+                    {selectedOrder.items.map((item, index) => (
+                      <div key={index} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                        <div className="w-16 h-16 bg-white rounded-lg overflow-hidden">
                           {item.imageUrl ? (
                             <img
                               src={item.imageUrl}
                               alt={item.productName}
-                              className="w-full h-full object-cover rounded-lg"
+                              className="w-full h-full object-cover"
                             />
                           ) : (
-                            <Package className="h-6 w-6 text-gray-400" />
+                            <div className="w-full h-full bg-gray-200" />
                           )}
                         </div>
-                        <div className="ml-4">
-                          <p className="font-medium text-gray-900">{item.productName}</p>
-                          <p className="text-sm text-gray-600">
-                            Qty: {item.quantity} × ${item.unitPrice.toFixed(2)}
+                        <div className="flex-1">
+                          <h4 className="text-sm font-medium text-gray-900">{item.productName}</h4>
+                          <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                          <p className="text-sm text-gray-500">Price: ${item.unitPrice.toFixed(2)} each</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-medium text-gray-900">
+                            ${item.totalPrice.toFixed(2)}
                           </p>
                         </div>
                       </div>
-                      <p className="font-semibold text-gray-900">${item.totalPrice.toFixed(2)}</p>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Order Summary */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="text-lg font-medium text-gray-900 mb-3">Order Summary</h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Subtotal:</span>
-                    <span>${selectedOrder.subtotal.toFixed(2)}</span>
+                <div className="border-t border-gray-200 pt-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium text-gray-900">Order Summary</h3>
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedOrder.orderStatus)}`}>
+                      {getStatusIcon(selectedOrder.orderStatus)}
+                      <span className="ml-1">{selectedOrder.orderStatus}</span>
+                    </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Tax:</span>
-                    <span>${selectedOrder.tax.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Shipping:</span>
-                    <span>${selectedOrder.shippingCost.toFixed(2)}</span>
-                  </div>
-                  <div className="border-t border-gray-200 pt-2">
-                    <div className="flex justify-between font-semibold text-lg">
-                      <span>Total:</span>
-                      <span>${selectedOrder.total.toFixed(2)}</span>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Subtotal</span>
+                      <span className="text-gray-900">${selectedOrder.subtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Tax</span>
+                      <span className="text-gray-900">${(selectedOrder.subtotal * 0.1).toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Shipping</span>
+                      <span className="text-gray-900">
+                        {selectedOrder.subtotal >= 50 ? 'Free' : '$5.00'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-base font-medium border-t border-gray-200 pt-2 mt-2">
+                      <span className="text-gray-900">Total</span>
+                      <span className="text-gray-900">${selectedOrder.total.toFixed(2)}</span>
                     </div>
                   </div>
+                </div>
+
+                <div className="mt-6 flex justify-end space-x-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowOrderModal(false)}
+                  >
+                    Close
+                  </Button>
+                  {selectedOrder.orderStatus !== 'DELIVERED' && selectedOrder.orderStatus !== 'CANCELLED' && (
+                    <select
+                      onChange={(e) => {
+                        handleStatusUpdate(selectedOrder.id, e.target.value);
+                        e.target.value = '';
+                      }}
+                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    >
+                      <option value="">Update Status</option>
+                      {selectedOrder.orderStatus === 'PENDING' && <option value="PROCESSING">Mark Processing</option>}
+                      {selectedOrder.orderStatus === 'PROCESSING' && <option value="SHIPPED">Mark Shipped</option>}
+                      {selectedOrder.orderStatus === 'SHIPPED' && <option value="DELIVERED">Mark Delivered</option>}
+                      {selectedOrder.orderStatus !== 'CANCELLED' && <option value="CANCELLED">Cancel Order</option>}
+                    </select>
+                  )}
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg max-w-md w-full p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-900">Confirm Delete</h3>
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="text-gray-400 hover:text-gray-500"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+              <p className="text-sm text-gray-600 mb-6">
+                Are you sure you want to delete {selectedOrders.size} selected order{selectedOrders.size !== 1 ? 's' : ''}? This action cannot be undone.
+              </p>
+              <div className="flex justify-end space-x-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDeleteConfirm(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={handleConfirmDelete}
+                >
+                  Delete
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Bulk Status Update Modal */}
+        {showStatusModal && (
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg max-w-md w-full p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-900">Update Order Status</h3>
+                <button
+                  onClick={() => setShowStatusModal(false)}
+                  className="text-gray-400 hover:text-gray-500"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+              <div className="mb-6">
+                <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
+                  Select New Status
+                </label>
+                <select
+                  id="status"
+                  value={bulkStatus}
+                  onChange={(e) => setBulkStatus(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                >
+                  <option value="">Select a status</option>
+                  {getAvailableStatusOptions().map((status) => (
+                    <option key={status} value={status}>
+                      {status.charAt(0) + status.slice(1).toLowerCase()}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex justify-end space-x-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowStatusModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleConfirmStatusUpdate}
+                  disabled={!bulkStatus}
+                >
+                  Update Status
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
-export default AdminOrders;
+export default AdminOrders; 

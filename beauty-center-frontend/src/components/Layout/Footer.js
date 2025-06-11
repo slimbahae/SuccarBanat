@@ -15,10 +15,10 @@ const Footer = () => {
 
   const footerLinks = {
     services: [
-      { name: 'Hair Services', href: '/services?category=Hair Services' },
-      { name: 'Skin Care', href: '/services?category=Skin Care' },
-      { name: 'Massage', href: '/services?category=Massage' },
-      { name: 'Nail Care', href: '/services?category=Nail Care' },
+      { name: 'Hair Services', href: 'https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services' },
+      { name: 'Skin Care', href: 'https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services' },
+      { name: 'Massage', href: 'https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services' },
+      { name: 'Nail Care', href: 'https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services' },
     ],
     company: [
       { name: 'About Us', href: '/about' },

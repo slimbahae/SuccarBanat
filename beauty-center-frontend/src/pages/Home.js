@@ -85,7 +85,7 @@ const Home = () => {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/services">
+                <Link to="https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services">
                   <Button size="lg" className="w-full sm:w-auto">
                     <Calendar className="mr-2 h-5 w-5" />
                     Book Appointment
@@ -156,85 +156,6 @@ const Home = () => {
                 <div className="text-gray-600">{stat.label}</div>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Services */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-serif font-bold text-gray-900 mb-4">
-              Featured Services
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Discover our most popular beauty treatments designed to enhance your natural glow
-            </p>
-          </div>
-
-          {servicesLoading ? (
-            <div className="flex justify-center">
-              <LoadingSpinner size="large" />
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-              {featuredServices?.data?.slice(0, 3).map((service) => (
-                <div
-                  key={service.id}
-                  className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
-                >
-                  <div className="aspect-video bg-gradient-to-br from-primary-100 to-primary-200">
-                    {service.imageUrls && service.imageUrls[0] ? (
-                      <img
-                        src={service.imageUrls[0]}
-                        alt={service.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Sparkles className="h-12 w-12 text-primary-600" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-primary-600 font-medium">
-                        {service.category}
-                      </span>
-                      <span className="text-lg font-bold text-gray-900">
-                        ${service.finalPrice || service.price}
-                      </span>
-                    </div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      {service.name}
-                    </h3>
-                    <p className="text-gray-600 mb-4 line-clamp-2">
-                      {service.description}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">
-                        {service.duration} minutes
-                      </span>
-                      <Link to={`/services/${service.id}`}>
-                        <Button size="sm">
-                          Book Now
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="text-center">
-            <Link to="/services">
-              <Button variant="outline" size="lg">
-                View All Services
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
           </div>
         </div>
       </section>
@@ -370,10 +291,10 @@ const Home = () => {
               Book your appointment today and discover the difference our expert team can make
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/services">
+              <Link to="https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services">
                 <Button 
                   size="lg" 
-                  className="bg-white text-primary-600 hover:bg-gray-100 w-full sm:w-auto"
+                  className="bg-white !text-gray-900 border-2 border-gray-900 hover:bg-gray-900 hover:!text-white focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 w-full sm:w-auto transition-all duration-200"
                 >
                   <Calendar className="mr-2 h-5 w-5" />
                   Book Appointment

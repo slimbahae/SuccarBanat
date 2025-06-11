@@ -238,10 +238,6 @@ const CustomerOrders = () => {
                       <Download className="h-4 w-4 mr-2" />
                       Invoice
                     </Button>
-                    <Button variant="outline" size="sm">
-                      <Share2 className="h-4 w-4 mr-2" />
-                      Share
-                    </Button>
                   </div>
                 </div>
               </div>
@@ -369,16 +365,6 @@ const CustomerOrders = () => {
                         </Button>
                       </>
                     )}
-                    {order.orderStatus === 'PROCESSING' && (
-                      <Button variant="outline" size="sm">
-                        <X className="h-4 w-4 mr-2" />
-                        Cancel Order
-                      </Button>
-                    )}
-                    <Button variant="outline" size="sm">
-                      <MessageCircle className="h-4 w-4 mr-2" />
-                      Contact Support
-                    </Button>
                   </div>
                 </div>
               </div>
@@ -459,22 +445,7 @@ const CustomerOrders = () => {
                 </div>
               </div>
 
-              {/* Customer Support */}
-              <div className="bg-blue-50 rounded-lg p-6">
-                <h4 className="font-medium text-blue-900 mb-2">Need Help?</h4>
-                <p className="text-sm text-blue-800 mb-4">
-                  Our customer support team is here to help with any questions about your order.
-                </p>
-                <div className="space-y-2">
-                  <Button variant="outline" size="sm" className="w-full border-blue-200 text-blue-800 hover:bg-blue-100">
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    Live Chat
-                  </Button>
-                  <Button variant="outline" size="sm" className="w-full border-blue-200 text-blue-800 hover:bg-blue-100">
-                    Call (555) 123-4567
-                  </Button>
-                </div>
-              </div>
+              
             </div>
           </div>
         </div>

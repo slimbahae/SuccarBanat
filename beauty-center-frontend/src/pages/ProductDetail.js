@@ -71,6 +71,28 @@ const ProductDetail = () => {
     }
   };
 
+  const handleShare = async () => {
+    try {
+      const productUrl = `${window.location.origin}/products/${id}`;
+      await navigator.clipboard.writeText(productUrl);
+      toast.success('Product link copied to clipboard!');
+    } catch (err) {
+      // Fallback for browsers that don't support clipboard API
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = `${window.location.origin}/products/${id}`;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        toast.success('Product link copied to clipboard!');
+      } catch (fallbackErr) {
+        toast.error('Failed to copy link. Please copy manually.');
+        console.error('Copy to clipboard failed:', fallbackErr);
+      }
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -202,10 +224,11 @@ const ProductDetail = () => {
               </div>
               
               <div className="flex items-center space-x-2">
-                <button className="p-2 text-gray-400 hover:text-red-500">
-                  <Heart className="h-6 w-6" />
-                </button>
-                <button className="p-2 text-gray-400 hover:text-gray-600">
+                <button 
+                  onClick={handleShare}
+                  className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                  title="Share product"
+                >
                   <Share2 className="h-6 w-6" />
                 </button>
               </div>

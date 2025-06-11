@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { 
@@ -15,68 +15,225 @@ import {
   Settings,
   Sparkles,
   UserCheck,
-  AlertCircle
+  AlertCircle,
+  ChevronUp,
+  ChevronDown,
+  ChevronsUpDown,
+  Trash2,
+  Eye,
+  Download,
+  CreditCard
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { usersAPI, ordersAPI, reservationsAPI, productsAPI, servicesAPI } from '../../services/api';
+import { usersAPI, ordersAPI, productsAPI } from '../../services/api';
 import Button from '../../components/UI/Button';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
+import toast from 'react-hot-toast';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
+  const [selectedOrders, setSelectedOrders] = useState(new Set());
+  const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
 
   // Fetch admin dashboard data
   const { data: usersData } = useQuery('admin-users', usersAPI.getAll);
   const { data: ordersData } = useQuery('admin-orders', ordersAPI.getAllOrders);
-  const { data: reservationsData } = useQuery('admin-reservations', reservationsAPI.getAllReservations);
   const { data: productsData } = useQuery('admin-products', productsAPI.getAllAdmin);
-  const { data: servicesData } = useQuery('admin-services', servicesAPI.getAllAdmin);
-
-  // Calculate statistics
-  const stats = [
-    {
-      label: 'Total Users',
-      value: usersData?.data?.length || 0,
-      icon: Users,
-      color: 'bg-blue-500',
-      change: '+12%',
-      trend: 'up',
-      link: '/admin/users'
-    },
-    {
-      label: 'Total Orders',
-      value: ordersData?.data?.length || 0,
-      icon: ShoppingBag,
-      color: 'bg-green-500',
-      change: '+8%',
-      trend: 'up',
-      link: '/admin/orders'
-    },
-    {
-      label: 'Total Reservations',
-      value: reservationsData?.data?.length || 0,
-      icon: Calendar,
-      color: 'bg-purple-500',
-      change: '+15%',
-      trend: 'up',
-      link: '/admin/reservations'
-    },
-    {
-      label: 'Revenue',
-      value: `$${(ordersData?.data?.reduce((sum, order) => sum + (order.total || 0), 0) || 0).toFixed(0)}`,
-      icon: DollarSign,
-      color: 'bg-yellow-500',
-      change: '+23%',
-      trend: 'up',
-      link: '/admin/orders'
-    }
-  ];
 
   // Recent orders (last 5)
-  const recentOrders = ordersData?.data?.slice(0, 5) || [];
+  const recentOrders = ordersData?.data?.slice(0, 3) || [];
 
-  // Recent reservations (last 5)
-  const recentReservations = reservationsData?.data?.slice(0, 5) || [];
+  // Calculate real statistics with trends
+  const calculateStats = () => {
+    const orders = ordersData?.data || [];
+    const users = usersData?.data || [];
+    const products = productsData?.data || [];
+    
+    // Calculate current month data
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+    
+    const currentMonthOrders = orders.filter(order => {
+      const orderDate = new Date(order.createdAt);
+      return orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear;
+    });
+    
+    const lastMonthOrders = orders.filter(order => {
+      const orderDate = new Date(order.createdAt);
+      return orderDate.getMonth() === lastMonth && orderDate.getFullYear() === lastMonthYear;
+    });
+    
+    const currentMonthUsers = users.filter(user => {
+      const userDate = new Date(user.createdAt);
+      return userDate.getMonth() === currentMonth && userDate.getFullYear() === currentYear;
+    });
+    
+    const lastMonthUsers = users.filter(user => {
+      const userDate = new Date(user.createdAt);
+      return userDate.getMonth() === lastMonth && userDate.getFullYear() === lastMonthYear;
+    });
+    
+    // Calculate revenue
+    const currentMonthRevenue = currentMonthOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+    const lastMonthRevenue = lastMonthOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+    const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
+    
+    // Calculate percentage changes
+    const ordersChange = lastMonthOrders.length === 0 ? 100 : 
+      ((currentMonthOrders.length - lastMonthOrders.length) / lastMonthOrders.length * 100);
+    const usersChange = lastMonthUsers.length === 0 ? 100 : 
+      ((currentMonthUsers.length - lastMonthUsers.length) / lastMonthUsers.length * 100);
+    const revenueChange = lastMonthRevenue === 0 ? 100 : 
+      ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue * 100);
+    
+    const customers = users.filter(user => user.role === 'CUSTOMER');
+    const currentMonthCustomers = currentMonthUsers.filter(user => user.role === 'CUSTOMER');
+    const lastMonthCustomers = lastMonthUsers.filter(user => user.role === 'CUSTOMER');
+    const customersChange = lastMonthCustomers.length === 0 ? 100 : 
+      ((currentMonthCustomers.length - lastMonthCustomers.length) / lastMonthCustomers.length * 100);
+    
+    return [
+      {
+        label: 'Total Users',
+        value: users.length,
+        icon: Users,
+        color: 'bg-blue-500',
+        change: `${usersChange >= 0 ? '+' : ''}${usersChange.toFixed(1)}%`,
+        trend: usersChange >= 0 ? 'up' : 'down',
+        link: '/admin/users'
+      },
+      {
+        label: 'Total Orders',
+        value: orders.length,
+        icon: ShoppingBag,
+        color: 'bg-green-500',
+        change: `${ordersChange >= 0 ? '+' : ''}${ordersChange.toFixed(1)}%`,
+        trend: ordersChange >= 0 ? 'up' : 'down',
+        link: '/admin/orders'
+      },
+      {
+        label: 'Revenue',
+        value: `${totalRevenue.toLocaleString()}`,
+        icon: DollarSign,
+        color: 'bg-yellow-500',
+        change: `${revenueChange >= 0 ? '+' : ''}${revenueChange.toFixed(1)}%`,
+        trend: revenueChange >= 0 ? 'up' : 'down',
+        link: '/admin/orders'
+      },
+      {
+        label: 'Products',
+        value: products.length,
+        icon: Package,
+        color: 'bg-purple-500',
+        change: products.length > 0 ? '+0.0%' : '0.0%',
+        trend: 'neutral',
+        link: '/admin/products'
+      },
+      {
+        label: 'Customers',
+        value: customers.length,
+        icon: UserCheck,
+        color: 'bg-orange-500',
+        change: `${customersChange >= 0 ? '+' : ''}${customersChange.toFixed(1)}%`,
+        trend: customersChange >= 0 ? 'up' : 'down',
+        link: '/admin/users?filter=customers'
+      }
+    ];
+  };
+
+  const stats = calculateStats();
+
+  // Sorting function
+  const sortedOrders = useMemo(() => {
+    if (!ordersData?.data) return [];
+    
+    const sorted = [...ordersData.data].sort((a, b) => {
+      const aValue = a[sortConfig.key];
+      const bValue = b[sortConfig.key];
+      
+      if (aValue === bValue) return 0;
+      
+      if (sortConfig.key === 'createdAt') {
+        const comparison = new Date(aValue) - new Date(bValue);
+        return sortConfig.direction === 'asc' ? comparison : -comparison;
+      }
+      
+      if (sortConfig.key === 'total') {
+        const comparison = parseFloat(aValue) - parseFloat(bValue);
+        return sortConfig.direction === 'asc' ? comparison : -comparison;
+      }
+      
+      // String comparison for other fields
+      const comparison = String(aValue).localeCompare(String(bValue));
+      return sortConfig.direction === 'asc' ? comparison : -comparison;
+    });
+    
+    return sorted.slice(0, 10); // Show first 10 orders
+  }, [ordersData?.data, sortConfig]);
+
+  // Handle sorting
+  const handleSort = (key) => {
+    setSortConfig(prevConfig => ({
+      key,
+      direction: prevConfig.key === key && prevConfig.direction === 'asc' ? 'desc' : 'asc'
+    }));
+  };
+
+  // Handle row selection
+  const handleSelectOrder = (orderId) => {
+    setSelectedOrders(prev => {
+      const newSelected = new Set(prev);
+      if (newSelected.has(orderId)) {
+        newSelected.delete(orderId);
+      } else {
+        newSelected.add(orderId);
+      }
+      return newSelected;
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (selectedOrders.size === sortedOrders.length) {
+      setSelectedOrders(new Set());
+    } else {
+      setSelectedOrders(new Set(sortedOrders.map(order => order.id)));
+    }
+  };
+
+  // Bulk actions
+  const handleBulkAction = (action) => {
+    if (selectedOrders.size === 0) {
+      toast.error('Please select orders first');
+      return;
+    }
+
+    switch (action) {
+      case 'export':
+        toast.success(`Exporting ${selectedOrders.size} orders...`);
+        break;
+      case 'delete':
+        if (window.confirm(`Are you sure you want to delete ${selectedOrders.size} orders?`)) {
+          toast.success(`Deleted ${selectedOrders.size} orders`);
+          setSelectedOrders(new Set());
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Get sort icon
+  const getSortIcon = (key) => {
+    if (sortConfig.key !== key) {
+      return <ChevronsUpDown className="h-4 w-4 text-gray-400" />;
+    }
+    return sortConfig.direction === 'asc' 
+      ? <ChevronUp className="h-4 w-4 text-blue-600" />
+      : <ChevronDown className="h-4 w-4 text-blue-600" />;
+  };
 
   // Quick actions
   const quickActions = [
@@ -86,13 +243,6 @@ const AdminDashboard = () => {
       icon: Package,
       link: '/admin/products',
       color: 'bg-blue-500'
-    },
-    {
-      title: 'Manage Services',
-      description: 'Manage beauty services and pricing',
-      icon: Sparkles,
-      link: '/admin/services',
-      color: 'bg-purple-500'
     },
     {
       title: 'Manage Users',
@@ -128,6 +278,20 @@ const AdminDashboard = () => {
     }
   };
 
+  const getPaymentMethodIcon = (method) => {
+    switch (method?.toLowerCase()) {
+      case 'credit_card':
+      case 'credit card':
+        return <CreditCard className="h-4 w-4" />;
+      case 'paypal':
+        return <div className="h-4 w-4 bg-blue-600 rounded text-white text-xs flex items-center justify-center">P</div>;
+      case 'stripe':
+        return <div className="h-4 w-4 bg-purple-600 rounded text-white text-xs flex items-center justify-center">S</div>;
+      default:
+        return <CreditCard className="h-4 w-4" />;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -142,7 +306,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           {stats.map((stat, index) => (
             <Link
               key={index}
@@ -156,15 +320,17 @@ const AdminDashboard = () => {
                   <div className="flex items-center mt-1">
                     {stat.trend === 'up' ? (
                       <ArrowUpRight className="h-4 w-4 text-green-500 mr-1" />
-                    ) : (
+                    ) : stat.trend === 'down' ? (
                       <ArrowDownRight className="h-4 w-4 text-red-500 mr-1" />
+                    ) : (
+                      <div className="h-4 w-4 mr-1" />
                     )}
                     <span className={`text-sm font-medium ${
-                      stat.trend === 'up' ? 'text-green-600' : 'text-red-600'
+                      stat.trend === 'up' ? 'text-green-600' : 
+                      stat.trend === 'down' ? 'text-red-600' : 'text-gray-600'
                     }`}>
                       {stat.change}
                     </span>
-                    <span className="text-sm text-gray-500 ml-1">from last month</span>
                   </div>
                 </div>
                 <div className={`${stat.color} p-3 rounded-lg`}>
@@ -175,7 +341,7 @@ const AdminDashboard = () => {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Quick Actions */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-sm p-6">
@@ -200,47 +366,10 @@ const AdminDashboard = () => {
                 ))}
               </div>
             </div>
-
-            {/* System Status */}
-            <div className="mt-6 bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                System Status
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Database</span>
-                  <span className="flex items-center text-sm text-green-600">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                    Online
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Email Service</span>
-                  <span className="flex items-center text-sm text-green-600">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                    Active
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">SMS Service</span>
-                  <span className="flex items-center text-sm text-green-600">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                    Active
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Storage</span>
-                  <span className="flex items-center text-sm text-yellow-600">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
-                    75% Used
-                  </span>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Recent Activity */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-3">
             {/* Recent Orders */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center justify-between mb-4">
@@ -285,86 +414,18 @@ const AdminDashboard = () => {
                 </div>
               )}
             </div>
-
-            {/* Recent Reservations */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Recent Reservations
-                </h3>
-                <Link to="/admin/reservations">
-                  <Button variant="outline" size="sm">
-                    View All
-                  </Button>
-                </Link>
-              </div>
-
-              {recentReservations.length === 0 ? (
-                <div className="text-center py-6">
-                  <Calendar className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-600">No recent reservations</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {recentReservations.map((reservation) => (
-                    <div key={reservation.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                      <div className="flex items-center">
-                        <div className="bg-purple-100 p-2 rounded-lg">
-                          <Calendar className="h-5 w-5 text-purple-600" />
-                        </div>
-                        <div className="ml-3">
-                          <p className="font-medium text-gray-900">{reservation.serviceName}</p>
-                          <p className="text-sm text-gray-600">
-                            {reservation.customerName} • {new Date(reservation.reservationDate).toLocaleDateString()}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            with {reservation.staffName}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-gray-900">${reservation.totalAmount}</p>
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(reservation.status)}`}>
-                          {reservation.status}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
           </div>
         </div>
 
-        {/* Summary Cards */}
+        {/* Summary Cards - Additional Metrics */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex items-center">
-              <Package className="h-8 w-8 text-blue-600 mr-3" />
+              <Clock className="h-8 w-8 text-indigo-600 mr-3" />
               <div>
-                <p className="text-sm font-medium text-gray-600">Products</p>
-                <p className="text-2xl font-bold text-gray-900">{productsData?.data?.length || 0}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="flex items-center">
-              <Sparkles className="h-8 w-8 text-purple-600 mr-3" />
-              <div>
-                <p className="text-sm font-medium text-gray-600">Services</p>
-                <p className="text-2xl font-bold text-gray-900">{servicesData?.data?.length || 0}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="flex items-center">
-              <UserCheck className="h-8 w-8 text-green-600 mr-3" />
-              <div>
-                <p className="text-sm font-medium text-gray-600">Staff Members</p>
+                <p className="text-sm font-medium text-gray-600">Pending Orders</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {usersData?.data?.filter(user => user.role === 'STAFF').length || 0}
+                  {ordersData?.data?.filter(order => order.orderStatus === 'PENDING').length || 0}
                 </p>
               </div>
             </div>
@@ -372,11 +433,41 @@ const AdminDashboard = () => {
 
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex items-center">
-              <Users className="h-8 w-8 text-orange-600 mr-3" />
+              <Star className="h-8 w-8 text-amber-600 mr-3" />
               <div>
-                <p className="text-sm font-medium text-gray-600">Customers</p>
+                <p className="text-sm font-medium text-gray-600">Avg Order Value</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {usersData?.data?.filter(user => user.role === 'CUSTOMER').length || 0}
+                  ${ordersData?.data?.length > 0 ? 
+                    (ordersData.data.reduce((sum, order) => sum + (order.total || 0), 0) / ordersData.data.length).toFixed(0) : 
+                    '0'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="flex items-center">
+              <TrendingUp className="h-8 w-8 text-emerald-600 mr-3" />
+              <div>
+                <p className="text-sm font-medium text-gray-600">Monthly Revenue</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  ${ordersData?.data?.filter(order => {
+                    const orderDate = new Date(order.createdAt);
+                    const now = new Date();
+                    return orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
+                  }).reduce((sum, order) => sum + (order.total || 0), 0).toLocaleString() || '0'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="flex items-center">
+              <AlertCircle className="h-8 w-8 text-red-600 mr-3" />
+              <div>
+                <p className="text-sm font-medium text-gray-600">Low Stock Products</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {productsData?.data?.filter(product => product.stockQuantity && product.stockQuantity <= 5).length || 0}
                 </p>
               </div>
             </div>

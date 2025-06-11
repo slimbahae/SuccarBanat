@@ -12,8 +12,6 @@ import LoadingSpinner from './components/UI/LoadingSpinner';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
-import Services from './pages/Services';
-import ServiceDetail from './pages/ServiceDetail';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 
@@ -36,10 +34,7 @@ import {
   Cart,
   Checkout,
   CustomerOrders,
-  CustomerReservations,
-  StaffDashboard,
-  BookService,
-  StaffReservations
+  BookService
 } from './components/PlaceholderPages';
 
 // Create React Query client
@@ -94,7 +89,7 @@ const DashboardRoute = () => {
     case 'ADMIN':
       return <Navigate to="/admin/dashboard" replace />;
     case 'STAFF':
-      return <Navigate to="/staff/dashboard" replace />;
+      return <Navigate to="/customer/dashboard" replace />;
     case 'CUSTOMER':
       return <Navigate to="/customer/dashboard" replace />;
     default:
@@ -111,8 +106,6 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetail />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/services/:id" element={<ServiceDetail />} />
 
           {/* Auth Routes */}
           <Route 
@@ -191,22 +184,6 @@ function AppContent() {
               </ProtectedRoute>
             } 
           />
-          <Route 
-            path="/customer/reservations" 
-            element={
-              <ProtectedRoute allowedRoles={['CUSTOMER']}>
-                <CustomerReservations />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/book-service/:id" 
-            element={
-              <ProtectedRoute allowedRoles={['CUSTOMER']}>
-                <BookService />
-              </ProtectedRoute>
-            } 
-          />
 
           {/* Admin Routes */}
           <Route 
@@ -226,14 +203,6 @@ function AppContent() {
             } 
           />
           <Route 
-            path="/admin/services" 
-            element={
-              <ProtectedRoute allowedRoles={['ADMIN']}>
-                <AdminServices />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
             path="/admin/users" 
             element={
               <ProtectedRoute allowedRoles={['ADMIN']}>
@@ -249,32 +218,7 @@ function AppContent() {
               </ProtectedRoute>
             } 
           />
-          <Route 
-            path="/admin/reservations" 
-            element={
-              <ProtectedRoute allowedRoles={['ADMIN']}>
-                <AdminReservations />
-              </ProtectedRoute>
-            } 
-          />
 
-          {/* Staff Routes */}
-          <Route 
-            path="/staff/dashboard" 
-            element={
-              <ProtectedRoute allowedRoles={['STAFF']}>
-                <StaffDashboard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/staff/reservations" 
-            element={
-              <ProtectedRoute allowedRoles={['STAFF']}>
-                <StaffReservations />
-              </ProtectedRoute>
-            } 
-          />
 
           {/* Catch all route */}
           <Route path="*" element={<Navigate to="/" replace />} />
