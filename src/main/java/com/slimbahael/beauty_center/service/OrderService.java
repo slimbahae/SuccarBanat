@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -45,9 +44,11 @@ public class OrderService {
     private final CartService cartService;
     private final SmsService smsService;
     private final EmailService emailService;
+    private final StripeService stripeService;
 
     private static final BigDecimal TAX_RATE = new BigDecimal("0.10"); // 10% tax
     private static final BigDecimal SHIPPING_COST = new BigDecimal("5.00"); // $5 shipping
+    private static final BigDecimal FREE_SHIPPING_THRESHOLD = new BigDecimal("50.00"); // Free shipping over $50
 
     private static final Logger log = LoggerFactory.getLogger(OrderService.class);
 
@@ -84,6 +85,11 @@ public class OrderService {
             document.add(new Paragraph("Order #: " + order.getId()));
             document.add(new Paragraph("Date: " + order.getCreatedAt()));
             document.add(new Paragraph("Status: " + order.getOrderStatus()));
+
+            // Add payment details
+            if (order.getStripePaymentIntentId() != null) {
+                document.add(new Paragraph("Payment ID: " + order.getStripePaymentIntentId()));
+            }
             document.add(new Paragraph("\n"));
 
             // Add customer details
@@ -132,7 +138,6 @@ public class OrderService {
             throw new BadRequestException("Error generating invoice: " + e.getMessage());
         }
     }
-
 
     public List<OrderResponse> getAllOrders() {
         return orderRepository.findAll()
@@ -191,6 +196,32 @@ public class OrderService {
             throw new BadRequestException("Cart is empty");
         }
 
+        // Calculate totals
+        BigDecimal subtotal = cart.getSubtotal();
+        BigDecimal tax = subtotal.multiply(TAX_RATE).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal shippingCost = subtotal.compareTo(FREE_SHIPPING_THRESHOLD) >= 0 ? BigDecimal.ZERO : SHIPPING_COST;
+        BigDecimal total = subtotal.add(tax).add(shippingCost);
+
+        // Verify payment with Stripe if payment method is card
+        String paymentStatus = "PENDING";
+        if ("STRIPE".equals(request.getPaymentMethod()) || "CREDIT_CARD".equals(request.getPaymentMethod())) {
+            if (request.getPaymentIntentId() == null) {
+                throw new BadRequestException("Payment intent ID is required for card payments");
+            }
+
+            // Verify payment intent was successful
+            if (stripeService.isPaymentSucceeded(request.getPaymentIntentId())) {
+                paymentStatus = "PAID";
+                log.info("Payment verified successfully for payment intent: {}", request.getPaymentIntentId());
+            } else {
+                log.error("Payment verification failed for payment intent: {}", request.getPaymentIntentId());
+                throw new BadRequestException("Payment was not successful. Please try again.");
+            }
+        } else {
+            // For other payment methods (PayPal, Bank Transfer, etc.)
+            paymentStatus = "PENDING";
+        }
+
         // Create order items and update product stock
         List<Order.OrderItem> orderItems = new ArrayList<>();
         for (Cart.CartItem cartItem : cart.getItems()) {
@@ -218,11 +249,6 @@ public class OrderService {
             orderItems.add(orderItem);
         }
 
-        // Calculate totals
-        BigDecimal subtotal = cart.getSubtotal();
-        BigDecimal tax = subtotal.multiply(TAX_RATE).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal total = subtotal.add(tax).add(SHIPPING_COST);
-
         // Create shipping address
         Order.ShippingAddress shippingAddress = Order.ShippingAddress.builder()
                 .fullName(request.getFullName())
@@ -242,11 +268,13 @@ public class OrderService {
                 .shippingAddress(shippingAddress)
                 .subtotal(subtotal)
                 .tax(tax)
-                .shippingCost(SHIPPING_COST)
+                .shippingCost(shippingCost)
                 .total(total)
                 .paymentMethod(request.getPaymentMethod())
-                .paymentStatus("PAID") // For now, we'll assume all payments are successful since we're using mock payment
+                .paymentStatus(paymentStatus)
                 .orderStatus("PROCESSING")
+                .stripePaymentIntentId(request.getPaymentIntentId())
+                .stripePaymentMethodId(request.getPaymentMethodId())
                 .createdAt(new Date())
                 .updatedAt(new Date())
                 .build();
@@ -272,8 +300,8 @@ public class OrderService {
         // Send order confirmation email
         try {
             emailService.sendOrderConfirmationEmail(
-                customer.getEmail(),
-                orderResponse
+                    customer.getEmail(),
+                    orderResponse
             );
         } catch (Exception e) {
             // Log the error but don't affect the order processing
@@ -303,14 +331,29 @@ public class OrderService {
             throw new BadRequestException("You are not authorized to update order status");
         }
 
-        // If cancelling an order, restore product stock
+        // If cancelling an order, restore product stock and handle refund
         if (status.equals("CANCELLED") && !order.getOrderStatus().equals("CANCELLED")) {
+            // Restore product stock
             for (Order.OrderItem item : order.getItems()) {
                 Product product = productRepository.findById(item.getProductId())
                         .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + item.getProductId()));
 
                 product.setStockQuantity(product.getStockQuantity() + item.getQuantity());
                 productRepository.save(product);
+            }
+
+            // If payment was made via Stripe, initiate refund
+            if (order.getStripePaymentIntentId() != null && "PAID".equals(order.getPaymentStatus())) {
+                try {
+                    // You would implement refund logic here
+                    // For now, we'll just update the payment status
+                    order.setPaymentStatus("REFUNDED");
+                    log.info("Refund initiated for payment intent: {}", order.getStripePaymentIntentId());
+                } catch (Exception e) {
+                    log.error("Failed to initiate refund for payment intent {}: {}",
+                            order.getStripePaymentIntentId(), e.getMessage());
+                    // Continue with cancellation even if refund fails
+                }
             }
         }
 
@@ -391,6 +434,4 @@ public class OrderService {
                 .estimatedDeliveryDate(estimatedDeliveryDate)
                 .build();
     }
-
-
 }

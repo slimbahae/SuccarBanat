@@ -32,4 +32,10 @@ public class CheckoutRequest {
 
     @NotBlank(message = "Payment method is required")
     private String paymentMethod;
+
+    // Stripe payment intent ID for verification
+    private String paymentIntentId;
+
+    // For other payment methods
+    private String paymentMethodId;
 }

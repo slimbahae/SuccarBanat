@@ -40,6 +40,11 @@ public class Order {
 
     private String orderStatus; // "PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"
 
+    // Stripe payment fields
+    private String stripePaymentIntentId;
+    private String stripePaymentMethodId;
+    private String stripeChargeId;
+
     private Date createdAt;
     private Date updatedAt;
 
