@@ -19,7 +19,9 @@
     "react-query": "^3.39.3",
     "react-router-dom": "^6.8.1",
     "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "@stripe/stripe-js": "^1.54.0",
+    "@stripe/react-stripe-js": "^2.1.0"
   },
   "scripts": {
     "start": "react-scripts start",

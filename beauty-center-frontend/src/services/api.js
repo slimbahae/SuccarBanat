@@ -145,6 +145,22 @@ export const cartAPI = {
   },
 };
 
+// Payment API (Stripe)
+export const paymentAPI = {
+  createPaymentIntent: (paymentData) => {
+    console.log('Creating payment intent:', paymentData);
+    return api.post('/payment/create-payment-intent', paymentData);
+  },
+  getPaymentStatus: (paymentIntentId) => {
+    console.log('Getting payment status for:', paymentIntentId);
+    return api.get(`/payment/payment-status/${paymentIntentId}`);
+  },
+  cancelPayment: (paymentIntentId) => {
+    console.log('Cancelling payment:', paymentIntentId);
+    return api.post(`/payment/cancel-payment/${paymentIntentId}`);
+  },
+};
+
 // Orders API
 export const ordersAPI = {
   // Customer endpoints
@@ -158,6 +174,12 @@ export const ordersAPI = {
   },
   getInvoice: (id) => {
     console.log('Fetching invoice for order:', id);
+    return api.get(`/customer/orders/${id}/invoice`, {
+      responseType: 'blob' // Important for handling PDF files
+    });
+  },
+  downloadInvoice: (id) => {
+    console.log('Downloading invoice for order:', id);
     return api.get(`/customer/orders/${id}/invoice`, {
       responseType: 'blob' // Important for handling PDF files
     });

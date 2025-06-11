@@ -9,9 +9,11 @@ import Checkout from '../pages/customer/Checkout';
 import CustomerOrders from '../pages/customer/Orders';
 import CustomerReservations from '../pages/customer/Reservations';
 import BookService from '../pages/customer/BookService';
+import StaffDashboard from '../pages/staff/Dashboard';
+import StaffReservations from '../pages/staff/Reservations';
 
 // Export the real components
-export { Cart, Checkout, CustomerOrders, CustomerReservations, BookService };
+export { Cart, Checkout, CustomerOrders, CustomerReservations, BookService, StaffDashboard, StaffReservations };
 
 // Generic placeholder component for remaining pages
 const PlaceholderPage = ({ title, description, backLink = "/" }) => (
@@ -79,19 +81,3 @@ export const AdminReservations = () => (
   />
 );
 
-// Staff Pages (Still placeholders)
-export const StaffDashboard = () => (
-  <PlaceholderPage 
-    title="Staff Dashboard" 
-    description="Staff member dashboard and schedule overview."
-    backLink="/"
-  />
-);
-
-export const StaffReservations = () => (
-  <PlaceholderPage 
-    title="My Schedule" 
-    description="View and manage your appointments."
-    backLink="/staff/dashboard"
-  />
-);

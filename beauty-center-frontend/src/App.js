@@ -26,6 +26,10 @@ import AdminDashboard from './pages/admin/Dashboard';
 import AdminProducts from './pages/admin/Products';
 import AdminServices from './pages/admin/Services';
 import AdminUsers from './pages/admin/Users';
+import AdminOrders from './pages/admin/Orders';
+import AdminReservations from './pages/admin/Reservations';
+
+//Staff pages
 
 // Placeholder pages
 import {
@@ -33,10 +37,8 @@ import {
   Checkout,
   CustomerOrders,
   CustomerReservations,
-  BookService,
-  AdminOrders,
-  AdminReservations,
   StaffDashboard,
+  BookService,
   StaffReservations
 } from './components/PlaceholderPages';
 
