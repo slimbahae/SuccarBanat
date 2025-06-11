@@ -24,9 +24,20 @@ import {
   useElements
 } from '@stripe/react-stripe-js';
 
+// Initialize Stripe promise outside component to prevent re-creation
 const stripePromise = loadStripe("pk_test_51RWjd8PDrOVRMnP5KOZWA2WVPxeZ7N2MWmZaujdzsElNhtOB8OPInNaYhdbJYarYaGIPt3ivXmQLG61IYuv0ULMQ00TyLWgIUZ");
 
-const CheckoutForm = ({ clientSecret, isProcessing, setIsProcessing, getValuesFromParentForm, checkoutMutation, createPaymentIntentMutation, total, onStripeReady, paymentMethod }) => {
+const CheckoutForm = ({ 
+  clientSecret, 
+  isProcessing, 
+  setIsProcessing, 
+  getValuesFromParentForm, 
+  checkoutMutation, 
+  createPaymentIntentMutation, 
+  total, 
+  onStripeReady, 
+  paymentMethod 
+}) => {
   const stripe = useStripe();
   const elements = useElements();
 
@@ -72,8 +83,11 @@ const CheckoutForm = ({ clientSecret, isProcessing, setIsProcessing, getValuesFr
 
       if (error) {
         let errorMessage = "Payment failed. Please try again.";
-        if (error.type === "card_error") errorMessage = error.message;
-        else if (error.type === "validation_error") errorMessage = "Please check your card details and try again.";
+        if (error.type === "card_error") {
+          errorMessage = error.message;
+        } else if (error.type === "validation_error") {
+          errorMessage = "Please check your card details and try again.";
+        }
         toast.error(errorMessage);
         setIsProcessing(false);
         return;
@@ -93,27 +107,38 @@ const CheckoutForm = ({ clientSecret, isProcessing, setIsProcessing, getValuesFr
         setIsProcessing(false);
       }
     } catch (err) {
+      console.error("Payment error:", err);
       toast.error("An unexpected error occurred while processing payment. Please try again.");
       setIsProcessing(false);
     }
   }, [stripe, elements, clientSecret, setIsProcessing, getValuesFromParentForm, checkoutMutation]);
 
   useEffect(() => {
-    if (stripe && elements) {
-      onStripeReady(() => handleStripePayment());
+    if (stripe && elements && clientSecret) {
+      onStripeReady(() => handleStripePayment);
     }
-  }, [stripe, elements, onStripeReady, handleStripePayment]);
+  }, [stripe, elements, clientSecret, onStripeReady, handleStripePayment]);
 
   useEffect(() => {
     if (
       !clientSecret &&
       !createPaymentIntentMutation.isLoading &&
       !isProcessing &&
-      total > 0
+      total > 0 &&
+      paymentMethod === "STRIPE"
     ) {
-      createPaymentIntentMutation.mutate(total);
+      createPaymentIntentMutation.mutate({
+        amount: Math.round(total * 100), // Convert to cents
+        currency: "usd",
+        customerEmail: getValuesFromParentForm("email"),
+        description: `Beauty Center Order - ${getValuesFromParentForm("fullName")}`,
+      });
     }
-  }, [clientSecret, createPaymentIntentMutation, isProcessing, total]);
+  }, [clientSecret, createPaymentIntentMutation, isProcessing, total, paymentMethod, getValuesFromParentForm]);
+
+  if (paymentMethod !== "STRIPE") {
+    return null;
+  }
 
   return (
     <div className="mt-6 p-4 bg-gray-50 rounded-lg">
@@ -132,10 +157,16 @@ const CheckoutForm = ({ clientSecret, isProcessing, setIsProcessing, getValuesFr
                   base: {
                     fontSize: "16px",
                     color: "#424770",
-                    "::placeholder": { color: "#aab7c4" },
-                    padding: "12px",
+                    fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                    fontSmoothing: "antialiased",
+                    "::placeholder": { 
+                      color: "#aab7c4" 
+                    },
                   },
-                  invalid: { color: "#9e2146" },
+                  invalid: { 
+                    color: "#9e2146",
+                    iconColor: "#9e2146"
+                  },
                 },
                 hidePostalCode: true,
               }}
@@ -149,7 +180,11 @@ const CheckoutForm = ({ clientSecret, isProcessing, setIsProcessing, getValuesFr
           )}
           {process.env.NODE_ENV === "development" && (
             <div className="mt-4 text-sm text-blue-800 bg-blue-50 p-3 rounded">
-              <strong>Test Cards:</strong> Use 4242 4242 4242 4242 for testing
+              <strong>Test Cards:</strong><br/>
+              • 4242 4242 4242 4242 (Visa)<br/>
+              • 4000 0566 5566 5556 (Visa Debit)<br/>
+              • 5555 5555 5555 4444 (Mastercard)<br/>
+              Use any future expiry date and any 3-digit CVC
             </div>
           )}
         </>
@@ -160,6 +195,57 @@ const CheckoutForm = ({ clientSecret, isProcessing, setIsProcessing, getValuesFr
         </div>
       )}
     </div>
+  );
+};
+
+// Wrapper component to handle Stripe loading
+const StripeElementsWrapper = ({ children }) => {
+  const [stripeLoaded, setStripeLoaded] = useState(false);
+
+  useEffect(() => {
+    const checkStripe = async () => {
+      try {
+        const stripe = await stripePromise;
+        if (stripe) {
+          setStripeLoaded(true);
+        }
+      } catch (error) {
+        console.error('Failed to load Stripe:', error);
+        toast.error('Failed to load payment system. Please refresh the page.');
+      }
+    };
+
+    checkStripe();
+  }, []);
+
+  if (!stripeLoaded) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <LoadingSpinner size="large" />
+        <span className="ml-3 text-gray-600">Loading payment system...</span>
+      </div>
+    );
+  }
+
+  const elementsOptions = {
+    appearance: {
+      theme: 'stripe',
+      variables: {
+        colorPrimary: '#4F46E5',
+        colorBackground: '#ffffff',
+        colorText: '#1F2937',
+        colorDanger: '#EF4444',
+        fontFamily: 'system-ui, sans-serif',
+        spacingUnit: '4px',
+        borderRadius: '4px',
+      },
+    },
+  };
+
+  return (
+    <Elements stripe={stripePromise} options={elementsOptions}>
+      {children}
+    </Elements>
   );
 };
 
@@ -193,18 +279,14 @@ const Checkout = () => {
   const total = subtotal + tax + shipping;
 
   const createPaymentIntentMutation = useMutation(
-    (amount) =>
-      paymentAPI.createPaymentIntent({ 
-        amount: Math.round(amount * 100),
-        currency: "usd",
-        customerEmail: user?.email,
-        description: `Beauty Center Order - ${cart?.items?.length} items`,
-      }),
+    (paymentData) => paymentAPI.createPaymentIntent(paymentData),
     {
       onSuccess: (response) => {
+        console.log("Payment intent created:", response.data);
         setClientSecret(response.data.clientSecret);
       },
       onError: (error) => {
+        console.error("Payment intent error:", error);
         toast.error("Failed to initialize payment: " + (error.response?.data?.message || error.message));
         setIsProcessing(false);
       },
@@ -221,23 +303,12 @@ const Checkout = () => {
         navigate(`/customer/order-confirmation/${response.data.id}`);
       },
       onError: (error) => {
+        console.error("Checkout error:", error);
         toast.error(error.response?.data?.message || "Checkout failed");
         setIsProcessing(false);
       },
     }
   );
-
-  useEffect(() => {
-    if (
-      currentStep === 2 &&
-      paymentMethod === "STRIPE" &&
-      !clientSecret &&
-      !createPaymentIntentMutation.isLoading &&
-      !isProcessing
-    ) {
-      createPaymentIntentMutation.mutate(total);
-    }
-  }, [currentStep, paymentMethod, total, clientSecret, createPaymentIntentMutation, isProcessing]);
 
   const onSubmit = async (data) => {
     if (currentStep === 1) {
@@ -251,7 +322,7 @@ const Checkout = () => {
         if (stripePaymentTrigger) {
           await stripePaymentTrigger();
         } else {
-          toast.error("Payment system not ready. Please try again.");
+          toast.error("Payment system not ready. Please wait a moment and try again.");
         }
       } else {
         setCurrentStep(3);
@@ -301,24 +372,6 @@ const Checkout = () => {
     { value: "DE", label: "Germany" },
   ];
 
-  const elementsOptions = {
-    mode: 'payment',
-    amount: Math.round(total * 100),
-    currency: 'usd',
-    appearance: {
-      theme: 'stripe',
-      variables: {
-        colorPrimary: '#4F46E5',
-        colorBackground: '#ffffff',
-        colorText: '#1F2937',
-        colorDanger: '#EF4444',
-        fontFamily: 'system-ui, sans-serif',
-        spacingUnit: '4px',
-        borderRadius: '4px',
-      },
-    },
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -360,7 +413,7 @@ const Checkout = () => {
           </div>
         </div>
 
-        <Elements stripe={stripePromise} options={clientSecret ? { ...elementsOptions, clientSecret } : elementsOptions}>
+        <StripeElementsWrapper>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start">
               <div className="lg:col-span-7">
@@ -763,7 +816,7 @@ const Checkout = () => {
               </div>
             </div>
           </form>
-        </Elements>
+        </StripeElementsWrapper>
       </div>
     </div>
   );

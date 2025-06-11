@@ -42,7 +42,7 @@ const Header = () => {
 
   const navigation = [
     { name: 'Home', href: '/' },
-    { name: 'Services', href: '/services' },
+    { name: 'Services', href: 'https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services' },
     { name: 'Products', href: '/products' },
   ];
 

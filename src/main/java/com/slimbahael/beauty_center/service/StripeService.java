@@ -26,7 +26,7 @@ public class StripeService {
     public PaymentIntentResponse createPaymentIntent(PaymentIntentRequest request) {
         try {
             // Convert amount to cents (Stripe expects amounts in smallest currency unit)
-            long amountInCents = request.getAmount().multiply(new BigDecimal("100")).longValue();
+            long amountInCents = request.getAmount().longValue();
 
             // Create metadata
             Map<String, String> metadata = new HashMap<>();
