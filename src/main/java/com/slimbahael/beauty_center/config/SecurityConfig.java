@@ -1,3 +1,4 @@
+// Updated SecurityConfig.java - Add file endpoints to public access
 package com.slimbahael.beauty_center.config;
 
 import com.slimbahael.beauty_center.security.CustomUserDetailsService;
@@ -54,11 +55,32 @@ public class SecurityConfig {
                 .exceptionHandling(eh -> eh.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
+
+                        // File access endpoints - IMPORTANT: Make these public
+                        .requestMatchers("/api/files/products/**").permitAll()
+                        .requestMatchers("/api/files/profiles/**").permitAll()
+                        .requestMatchers("/api/files/services/**").permitAll()
+                        .requestMatchers("/api/files/health").permitAll()
+
+                        // Static files and uploads
+                        .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/static/**").permitAll()
+
+                        // Swagger/API docs
                         .requestMatchers("/v2/api-docs", "/swagger*/**", "/webjars/**").permitAll()
+
+                        // File upload endpoints (require authentication)
+                        .requestMatchers("/api/files/upload/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF", "ROLE_CUSTOMER")
+                        .requestMatchers("/api/files/delete").hasAuthority("ROLE_ADMIN")
+
+                        // Role-based endpoints
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/staff/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF")
+
+                        // All other requests require authentication
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

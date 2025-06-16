@@ -237,5 +237,118 @@ export const usersAPI = {
   delete: (id) => api.delete(`/admin/users/${id}`),
 };
 
+export const fileUploadAPI = {
+  uploadProductImage: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    console.log('Uploading product image:', file.name);
+    return api.post('/files/upload/product-image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+
+  uploadProfileImage: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    console.log('Uploading profile image:', file.name);
+    return api.post('/files/upload/profile-image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+
+  uploadServiceImage: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    console.log('Uploading service image:', file.name);
+    return api.post('/files/upload/service-image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+
+  deleteImage: (imageUrl) => {
+    console.log('Deleting image:', imageUrl);
+    return api.delete(`/files/delete?imageUrl=${encodeURIComponent(imageUrl)}`);
+  },
+
+  // Health check for file upload system
+  checkHealth: () => {
+    return api.get('/files/health');
+  }
+};
+
+// Enhanced Products API with image upload support
+export const enhancedProductsAPI = {
+  ...productsAPI, // Keep existing methods
+
+  // Create product with images
+  createWithImages: (productData, images) => {
+    const formData = new FormData();
+    formData.append('product', JSON.stringify(productData));
+
+    if (images && images.length > 0) {
+      images.forEach((image) => {
+        formData.append('images', image);
+      });
+    }
+
+    console.log('Creating product with images:', productData.name);
+    return api.post('/admin/products/with-images', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+
+  // Update product with images
+  updateWithImages: (id, productData, newImages, keepExistingImages = true) => {
+    const formData = new FormData();
+    formData.append('product', JSON.stringify(productData));
+    formData.append('keepExistingImages', keepExistingImages);
+
+    if (newImages && newImages.length > 0) {
+      newImages.forEach((image) => {
+        formData.append('images', image);
+      });
+    }
+
+    console.log('Updating product with images:', id);
+    return api.put(`/admin/products/${id}/with-images`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+
+  // Add images to existing product
+  addImages: (id, images) => {
+    const formData = new FormData();
+    images.forEach((image) => {
+      formData.append('images', image);
+    });
+
+    console.log('Adding images to product:', id);
+    return api.post(`/admin/products/${id}/add-images`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+
+  // Remove specific image from product
+  removeImage: (id, imageUrl) => {
+    console.log('Removing image from product:', id, imageUrl);
+    return api.delete(`/admin/products/${id}/images?imageUrl=${encodeURIComponent(imageUrl)}`);
+  }
+};
+
 
 export default api;
