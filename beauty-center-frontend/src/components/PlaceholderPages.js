@@ -22,7 +22,7 @@ const PlaceholderPage = ({ title, description, backLink = "/" }) => (
       <Link to={backLink}>
         <Button>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Go Back
+          Retour
         </Button>
       </Link>
     </div>
@@ -33,7 +33,7 @@ const PlaceholderPage = ({ title, description, backLink = "/" }) => (
 export const AdminDashboard = () => (
   <PlaceholderPage 
     title="Admin Dashboard" 
-    description="Administrative control panel and analytics."
+    description="Panneau de contrôle administratif et analyses."
     backLink="/"
   />
 );
@@ -41,7 +41,7 @@ export const AdminDashboard = () => (
 export const AdminProducts = () => (
   <PlaceholderPage 
     title="Manage Products" 
-    description="Product management interface for administrators."
+    description="Interface de gestion des produits pour les administrateurs."
     backLink="/admin/dashboard"
   />
 );
@@ -49,7 +49,7 @@ export const AdminProducts = () => (
 export const AdminServices = () => (
   <PlaceholderPage 
     title="Manage Services" 
-    description="Service management interface for administrators."
+    description="Interface de gestion des services pour les administrateurs."
     backLink="/admin/dashboard"
   />
 );
@@ -57,7 +57,7 @@ export const AdminServices = () => (
 export const AdminUsers = () => (
   <PlaceholderPage 
     title="Manage Users" 
-    description="User management interface for administrators."
+    description="Interface de gestion des utilisateurs pour les administrateurs."
     backLink="/admin/dashboard"
   />
 );
@@ -65,7 +65,7 @@ export const AdminUsers = () => (
 export const AdminOrders = () => (
   <PlaceholderPage 
     title="Manage Orders" 
-    description="Order management and fulfillment interface."
+    description="Interface de gestion et de traitement des commandes."
     backLink="/admin/dashboard"
   />
 );
@@ -73,7 +73,7 @@ export const AdminOrders = () => (
 export const AdminReservations = () => (
   <PlaceholderPage 
     title="Manage Reservations" 
-    description="Reservation management interface for administrators."
+    description="Interface de gestion des réservations pour les administrateurs."
     backLink="/admin/dashboard"
   />
 );

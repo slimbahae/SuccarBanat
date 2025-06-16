@@ -39,10 +39,10 @@ const AdminProducts = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('admin-products');
-        toast.success('Product deleted successfully');
+        toast.success('Produit supprimé avec succès');
       },
       onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to delete product');
+        toast.error(error.response?.data?.message || 'Échec de la suppression du produit');
       },
     }
   );
@@ -50,12 +50,11 @@ const AdminProducts = () => {
   const products = productsData?.data || [];
 
   const categories = [
-    'Hair Care',
-    'Skin Care',
-    'Makeup',
-    'Nail Care',
-    'Body Care',
-    'Fragrances',
+    'Beauté du regard',
+    'Soin',
+    'Massage',
+    'Épilation',
+    'Beauté mains & ongles',
   ];
 
   // Filter products
@@ -71,15 +70,15 @@ const AdminProducts = () => {
   });
 
   const handleDeleteProduct = (product) => {
-    if (window.confirm(`Are you sure you want to delete "${product.name}"?`)) {
+    if (window.confirm(`Êtes-vous sûr de vouloir supprimer "${product.name}"?`)) {
       deleteProductMutation.mutate(product.id);
     }
   };
 
   const getStockStatus = (quantity) => {
-    if (quantity === 0) return { label: 'Out of Stock', color: 'text-red-600' };
-    if (quantity <= 5) return { label: 'Low Stock', color: 'text-yellow-600' };
-    return { label: 'In Stock', color: 'text-green-600' };
+    if (quantity === 0) return { label: 'Rupture de stock', color: 'text-red-600' };
+    if (quantity <= 5) return { label: 'Stock faible', color: 'text-yellow-600' };
+    return { label: 'En stock', color: 'text-green-600' };
   };
 
   if (isLoading) {
@@ -94,8 +93,8 @@ const AdminProducts = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Unable to load products</h2>
-          <p className="text-gray-600">Please try again later.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Impossible de charger les produits</h2>
+          <p className="text-gray-600">Veuillez réessayer plus tard.</p>
         </div>
       </div>
     );
@@ -108,16 +107,16 @@ const AdminProducts = () => {
         <div className="mb-8">
           <Link to="/admin/dashboard" className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-4">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to Dashboard
+            Retour au tableau de bord
           </Link>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Product Management</h1>
-              <p className="text-gray-600">Manage your product catalog</p>
+              <h1 className="text-3xl font-bold text-gray-900">Gestion des produits</h1>
+              <p className="text-gray-600">Gérez votre catalogue de produits</p>
             </div>
             <Button onClick={() => setShowCreateForm(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              Add Product
+              Ajouter un produit
             </Button>
           </div>
         </div>
@@ -141,7 +140,7 @@ const AdminProducts = () => {
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value="">All Categories</option>
+                <option value="">Toutes les catégories</option>
                 {categories.map((category) => (
                   <option key={category} value={category}>
                     {category}
@@ -150,7 +149,7 @@ const AdminProducts = () => {
               </select>
             </div>
             <p className="text-sm text-gray-600">
-              {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} found
+              {filteredProducts.length} produit{filteredProducts.length !== 1 ? 's' : ''} trouvé
             </p>
           </div>
         </div>
@@ -159,14 +158,14 @@ const AdminProducts = () => {
         {filteredProducts.length === 0 ? (
           <div className="bg-white shadow-sm rounded-lg p-12 text-center">
             <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun produit trouvé</h3>
             <p className="text-gray-600 mb-6">
               {products.length === 0 
-                ? "Get started by adding your first product." 
-                : "No products match your current filters."}
+                ? "Commencez par ajouter votre premier produit." 
+                : "Aucun produit ne correspond à vos filtres actuels."}   
             </p>
             <Button onClick={() => setShowCreateForm(true)}>
-              Add Product
+              Ajouter un produit
             </Button>
           </div>
         ) : (
@@ -176,19 +175,19 @@ const AdminProducts = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Product
+                      Produit
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Category
+                      Catégorie
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Price
+                      Prix
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Stock
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
+                      Statut
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
@@ -247,7 +246,7 @@ const AdminProducts = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className={`text-sm font-medium ${stockStatus.color}`}>
-                            {product.stockQuantity} units
+                            {product.stockQuantity} unités
                           </div>
                           <div className={`text-xs ${stockStatus.color}`}>
                             {stockStatus.label}
@@ -342,11 +341,11 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
     (productData) => productsAPI.create(productData),
     {
       onSuccess: () => {
-        toast.success('Product created successfully');
+        toast.success('Produit créé avec succès');
         onSuccess();
       },
       onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to create product');
+        toast.error(error.response?.data?.message || 'Échec de la création du produit');
       },
     }
   );
@@ -355,11 +354,11 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
     ({ id, productData }) => productsAPI.update(id, productData),
     {
       onSuccess: () => {
-        toast.success('Product updated successfully');
+        toast.success('Produit mis à jour avec succès');
         onSuccess();
       },
       onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to update product');
+        toast.error(error.response?.data?.message || 'Échec de mis à jour du produit');
       },
     }
   );
@@ -419,12 +418,11 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
   };
 
   const categories = [
-    'Hair Care',
-    'Skin Care',
-    'Makeup',
-    'Nail Care',
-    'Body Care',
-    'Fragrances',
+    'Beauté de regard',
+    'Soin',
+    'Massage',
+    'Épilation',
+    'Beauté mains & ongles',
   ];
 
   const isLoading = createProductMutation.isLoading || updateProductMutation.isLoading;
@@ -434,7 +432,7 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">
-            {product ? 'Edit Product' : 'Add New Product'}
+            {product ? 'Modifier le produit' : 'Ajouter un nouveau produit'}
           </h2>
           <button
             onClick={onClose}
@@ -448,11 +446,11 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Basic Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Basic Information</h3>
+              <h3 className="text-lg font-medium text-gray-900">Informations générales</h3>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Product Name *
+                  Nom du produit *
                 </label>
                 <input
                   type="text"
@@ -477,7 +475,7 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Category *
+                  Catégorie *
                 </label>
                 <select
                   required
@@ -485,7 +483,7 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 >
-                  <option value="">Select Category</option>
+                  <option value="">Sélectionner une catégorie</option>
                   {categories.map((category) => (
                     <option key={category} value={category}>
                       {category}
@@ -497,7 +495,7 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Brand
+                    Marque
                   </label>
                   <input
                     type="text"
@@ -522,7 +520,7 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tags (comma separated)
+                  Étiquettes (comma separated)
                 </label>
                 <input
                   type="text"
@@ -536,11 +534,11 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
 
             {/* Pricing & Inventory */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Pricing & Inventory</h3>
+              <h3 className="text-lg font-medium text-gray-900">Prix et gestion des stocks</h3>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Price * ($)
+                  Prix * ($)
                 </label>
                 <input
                   type="number"
@@ -555,7 +553,7 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Stock Quantity *
+                  Quantité en Stock  *
                 </label>
                 <input
                   type="number"
@@ -569,7 +567,7 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Discount Percentage (%)
+                  Pourcentage de remise (%)
                 </label>
                 <input
                   type="number"
@@ -586,7 +584,7 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Discount Start Date
+                      Date de début de la remise
                     </label>
                     <input
                       type="date"
@@ -598,7 +596,7 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Discount End Date
+                      Date de fin de la remise
                     </label>
                     <input
                       type="date"
@@ -620,7 +618,7 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
                     className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                   />
                   <label htmlFor="featured" className="ml-2 block text-sm text-gray-900">
-                    Featured Product
+                    Produit en vedette
                   </label>
                 </div>
 
@@ -633,7 +631,7 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
                     className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                   />
                   <label htmlFor="active" className="ml-2 block text-sm text-gray-900">
-                    Active Product
+                    Produit actif
                   </label>
                 </div>
               </div>
@@ -642,7 +640,7 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
 
           {/* Image URLs */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Product Images</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Images de produit</h3>
             
             <div className="space-y-3">
               <div className="flex space-x-2">
@@ -654,7 +652,7 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 />
                 <Button type="button" onClick={addImageUrl} variant="outline">
-                  Add Image
+                  Ajout d'image
                 </Button>
               </div>
 
@@ -680,7 +678,7 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
 
           {/* Specifications */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Product Specifications</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Spécifications de produit</h3>
             
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-2">
@@ -700,7 +698,7 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   />
                   <Button type="button" onClick={addSpecification} variant="outline">
-                    Add
+                    Ajouter
                   </Button>
                 </div>
               </div>
@@ -729,10 +727,10 @@ const ProductModal = ({ product, onClose, onSuccess }) => {
           {/* Form Actions */}
           <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              Annuler
             </Button>
             <Button type="submit" loading={isLoading}>
-              {product ? 'Update Product' : 'Create Product'}
+              {product ? 'Mettre à jour le produit' : 'Créer un produit'}
             </Button>
           </div>
         </form>

@@ -237,4 +237,5 @@ export const usersAPI = {
   delete: (id) => api.delete(`/admin/users/${id}`),
 };
 
+
 export default api;

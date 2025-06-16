@@ -298,10 +298,10 @@ const AdminDashboard = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {user?.firstName}! 👋
+            Bienvenue à nouveau, {user?.firstName}! 👋
           </h1>
           <p className="text-gray-600 mt-2">
-            Here's what's happening at Beauty Center today
+            Découvrez les nouveautés et activités du jour chez Succar Banat
           </p>
         </div>
 
@@ -346,7 +346,7 @@ const AdminDashboard = () => {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Quick Actions
+                Actions rapides 
               </h3>
               <div className="space-y-3">
                 {quickActions.map((action, index) => (
@@ -374,11 +374,11 @@ const AdminDashboard = () => {
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Recent Orders
+                  Commandes récentes 
                 </h3>
                 <Link to="/admin/orders">
                   <Button variant="outline" size="sm">
-                    View All
+                    Voir tout
                   </Button>
                 </Link>
               </div>
@@ -386,7 +386,7 @@ const AdminDashboard = () => {
               {recentOrders.length === 0 ? (
                 <div className="text-center py-6">
                   <ShoppingBag className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-600">No recent orders</p>
+                  <p className="text-gray-600">Aucune commande récente</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -397,7 +397,7 @@ const AdminDashboard = () => {
                           <ShoppingBag className="h-5 w-5 text-blue-600" />
                         </div>
                         <div className="ml-3">
-                          <p className="font-medium text-gray-900">Order #{order.id.slice(-8)}</p>
+                          <p className="font-medium text-gray-900">Commande #{order.id.slice(-8)}</p>
                           <p className="text-sm text-gray-600">
                             {order.customerName} • {new Date(order.createdAt).toLocaleDateString()}
                           </p>
@@ -423,7 +423,7 @@ const AdminDashboard = () => {
             <div className="flex items-center">
               <Clock className="h-8 w-8 text-indigo-600 mr-3" />
               <div>
-                <p className="text-sm font-medium text-gray-600">Pending Orders</p>
+                <p className="text-sm font-medium text-gray-600">Commandes en attente</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {ordersData?.data?.filter(order => order.orderStatus === 'PENDING').length || 0}
                 </p>
@@ -435,7 +435,7 @@ const AdminDashboard = () => {
             <div className="flex items-center">
               <Star className="h-8 w-8 text-amber-600 mr-3" />
               <div>
-                <p className="text-sm font-medium text-gray-600">Avg Order Value</p>
+                <p className="text-sm font-medium text-gray-600">Valeur moyenne des commandes</p>
                 <p className="text-2xl font-bold text-gray-900">
                   ${ordersData?.data?.length > 0 ? 
                     (ordersData.data.reduce((sum, order) => sum + (order.total || 0), 0) / ordersData.data.length).toFixed(0) : 
@@ -449,7 +449,7 @@ const AdminDashboard = () => {
             <div className="flex items-center">
               <TrendingUp className="h-8 w-8 text-emerald-600 mr-3" />
               <div>
-                <p className="text-sm font-medium text-gray-600">Monthly Revenue</p>
+                <p className="text-sm font-medium text-gray-600">Revenu mensuel</p>
                 <p className="text-2xl font-bold text-gray-900">
                   ${ordersData?.data?.filter(order => {
                     const orderDate = new Date(order.createdAt);
@@ -465,7 +465,7 @@ const AdminDashboard = () => {
             <div className="flex items-center">
               <AlertCircle className="h-8 w-8 text-red-600 mr-3" />
               <div>
-                <p className="text-sm font-medium text-gray-600">Low Stock Products</p>
+                <p className="text-sm font-medium text-gray-600">Produits à faible stock</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {productsData?.data?.filter(product => product.stockQuantity && product.stockQuantity <= 5).length || 0}
                 </p>

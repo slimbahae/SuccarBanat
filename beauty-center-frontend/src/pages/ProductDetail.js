@@ -39,22 +39,22 @@ const ProductDetail = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('cart');
-        toast.success('Product added to cart!');
+        toast.success('Produit ajouté au panier !');
       },
       onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to add to cart');
+        toast.error(error.response?.data?.message || 'Échec de l’ajout au panier');
       },
     }
   );
 
   const handleAddToCart = () => {
     if (!isAuthenticated) {
-      toast.error('Please login to add items to cart');
+      toast.error('Veuillez vous connecter pour ajouter des articles au panier');
       return;
     }
 
     if (user?.role !== 'CUSTOMER') {
-      toast.error('Only customers can add items to cart');
+      toast.error('Seuls les clients peuvent ajouter des articles au panier');
       return;
     }
 
@@ -75,7 +75,7 @@ const ProductDetail = () => {
     try {
       const productUrl = `${window.location.origin}/products/${id}`;
       await navigator.clipboard.writeText(productUrl);
-      toast.success('Product link copied to clipboard!');
+      toast.success('Lien du produit copié dans le presse-papiers !');
     } catch (err) {
       // Fallback for browsers that don't support clipboard API
       try {
@@ -85,10 +85,10 @@ const ProductDetail = () => {
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        toast.success('Product link copied to clipboard!');
+        toast.success('Lien du produit copié dans le presse-papiers !');
       } catch (fallbackErr) {
-        toast.error('Failed to copy link. Please copy manually.');
-        console.error('Copy to clipboard failed:', fallbackErr);
+        toast.error('Échec de la copie du lien. Veuillez copier manuellement.');
+        console.error('La copie dans le presse-papiers a échoué :', fallbackErr);
       }
     }
   };
@@ -105,10 +105,10 @@ const ProductDetail = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Product not found</h2>
-          <p className="text-gray-600 mb-4">The product you're looking for doesn't exist.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Produit introuvable</h2>
+          <p className="text-gray-600 mb-4">Le produit que vous recherchez n’existe pas.</p>
           <Link to="/products">
-            <Button>Back to Products</Button>
+            <Button>Retour au Produits</Button>
           </Link>
         </div>
       </div>
@@ -131,9 +131,9 @@ const ProductDetail = () => {
       {/* Breadcrumb */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <nav className="flex items-center space-x-2 text-sm text-gray-600">
-          <Link to="/" className="hover:text-primary-600">Home</Link>
+          <Link to="/" className="hover:text-primary-600">Accueil</Link>
           <span>/</span>
-          <Link to="/products" className="hover:text-primary-600">Products</Link>
+          <Link to="/products" className="hover:text-primary-600">Produit</Link>
           <span>/</span>
           <span className="text-gray-900">{productData.name}</span>
         </nav>
@@ -142,7 +142,7 @@ const ProductDetail = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link to="/products" className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-8">
           <ChevronLeft className="h-4 w-4 mr-1" />
-          Back to Products
+          Retour au Produits
         </Link>
 
         <div className="lg:grid lg:grid-cols-2 lg:gap-x-8 lg:items-start">
@@ -192,7 +192,7 @@ const ProductDetail = () => {
               <div className="absolute top-4 left-4 flex flex-col space-y-2">
                 {productData.featured && (
                   <span className="bg-primary-600 text-white text-xs px-2 py-1 rounded-full">
-                    Featured
+                    En vedette
                   </span>
                 )}
                 {hasDiscount && (
@@ -202,7 +202,7 @@ const ProductDetail = () => {
                 )}
                 {isOutOfStock && (
                   <span className="bg-gray-600 text-white text-xs px-2 py-1 rounded-full">
-                    Out of Stock
+                    Rupture de stock
                   </span>
                 )}
               </div>
@@ -244,7 +244,7 @@ const ProductDetail = () => {
                   />
                 ))}
               </div>
-              <p className="ml-2 text-sm text-gray-600">(127 reviews)</p>
+              <p className="ml-2 text-sm text-gray-600">(127 avis)</p>
             </div>
 
             {/* Price */}
@@ -259,7 +259,7 @@ const ProductDetail = () => {
                       ${productData.price}
                     </p>
                     <span className="bg-red-100 text-red-800 text-sm px-2 py-1 rounded-full">
-                      Save ${(productData.price - productData.finalPrice).toFixed(2)}
+                      Économisez ${(productData.price - productData.finalPrice).toFixed(2)}
                     </span>
                   </>
                 ) : (
@@ -281,7 +281,7 @@ const ProductDetail = () => {
             {/* Specifications */}
             {productData.specifications && productData.specifications.length > 0 && (
               <div className="mb-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-3">Specifications</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-3">Spécifications</h3>
                 <dl className="grid grid-cols-1 gap-3">
                   {productData.specifications.map((spec, index) => (
                     <div key={index} className="flex justify-between py-2 border-b border-gray-200">
@@ -297,15 +297,15 @@ const ProductDetail = () => {
             <div className="mb-6">
               <div className="flex items-center">
                 {isOutOfStock ? (
-                  <span className="text-red-600 text-sm font-medium">Out of Stock</span>
+                  <span className="text-red-600 text-sm font-medium">Rupture de stock</span>
                 ) : productData.stockQuantity <= 5 ? (
                   <span className="text-orange-600 text-sm font-medium">
-                    Only {productData.stockQuantity} left in stock
+                    Seulement {productData.stockQuantity} en stock
                   </span>
                 ) : (
                   <span className="text-green-600 text-sm font-medium flex items-center">
                     <Check className="h-4 w-4 mr-1" />
-                    In Stock
+                    En stock
                   </span>
                 )}
               </div>
@@ -316,7 +316,7 @@ const ProductDetail = () => {
               <div className="mb-6">
                 <div className="flex items-center space-x-4 mb-4">
                   <label htmlFor="quantity" className="text-sm font-medium text-gray-900">
-                    Quantity:
+                    Quantité:
                   </label>
                   <div className="flex items-center border border-gray-300 rounded-md">
                     <button
@@ -345,7 +345,7 @@ const ProductDetail = () => {
                   disabled={!isAuthenticated || user?.role !== 'CUSTOMER'}
                 >
                   <ShoppingCart className="mr-2 h-5 w-5" />
-                  Add to Cart
+                  Ajouter au panier
                 </Button>
 
                 {(!isAuthenticated || user?.role !== 'CUSTOMER') && (
@@ -353,9 +353,9 @@ const ProductDetail = () => {
                     {!isAuthenticated ? (
                       <>
                         <Link to="/login" className="text-primary-600 hover:text-primary-700">
-                          Sign in
+                          Se connecter
                         </Link>{' '}
-                        to add items to cart
+                        pour ajouter des articles au panier
                       </>
                     ) : (
                       'Only customers can purchase products'

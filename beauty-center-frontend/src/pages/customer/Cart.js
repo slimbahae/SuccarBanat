@@ -30,12 +30,12 @@ const Cart = () => {
     {
       retry: 1,
       onError: (error) => {
-        console.error('Cart fetch error:', error);
+        console.error('Erreur lors de la récupération du panier:', error);
         if (error.response?.status === 401) {
-          toast.error('Please log in to view your cart');
+          toast.error('Veuillez vous connecter pour voir votre panier');
           navigate('/login');
         } else {
-          toast.error('Failed to load cart');
+          toast.error('Échec du chargement du panier');
         }
       }
     }
@@ -47,11 +47,11 @@ const Cart = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('cart');
-        toast.success('Cart updated');
+        toast.success('Panier mis à jour');
       },
       onError: (error) => {
-        console.error('Update cart error:', error);
-        toast.error(error.response?.data?.message || 'Failed to update cart');
+        console.error('Erreur lors de la mise à jour du panier:', error);
+        toast.error(error.response?.data?.message || 'Échec de la mise à jour du panier');
       },
     }
   );
@@ -62,11 +62,11 @@ const Cart = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('cart');
-        toast.success('Item removed from cart');
+        toast.success('Article supprimé du panier');
       },
       onError: (error) => {
-        console.error('Remove item error:', error);
-        toast.error(error.response?.data?.message || 'Failed to remove item');
+        console.error('Erreur lors de la suppression de l’article:', error);
+        toast.error(error.response?.data?.message || 'Échec de la suppression de l’article');
       },
     }
   );
@@ -77,11 +77,11 @@ const Cart = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('cart');
-        toast.success('Cart cleared');
+        toast.success('Panier vidé');
       },
       onError: (error) => {
-        console.error('Clear cart error:', error);
-        toast.error(error.response?.data?.message || 'Failed to clear cart');
+        console.error('Erreur lors du vidage du panier:', error);
+        toast.error(error.response?.data?.message || 'Échec du vidage du panier');
       },
     }
   );
@@ -94,13 +94,13 @@ const Cart = () => {
   };
 
   const handleRemoveItem = (productId) => {
-    if (window.confirm('Are you sure you want to remove this item?')) {
+    if (window.confirm('Êtes-vous sûr(e) de vouloir supprimer cet article ?')) {
       removeCartMutation.mutate(productId);
     }
   };
 
   const handleClearCart = () => {
-    if (window.confirm('Are you sure you want to clear your entire cart?')) {
+    if (window.confirm('Êtes-vous sûr(e) de vouloir vider complètement votre panier ?')) {
       clearCartMutation.mutate();
     }
   };
@@ -118,19 +118,19 @@ const Cart = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center max-w-md">
           <ShoppingCart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Unable to Load Cart</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Impossible de charger le panier</h2>
           <p className="text-gray-600 mb-4">
             {error.response?.status === 401 
-              ? 'Please log in to view your cart'
-              : 'There was an error loading your cart. Please try again.'}
+              ? 'Veuillez vous connecter pour voir votre panier'
+              : 'Une erreur est survenue lors du chargement de votre panier. Veuillez réessayer.'}
           </p>
           <div className="space-x-3">
             <Link to="/products">
-              <Button>Continue Shopping</Button>
+              <Button>Continuer vos achats</Button>
             </Link>
             {error.response?.status === 401 && (
               <Link to="/login">
-                <Button variant="outline">Sign In</Button>
+                <Button variant="outline">Se connecter</Button>
               </Link>
             )}
           </div>
@@ -153,18 +153,18 @@ const Cart = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Link to="/products" className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-8">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Continue Shopping
+            Continuer vos achats
           </Link>
 
           <div className="text-center py-12">
             <ShoppingBag className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Your cart is empty</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Votre panier est vide</h2>
             <p className="text-gray-600 mb-6">
-              Looks like you haven't added any items to your cart yet.
+              Vous n’avez encore ajouté aucun article à votre panier.
             </p>
             <Link to="/products">
               <Button size="lg">
-                Start Shopping
+                Commencer vos achats
               </Button>
             </Link>
           </div>
@@ -181,10 +181,10 @@ const Cart = () => {
           <div>
             <Link to="/products" className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-2">
               <ArrowLeft className="h-4 w-4 mr-1" />
-              Continue Shopping
+              Continuer vos achats
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900">Shopping Cart</h1>
-            <p className="text-gray-600">{items.length} item{items.length !== 1 ? 's' : ''} in your cart</p>
+            <h1 className="text-3xl font-bold text-gray-900">Panier d’achats</h1>
+            <p className="text-gray-600">{items.length} article{items.length !== 1 ? 's' : ''} dans votre panier</p>
           </div>
           
           {items.length > 0 && (
@@ -194,7 +194,7 @@ const Cart = () => {
               loading={clearCartMutation.isLoading}
             >
               <Trash2 className="h-4 w-4 mr-2" />
-              Clear Cart
+              Vider le panier
             </Button>
           )}
         </div>
@@ -236,12 +236,12 @@ const Cart = () => {
                               <p className="ml-4">${item.totalPrice.toFixed(2)}</p>
                             </div>
                             <p className="mt-1 text-sm text-gray-500">
-                              ${item.unitPrice.toFixed(2)} each
+                              ${item.unitPrice.toFixed(2)} à l’unité
                             </p>
                           </div>
                           <div className="flex-1 flex items-end justify-between text-sm">
                             <div className="flex items-center space-x-3">
-                              <span className="text-gray-500">Qty:</span>
+                              <span className="text-gray-500">Qté :</span>
                               <div className="flex items-center border border-gray-300 rounded-md">
                                 <button
                                   onClick={() => handleQuantityChange(item.productId, item.quantity, -1)}
@@ -270,7 +270,7 @@ const Cart = () => {
                                 disabled={removeCartMutation.isLoading}
                                 className="font-medium text-red-600 hover:text-red-500 disabled:opacity-50"
                               >
-                                Remove
+                                Retirer
                               </button>
                             </div>
                           </div>
@@ -287,25 +287,25 @@ const Cart = () => {
           <div className="mt-16 lg:mt-0 lg:col-span-5">
             <div className="bg-white shadow-sm rounded-lg">
               <div className="px-4 py-6 sm:px-6">
-                <h2 className="text-lg font-medium text-gray-900 mb-4">Order Summary</h2>
+                <h2 className="text-lg font-medium text-gray-900 mb-4">Résumé de la commande</h2>
                 
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Subtotal</span>
+                    <span className="text-gray-600">Sous-total</span>
                     <span className="text-gray-900">${subtotal.toFixed(2)}</span>
                   </div>
                   
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Tax</span>
+                    <span className="text-gray-600">Taxes</span>
                     <span className="text-gray-900">${tax.toFixed(2)}</span>
                   </div>
                   
                   <div className="flex justify-between text-sm">
                     <div className="flex items-center">
-                      <span className="text-gray-600">Shipping</span>
+                      <span className="text-gray-600">Livraison</span>
                       {shipping === 0 && (
                         <span className="ml-2 text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">
-                          FREE
+                          GRATUIT
                         </span>
                       )}
                     </div>
@@ -327,7 +327,7 @@ const Cart = () => {
                   <Link to="/customer/checkout">
                     <Button className="w-full" size="lg">
                       <CreditCard className="mr-2 h-5 w-5" />
-                      Proceed to Checkout
+                      Passer à la caisse
                     </Button>
                   </Link>
                 </div>
@@ -337,12 +337,12 @@ const Cart = () => {
                   <div className="flex items-center justify-center space-x-4">
                     <div className="flex items-center">
                       <Truck className="h-4 w-4 mr-1" />
-                      <span>Free shipping over $50</span>
+                      <span>Livraison gratuite dès 50 $</span>
                     </div>
                   </div>
                   <p className="mt-2">
                     <Tag className="h-4 w-4 inline mr-1" />
-                    30-day return policy
+                    Politique de retour sous 30 jours
                   </p>
                 </div>
               </div>
@@ -351,14 +351,14 @@ const Cart = () => {
             {/* Promo Code */}
             <div className="mt-6 bg-white shadow-sm rounded-lg">
               <div className="px-4 py-6 sm:px-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Promo Code</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Code Promo</h3>
                 <div className="flex space-x-2">
                   <input
                     type="text"
-                    placeholder="Enter promo code"
+                    placeholder="Entrer le code promo"
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   />
-                  <Button variant="outline">Apply</Button>
+                  <Button variant="outline">Appliquer</Button>
                 </div>
               </div>
             </div>

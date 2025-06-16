@@ -47,12 +47,12 @@ const UserModal = ({ isOpen, onClose, user, onSave, isLoading, isEditing }) => {
     (newUserData) => usersAPI.create(newUserData),
     {
       onSuccess: () => {
-        toast.success('User created successfully');
+        toast.success('Utilisateur créé avec succès');
         onSave();
       },
       onError: (error) => {
         setErrors(error.response?.data?.errors || {});
-        toast.error(error.response?.data?.message || 'Failed to create user');
+        toast.error(error.response?.data?.message || 'Échec de la création de l’utilisateur');
       },
     }
   );
@@ -61,12 +61,12 @@ const UserModal = ({ isOpen, onClose, user, onSave, isLoading, isEditing }) => {
     ({ id, userData }) => usersAPI.update(id, userData),
     {
       onSuccess: () => {
-        toast.success('User updated successfully');
+        toast.success('Utilisateur mis à jour avec succès');
         onSave();
       },
       onError: (error) => {
         setErrors(error.response?.data?.errors || {});
-        toast.error(error.response?.data?.message || 'Failed to update user');
+        toast.error(error.response?.data?.message || 'Échec de la mise à jour de l’utilisateur');
       },
     }
   );
@@ -135,7 +135,7 @@ const UserModal = ({ isOpen, onClose, user, onSave, isLoading, isEditing }) => {
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">
-            {isEditing ? 'Edit User' : 'Add New User'}
+            {isEditing ? 'Modifier l’utilisateur' : 'Ajouter un nouvel utilisateur'}
           </h2>
           <button
             onClick={onClose}
@@ -149,12 +149,12 @@ const UserModal = ({ isOpen, onClose, user, onSave, isLoading, isEditing }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Basic Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Basic Information</h3>
+              <h3 className="text-lg font-medium text-gray-900">Informations genérales</h3>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    First Name *
+                    Prénom *
                   </label>
                   <input
                     type="text"
@@ -167,7 +167,7 @@ const UserModal = ({ isOpen, onClose, user, onSave, isLoading, isEditing }) => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Last Name *
+                    Nom *
                   </label>
                   <input
                     type="text"
@@ -181,7 +181,7 @@ const UserModal = ({ isOpen, onClose, user, onSave, isLoading, isEditing }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address *
+                  Address email *
                 </label>
                 <input
                   type="email"
@@ -194,7 +194,7 @@ const UserModal = ({ isOpen, onClose, user, onSave, isLoading, isEditing }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Password {isEditing ? '(optional)' : '*'}
+                  mot de passe {isEditing ? '(optional)' : '*'}
                 </label>
                 <div className="relative">
                   <input
@@ -220,7 +220,7 @@ const UserModal = ({ isOpen, onClose, user, onSave, isLoading, isEditing }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number
+                  Numéro de téléphone
                 </label>
                 <input
                   type="tel"
@@ -232,7 +232,7 @@ const UserModal = ({ isOpen, onClose, user, onSave, isLoading, isEditing }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Role *
+                  Rôle *
                 </label>
                 <select
                   required
@@ -257,7 +257,7 @@ const UserModal = ({ isOpen, onClose, user, onSave, isLoading, isEditing }) => {
                     checked={formData.enabled}
                     onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
                   />
-                  <span className="ml-2 text-gray-900">Enabled Account</span>
+                  <span className="ml-2 text-gray-900">Compte activé</span>
                 </label>
               </div>
 
@@ -266,11 +266,11 @@ const UserModal = ({ isOpen, onClose, user, onSave, isLoading, isEditing }) => {
             {/* Staff-specific fields */}
             {formData.role === 'STAFF' && (
               <div className="space-y-4">
-                <h3 className="text-lg font-medium text-gray-900">Staff Settings</h3>
+                <h3 className="text-lg font-medium text-gray-900">Paramètres du personnel</h3>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Specialties (comma separated)
+                    Spécialités (comma separated)
                   </label>
                   <input
                     type="text"
@@ -283,7 +283,7 @@ const UserModal = ({ isOpen, onClose, user, onSave, isLoading, isEditing }) => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Work Days
+                    Jours de travail
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     {weekDays.map((day) => (
@@ -306,7 +306,7 @@ const UserModal = ({ isOpen, onClose, user, onSave, isLoading, isEditing }) => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Morning Shift (9AM-12PM)
+                      Quart du matin (9h - 12h)
                     </label>
                     <select
                       value={formData.morningShift}
@@ -323,7 +323,7 @@ const UserModal = ({ isOpen, onClose, user, onSave, isLoading, isEditing }) => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Evening Shift (1PM-6PM)
+                      Quart du soir (13h - 18h)
                     </label>
                     <select
                       value={formData.eveningShift}
@@ -344,12 +344,12 @@ const UserModal = ({ isOpen, onClose, user, onSave, isLoading, isEditing }) => {
             {/* Non-staff placeholder */}
             {formData.role !== 'STAFF' && (
               <div className="space-y-4">
-                <h3 className="text-lg font-medium text-gray-900">Additional Information</h3>
+                <h3 className="text-lg font-medium text-gray-900">Informations supplémentaires</h3>
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <p className="text-sm text-gray-600">
                     {formData.role === 'ADMIN' 
-                      ? 'Administrators have full access to all system features.'
-                      : 'Customers can book services and purchase products.'
+                      ? "Les administrateurs ont un accès complet à toutes les fonctionnalités du système."
+                      : "Les clients peuvent réserver des services et acheter des produits."
                     }
                   </p>
                 </div>
@@ -360,7 +360,7 @@ const UserModal = ({ isOpen, onClose, user, onSave, isLoading, isEditing }) => {
           {/* Form Actions */}
           <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              Annulé
             </Button>
             <Button type="submit" loading={modalLoading}>
               {isEditing ? 'Update User' : 'Create User'}
@@ -391,10 +391,10 @@ const AdminUsers = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('admin-users');
-        toast.success('User deleted successfully');
+        toast.success('Utilisateur supprimé avec succès');
       },
       onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to delete user');
+        toast.error(error.response?.data?.message || 'Échec de la suppression de l’utilisateur');
       },
     }
   );
@@ -416,7 +416,7 @@ const AdminUsers = () => {
   });
 
   const handleDeleteUser = (user) => {
-    if (window.confirm(`Are you sure you want to delete "${user.firstName} ${user.lastName}"?`)) {
+    if (window.confirm(`Êtes-vous sûr(e) de vouloir supprimer "${user.firstName} ${user.lastName}"?`)) {
       deleteUserMutation.mutate(user.id);
     }
   };
@@ -459,8 +459,8 @@ const AdminUsers = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Unable to load users</h2>
-          <p className="text-gray-600">Please try again later.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Impossible de charger les utilisateurs</h2>
+          <p className="text-gray-600">Veuillez réessayer plus tard.</p>
         </div>
       </div>
     );
@@ -473,16 +473,16 @@ const AdminUsers = () => {
         <div className="mb-8">
           <Link to="/admin/dashboard" className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-4">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to Dashboard
+            Retour au tableau de bord
           </Link>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-              <p className="text-gray-600">Manage user accounts and permissions</p>
+              <h1 className="text-3xl font-bold text-gray-900">Gestion des utilisateurs</h1>
+              <p className="text-gray-600">Gérez les comptes utilisateurs et les permissions</p>
             </div>
             <Button onClick={() => setShowCreateForm(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              Add User
+              Ajouter un utilisateur
             </Button>
           </div>
         </div>
@@ -493,7 +493,7 @@ const AdminUsers = () => {
             <div className="flex items-center">
               <Users className="h-8 w-8 text-gray-600 mr-3" />
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Users</p>
+                <p className="text-sm font-medium text-gray-600">Total d'utilisateurs</p>
                 <p className="text-2xl font-bold text-gray-900">{users.length}</p>
               </div>
             </div>
@@ -527,7 +527,7 @@ const AdminUsers = () => {
             <div className="flex items-center">
               <User className="h-8 w-8 text-green-600 mr-3" />
               <div>
-                <p className="text-sm font-medium text-gray-600">Customers</p>
+                <p className="text-sm font-medium text-gray-600">Clients</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {users.filter(user => user.role === 'CUSTOMER').length}
                 </p>
@@ -544,7 +544,7 @@ const AdminUsers = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search users..."
+                  placeholder=" Rechercher des utilisateurs..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
@@ -555,7 +555,7 @@ const AdminUsers = () => {
                 onChange={(e) => setSelectedRole(e.target.value)}
                 className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
               >
-                <option value="">All Roles</option>
+                <option value="">tous les rôles</option>
                 {roles.map((role) => (
                   <option key={role} value={role}>
                     {role}
@@ -564,7 +564,7 @@ const AdminUsers = () => {
               </select>
             </div>
             <p className="text-sm text-gray-600">
-              {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''} found
+              {filteredUsers.length} utilisateur{filteredUsers.length !== 1 ? 's' : ''} trouvé
             </p>
           </div>
         </div>
@@ -573,14 +573,14 @@ const AdminUsers = () => {
         {filteredUsers.length === 0 ? (
           <div className="bg-white shadow-sm rounded-lg p-12 text-center">
             <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun utilisateur trouvé</h3>
             <p className="text-gray-600 mb-6">
               {users.length === 0 
                 ? "Get started by adding your first user." 
                 : "No users match your current filters."}
             </p>
             <Button onClick={() => setShowCreateForm(true)}>
-              Add User
+              Ajouter un utilisateur
             </Button>
           </div>
         ) : (
@@ -589,16 +589,16 @@ const AdminUsers = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    User
+                    Utilisateur
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Role
+                    Rôle
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Contact
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
+                    Statut
                   </th>
                   <th className="relative px-6 py-3">
                     <span className="sr-only">Actions</span>
@@ -629,11 +629,11 @@ const AdminUsers = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {user.enabled ? (
                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                          <UserCheck className="h-4 w-4 mr-1" /> Active
+                          <UserCheck className="h-4 w-4 mr-1" /> Actif
                         </span>
                       ) : (
                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                          <UserX className="h-4 w-4 mr-1" /> Inactive
+                          <UserX className="h-4 w-4 mr-1" /> Inactif
                         </span>
                       )}
                     </td>

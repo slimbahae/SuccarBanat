@@ -25,14 +25,14 @@ const CustomerDashboard = () => {
 
   const stats = [
     {
-      label: 'Cart Items',
+      label: 'Articles du panier',
       value: cartData?.data?.itemCount || 0,
       icon: ShoppingBag,
       color: 'bg-blue-500',
       link: '/customer/cart'
     },
     {
-      label: 'Total Orders',
+      label: 'Total de commande',
       value: ordersData?.data?.length || 0,
       icon: Package,
       color: 'bg-green-500',
@@ -45,22 +45,22 @@ const CustomerDashboard = () => {
 
   const quickActions = [
     {
-      title: 'Shop Products',
-      description: 'Browse our premium beauty products',
+      title: 'Explorer la boutique',
+      description: 'Découvrez nos produits de beauté premium',
       icon: ShoppingBag,
       link: '/products',
       color: 'bg-pink-500'
     },
     {
-      title: 'View Cart',
-      description: 'Complete your purchase',
+      title: 'Voir le panier',
+      description: 'Finalisez votre achat',
       icon: Package,
       link: '/customer/cart',
       color: 'bg-blue-500'
     },
     {
-      title: 'My Profile',
-      description: 'Update your personal information',
+      title: 'Mon Profil',
+      description: 'Mettre à jour vos informations personnelles',
       icon: User,
       link: '/customer/profile',
       color: 'bg-gray-500'
@@ -73,10 +73,10 @@ const CustomerDashboard = () => {
         {/* Welcome Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {user?.firstName}! 👋
+            Bon retour, {user?.firstName}! 👋
           </h1>
           <p className="text-gray-600 mt-2">
-            Here's what's happening with your beauty journey
+            Voici ce qui se passe dans votre parcours beauté
           </p>
         </div>
 
@@ -106,7 +106,7 @@ const CustomerDashboard = () => {
           {/* Quick Actions */}
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Quick Actions
+              Actions immédiates
             </h3>
             <div className="space-y-3">
               {quickActions.map((action, index) => (
@@ -131,11 +131,11 @@ const CustomerDashboard = () => {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">
-                Recent Orders
+                Commande Récente
               </h3>
               <Link to="/customer/orders">
                 <Button variant="outline" size="sm">
-                  View All
+                  Voir tout 
                 </Button>
               </Link>
             </div>
@@ -143,10 +143,10 @@ const CustomerDashboard = () => {
             {recentOrders.length === 0 ? (
               <div className="text-center py-6">
                 <Package className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-600 mb-4">No recent orders</p>
+                <p className="text-gray-600 mb-4">Aucune commande récente</p>
                 <Link to="/products">
                   <Button size="sm">
-                    Shop Products
+                    Voir les produits
                   </Button>
                 </Link>
               </div>
@@ -161,7 +161,7 @@ const CustomerDashboard = () => {
                       <div className="ml-3">
                         <p className="font-medium text-gray-900">Order #{order.id.slice(-8)}</p>
                         <p className="text-sm text-gray-600">
-                          {new Date(order.createdAt).toLocaleDateString()} • {order.items.length} items
+                          {new Date(order.createdAt).toLocaleDateString()} • {order.items.length} articles
                         </p>
                       </div>
                     </div>

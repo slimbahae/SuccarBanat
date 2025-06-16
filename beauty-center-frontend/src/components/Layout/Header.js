@@ -41,11 +41,12 @@ const Header = () => {
   };
 
   const navigation = [
-    { name: 'Home', href: '/' },
-    { name: 'Services', href: 'https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services' },
-    { name: 'Products', href: '/products' },
+    { name: 'Accueil', href: '/' },
+    { name: 'Prestations', href: 'https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services' },
+    { name: 'Produits', href: '/products' },
+    { name: 'Contacts', href:'/Contact'},
   ];
-
+ 
   const userMenuItems = {
     CUSTOMER: [
       { name: 'Dashboard', href: '/customer/dashboard', icon: User },
@@ -60,17 +61,17 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-gradient-to-br from-primary-600/20 to-transparent  shadow-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-16 ">
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <div className="bg-gradient-to-r from-primary-500 to-primary-600 p-2 rounded-lg">
-                <Sparkles className="h-6 w-6 text-white" />
+              <div className="bg-transparent p-2 rounded-lg">
+                <img src="logo-darkmode.png" alt="logo" className="h-12 w-12"/>
               </div>
               <span className="text-xl font-serif font-bold text-gray-900">
-                Beauty Center
+                SUCCAR BANAT INSTITUT
               </span>
             </Link>
           </div>
@@ -144,7 +145,7 @@ const Header = () => {
                       className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       <LogOut className="h-4 w-4 mr-3" />
-                      Sign out
+                      Se déconnecter
                     </button>
                   </div>
                 )}
@@ -153,12 +154,12 @@ const Header = () => {
               <div className="flex items-center space-x-3">
                 <Link to="/login">
                   <Button variant="ghost" size="sm">
-                    Sign in
+                    Se connecter
                   </Button>
                 </Link>
                 <Link to="/register">
                   <Button size="sm">
-                    Sign up
+                    S’inscrire
                   </Button>
                 </Link>
               </div>

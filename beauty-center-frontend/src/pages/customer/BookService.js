@@ -62,12 +62,12 @@ const BookService = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('customer-reservations');
-        toast.success('Reservation created successfully!');
+        toast.success('Réservation créée avec succès !');
         navigate('/customer/reservations');
       },
       onError: (error) => {
-        console.error('Create reservation error:', error);
-        toast.error(error.response?.data?.message || 'Failed to create reservation');
+        console.error('Erreur lors de la création de la réservation:', error);
+        toast.error(error.response?.data?.message || 'Échec de la création de la réservation');
       },
     }
   );
@@ -137,13 +137,13 @@ const BookService = () => {
   const onSubmit = (data) => {
     if (currentStep === 1) {
       if (!selectedDate) {
-        toast.error('Please select a date');
+        toast.error('Veuillez sélectionner une date');
         return;
       }
       setCurrentStep(2);
     } else if (currentStep === 2) {
       if (!selectedTimeSlot || !selectedStaff) {
-        toast.error('Please select a time slot and staff member');
+        toast.error('Veuillez sélectionner un créneau horaire et un membre du personnel');
         return;
       }
       setCurrentStep(3);
@@ -174,10 +174,10 @@ const BookService = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Service not found</h2>
-          <p className="text-gray-600 mb-4">The service you're trying to book doesn't exist.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Service introuvable</h2>
+          <p className="text-gray-600 mb-4">Le service que vous essayez de réserver n'existe pas.</p>
           <Link to="/services">
-            <Button>Back to Services</Button>
+            <Button>Retour aux services</Button>
           </Link>
         </div>
       </div>
@@ -197,10 +197,10 @@ const BookService = () => {
         <div className="mb-8">
           <Link to={`/services/${id}`} className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-4">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to Service Details
+            Retour aux détails du service
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Book {serviceData.name}</h1>
-          <p className="text-gray-600">Schedule your appointment in just a few steps</p>
+          <h1 className="text-3xl font-bold text-gray-900">Réserver {serviceData.name}</h1>
+          <p className="text-gray-600">Planifiez votre rendez-vous en quelques étapes seulement</p>
         </div>
 
         {/* Progress Steps */}
@@ -243,7 +243,7 @@ const BookService = () => {
                 <div className="bg-white shadow-sm rounded-lg p-6">
                   <h2 className="text-lg font-medium text-gray-900 mb-6">
                     <Calendar className="h-5 w-5 inline mr-2" />
-                    Select Your Preferred Date
+                    Sélectionnez votre date préférée
                   </h2>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -272,7 +272,7 @@ const BookService = () => {
                   {availabilityLoading ? (
                     <div className="bg-white shadow-sm rounded-lg p-6 text-center">
                       <LoadingSpinner size="default" />
-                      <p className="mt-2 text-gray-600">Checking availability...</p>
+                      <p className="mt-2 text-gray-600">Vérification de la disponibilité...</p>
                     </div>
                   ) : (
                     <>
@@ -280,7 +280,7 @@ const BookService = () => {
                       <div className="bg-white shadow-sm rounded-lg p-6">
                         <h2 className="text-lg font-medium text-gray-900 mb-6">
                           <Clock className="h-5 w-5 inline mr-2" />
-                          Choose Time Slot
+                          Choisissez un créneau horaire
                         </h2>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -294,8 +294,8 @@ const BookService = () => {
                                   : 'border-gray-200 hover:border-gray-300'
                               }`}
                             >
-                              <div className="font-medium">Morning Session</div>
-                              <div className="text-sm text-gray-600">9:00 AM - 12:00 PM</div>
+                              <div className="font-medium">Session du matin</div>
+                              <div className="text-sm text-gray-600">9h00 - 12h00</div>
                             </button>
                           )}
                           
@@ -309,22 +309,22 @@ const BookService = () => {
                                   : 'border-gray-200 hover:border-gray-300'
                               }`}
                             >
-                              <div className="font-medium">Evening Session</div>
-                              <div className="text-sm text-gray-600">1:00 PM - 6:00 PM</div>
+                              <div className="font-medium">Session du soir</div>
+                              <div className="text-sm text-gray-600">13h00 - 18h00</div>
                             </button>
                           )}
                         </div>
                         
                         {(!availabilityData?.morningAvailable && !availabilityData?.eveningAvailable) && (
                           <div className="text-center py-8">
-                            <p className="text-gray-600">No available time slots for this date.</p>
+                            <p className="text-gray-600">Aucun créneau horaire disponible pour cette date.</p>
                             <Button
                               type="button"
                               variant="outline"
                               onClick={() => setCurrentStep(1)}
                               className="mt-4"
                             >
-                              Choose Different Date
+                              Choisissez une autre date
                             </Button>
                           </div>
                         )}
@@ -335,7 +335,7 @@ const BookService = () => {
                         <div className="bg-white shadow-sm rounded-lg p-6">
                           <h2 className="text-lg font-medium text-gray-900 mb-6">
                             <User className="h-5 w-5 inline mr-2" />
-                            Choose Your Specialist
+                            Choisissez votre spécialiste
                           </h2>
                           
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -391,7 +391,7 @@ const BookService = () => {
                   <div className="bg-white shadow-sm rounded-lg p-6">
                     <h2 className="text-lg font-medium text-gray-900 mb-6">
                       <CheckCircle className="h-5 w-5 inline mr-2" />
-                      Review Your Booking
+                      Confirmez votre réservation
                     </h2>
                     
                     <div className="space-y-4">
@@ -413,27 +413,27 @@ const BookService = () => {
                       </div>
                       
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Time:</span>
+                        <span className="text-gray-600">Heure:</span>
                         <span className="font-medium capitalize">
                           {selectedTimeSlot?.toLowerCase()} Session
                         </span>
                       </div>
                       
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Specialist:</span>
+                        <span className="text-gray-600">Spécialiste:</span>
                         <span className="font-medium">
                           {availabilityData?.availableStaff?.find(s => s.staffId === selectedStaff)?.staffName}
                         </span>
                       </div>
                       
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Duration:</span>
+                        <span className="text-gray-600">Durée:</span>
                         <span className="font-medium">{calculateDuration()} minutes</span>
                       </div>
                       
                       {selectedAddons.length > 0 && (
                         <div>
-                          <span className="text-gray-600">Add-ons:</span>
+                          <span className="text-gray-600">Options supplémentaires :</span>
                           <div className="mt-1 space-y-1">
                             {selectedAddons.map((addon) => (
                               <div key={addon.id} className="flex justify-between text-sm">
@@ -449,23 +449,23 @@ const BookService = () => {
 
                   {/* Special Requests */}
                   <div className="bg-white shadow-sm rounded-lg p-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Special Requests</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Demandes spéciales</h3>
                     <textarea
                       {...register('notes')}
                       rows={4}
-                      placeholder="Any special requests or notes for your appointment..."
+                      placeholder="Des demandes spéciales ou des notes pour votre rendez-vous..."
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                     />
                   </div>
 
                   {/* Booking Policy */}
                   <div className="bg-blue-50 rounded-lg p-4">
-                    <h4 className="font-medium text-blue-900 mb-2">Booking Policy</h4>
+                    <h4 className="font-medium text-blue-900 mb-2">Politique de réservation</h4>
                     <ul className="text-sm text-blue-800 space-y-1">
-                      <li>• Please arrive 15 minutes before your appointment</li>
-                      <li>• Free cancellation up to 24 hours before your booking</li>
-                      <li>• You will receive SMS reminders before your appointment</li>
-                      <li>• Late arrivals may result in shortened service time</li>
+                      <li>• Merci d’arriver 15 minutes avant votre rendez-vous</li>
+                      <li>• Annulation gratuite jusqu’à 24 heures avant votre réservation</li>
+                      <li>• Vous recevrez des rappels par SMS avant votre rendez-vous</li>
+                      <li>• Les retards peuvent entraîner une réduction du temps de service</li>
                     </ul>
                   </div>
                 </div>
@@ -479,7 +479,7 @@ const BookService = () => {
                     variant="outline"
                     onClick={() => setCurrentStep(currentStep - 1)}
                   >
-                    Back
+                    Retour
                   </Button>
                 )}
                 
@@ -493,7 +493,7 @@ const BookService = () => {
                     (currentStep === 2 && availabilityLoading)
                   }
                 >
-                  {currentStep === 3 ? 'Confirm Booking' : 'Continue'}
+                  {currentStep === 3 ? 'Confirmer la réservation' : 'Continuer'}
                 </Button>
               </div>
             </div>
@@ -523,12 +523,12 @@ const BookService = () => {
 
                   <div className="space-y-3 mb-6">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Base Price</span>
+                      <span className="text-gray-600">Prix de base</span>
                       <span className="font-medium">${(serviceData.finalPrice || serviceData.price).toFixed(2)}</span>
                     </div>
                     
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Duration</span>
+                      <span className="text-gray-600">Durée</span>
                       <span className="font-medium">{serviceData.duration} min</span>
                     </div>
                   </div>
@@ -536,7 +536,7 @@ const BookService = () => {
                   {/* Add-ons Selection */}
                   {availableAddons.length > 0 && (
                     <div className="border-t border-gray-200 pt-6">
-                      <h4 className="font-medium text-gray-900 mb-4">Add Enhancement Services</h4>
+                      <h4 className="font-medium text-gray-900 mb-4">Ajouter des services supplémentaires</h4>
                       <div className="space-y-3">
                         {availableAddons.map((addon) => {
                           const isSelected = selectedAddons.find(a => a.id === addon.id);
@@ -588,7 +588,7 @@ const BookService = () => {
                       </span>
                     </div>
                     <p className="text-sm text-gray-600 mt-1">
-                      Estimated duration: {calculateDuration()} minutes
+                      Durée estimée: {calculateDuration()} minutes
                     </p>
                   </div>
                 </div>
@@ -596,19 +596,19 @@ const BookService = () => {
 
               {/* Contact Info */}
               <div className="mt-6 bg-white shadow-sm rounded-lg p-6">
-                <h4 className="font-medium text-gray-900 mb-4">Need Help?</h4>
+                <h4 className="font-medium text-gray-900 mb-4">Besoin d’aide ?</h4>
                 <div className="space-y-3">
                   <div className="flex items-center text-sm text-gray-600">
                     <Phone className="h-4 w-4 mr-2" />
-                    <span>(555) 123-4567</span>
+                    <span>06 03 28 67 03</span>
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <MapPin className="h-4 w-4 mr-2" />
-                    <span>123 Beauty Street, City, State</span>
+                    <span>110 Rue des Cras, 25000 Besançon, France</span>
                   </div>
                 </div>
                 <p className="text-xs text-gray-500 mt-3">
-                  Our team is available 9 AM - 6 PM to help with your booking.
+                  Notre équipe est disponible de 9h30 à 18h pour vous aider avec votre réservation.
                 </p>
               </div>
             </div>

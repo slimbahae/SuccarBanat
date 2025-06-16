@@ -53,8 +53,8 @@ const OrderConfirmation = () => {
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error downloading invoice:', error);
-      toast.error('Failed to download invoice. Please try again later.');
+      console.error('Erreur lors du téléchargement de la facture :', error);
+      toast.error('Échec du téléchargement de la facture. Veuillez réessayer plus tard.');
     }
   };
 
@@ -62,7 +62,7 @@ const OrderConfirmation = () => {
   useEffect(() => {
     if (orderData?.data) {
       // Show success message
-      toast.success('🎉 Order placed successfully!', {
+      toast.success('🎉 Commande passée avec succès !', {
         duration: 5000,
         style: {
           background: '#10B981',
@@ -84,10 +84,10 @@ const OrderConfirmation = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Order not found</h2>
-          <p className="text-gray-600 mb-4">Unable to find your order details.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Commande introuvable</h2>
+          <p className="text-gray-600 mb-4">Impossible de trouver les détails de votre commande.</p>
           <Link to="/customer/orders">
-            <Button>View All Orders</Button>
+            <Button>Voir toutes les commandes</Button>
           </Link>
         </div>
       </div>
@@ -107,27 +107,27 @@ const OrderConfirmation = () => {
             <CheckCircle className="h-12 w-12 text-green-600" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Order Confirmed! 🎉
+            Commande confirmée ! 🎉
           </h1>
           <p className="text-xl text-gray-600 mb-4">
-            Thank you for your purchase, {user?.firstName}!
+            Merci pour votre achat, {user?.firstName}!
           </p>
           <div className="bg-white rounded-lg shadow-sm p-6 inline-block">
-            <p className="text-sm text-gray-600 mb-1">Order Number</p>
+            <p className="text-sm text-gray-600 mb-1">Numéro de commande</p>
             <p className="text-2xl font-bold text-primary-600">#{order.id.slice(-8)}</p>
           </div>
         </div>
 
         {/* Order Status Timeline */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Order Status</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">Statut de commande</h2>
           <div className="flex items-center justify-between">
             <div className="flex flex-col items-center">
               <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mb-2">
                 <CheckCircle className="h-6 w-6 text-white" />
               </div>
-              <span className="text-sm font-medium text-green-600">Confirmed</span>
-              <span className="text-xs text-gray-500 mt-1">Just now</span>
+              <span className="text-sm font-medium text-green-600">Confirmée</span>
+              <span className="text-xs text-gray-500 mt-1">À l’instant</span>
             </div>
             
             <div className="flex-1 h-px bg-gray-200 mx-4" />
@@ -146,10 +146,10 @@ const OrderConfirmation = () => {
                 order.orderStatus === 'PROCESSING' || order.orderStatus === 'SHIPPED' || order.orderStatus === 'DELIVERED'
                   ? 'text-green-600' : 'text-gray-400'
               }`}>
-                Processing
+                En cours
               </span>
               <span className="text-xs text-gray-500 mt-1">
-                {order.orderStatus === 'PROCESSING' ? 'In progress' : 'Pending'}
+                {order.orderStatus === 'PROCESSING' ? 'En cours' : 'En attente'}
               </span>
             </div>
             
@@ -169,7 +169,7 @@ const OrderConfirmation = () => {
                 order.orderStatus === 'SHIPPED' || order.orderStatus === 'DELIVERED'
                   ? 'text-green-600' : 'text-gray-400'
               }`}>
-                Shipped
+                Expédié
               </span>
               <span className="text-xs text-gray-500 mt-1">
                 Est. {estimatedDelivery.toLocaleDateString()}
@@ -192,7 +192,7 @@ const OrderConfirmation = () => {
                 Delivered
               </span>
               <span className="text-xs text-gray-500 mt-1">
-                {order.orderStatus === 'DELIVERED' ? 'Completed' : 'Pending'}
+                {order.orderStatus === 'DELIVERED' ? 'Complété' : 'En attente'}
               </span>
             </div>
           </div>
@@ -200,7 +200,7 @@ const OrderConfirmation = () => {
 
         {/* Order Summary */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Order Summary</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Résumé de la commande</h2>
           
           <div className="space-y-4">
             {order.items.map((item, index) => (
@@ -220,8 +220,8 @@ const OrderConfirmation = () => {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium text-gray-900">{item.productName}</h3>
-                  <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                  <p className="text-sm text-gray-600">${item.unitPrice.toFixed(2)} each</p>
+                  <p className="text-sm text-gray-600">Quantité: {item.quantity}</p>
+                  <p className="text-sm text-gray-600">${item.unitPrice.toFixed(2)} par unité</p>
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-gray-900">${item.totalPrice.toFixed(2)}</p>
@@ -233,15 +233,15 @@ const OrderConfirmation = () => {
           <div className="border-t border-gray-200 mt-6 pt-6">
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Subtotal</span>
+                <span className="text-gray-600">Sous-total</span>
                 <span className="text-gray-900">${order.subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Tax</span>
+                <span className="text-gray-600">Taxes</span>
                 <span className="text-gray-900">${order.tax.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Shipping</span>
+                <span className="text-gray-600">Livraison</span>
                 <span className="text-gray-900">
                   {order.shippingCost === 0 ? 'Free' : `$${order.shippingCost.toFixed(2)}`}
                 </span>
@@ -259,7 +259,7 @@ const OrderConfirmation = () => {
         {/* Shipping & Payment Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Shipping Address</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Adresse de Livraison</h3>
             <div className="text-sm text-gray-600 space-y-1">
               <p className="font-medium text-gray-900">{order.shippingAddress.fullName}</p>
               <p>{order.shippingAddress.addressLine1}</p>
@@ -275,14 +275,14 @@ const OrderConfirmation = () => {
           </div>
 
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Payment Information</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Information de paiement</h3>
             <div className="text-sm text-gray-600 space-y-2">
               <div className="flex justify-between">
-                <span>Payment Method:</span>
+                <span>Methode de paiement:</span>
                 <span className="font-medium text-gray-900">{order.paymentMethod}</span>
               </div>
               <div className="flex justify-between">
-                <span>Payment Status:</span>
+                <span>Statut de paiement:</span>
                 <span className={`font-medium ${
                   order.paymentStatus === 'PAID' ? 'text-green-600' : 'text-yellow-600'
                 }`}>
@@ -290,7 +290,7 @@ const OrderConfirmation = () => {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span>Order Date:</span>
+                <span>Date de commande:</span>
                 <span className="font-medium text-gray-900">
                   {new Date(order.createdAt).toLocaleDateString()}
                 </span>
@@ -305,7 +305,7 @@ const OrderConfirmation = () => {
             <Link to={`/customer/orders/${order.id}`}>
               <Button className="w-full sm:w-auto">
                 <Package className="h-4 w-4 mr-2" />
-                View Order Details
+                Voir les détails de commande
               </Button>
             </Link>
             
@@ -315,29 +315,29 @@ const OrderConfirmation = () => {
               onClick={handleDownloadInvoice}
             >
               <Download className="h-4 w-4 mr-2" />
-              Download Receipt
+              Télécharger le reçu
             </Button>
             
             <Button variant="outline" className="w-full sm:w-auto">
               <Share2 className="h-4 w-4 mr-2" />
-              Share Order
+              Partager la commande
             </Button>
           </div>
 
           <div className="mt-6 text-center">
             <p className="text-gray-600 mb-4">
-              We'll send you updates via email and SMS about your order status.
+              Nous vous enverrons des mises à jour par email et SMS concernant le statut de votre commande.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link to="/products">
                 <Button variant="outline" size="sm">
-                  Continue Shopping
+                  Continuer vos achats
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               </Link>
               <Link to="/customer/orders">
                 <Button variant="outline" size="sm">
-                  View All Orders
+                  Voir toutes les commandes 
                 </Button>
               </Link>
             </div>
@@ -349,10 +349,10 @@ const OrderConfirmation = () => {
           <div className="text-center">
             <Heart className="h-8 w-8 text-primary-600 mx-auto mb-3" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Love your purchase? 
+              Vous aimez votre achat ? 
             </h3>
             <p className="text-gray-600 mb-4">
-              Help others discover these amazing products by leaving a review!
+              idez les autres à découvrir ces produits incroyables en laissant un avis !
             </p>
             <div className="flex justify-center space-x-1 mb-4">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -360,7 +360,7 @@ const OrderConfirmation = () => {
               ))}
             </div>
             <Button variant="outline" size="sm">
-              Leave a Review
+              Laisser un avis
             </Button>
           </div>
         </div>
@@ -368,11 +368,11 @@ const OrderConfirmation = () => {
         {/* Help Section */}
         <div className="mt-6 text-center text-sm text-gray-600">
           <p>
-            Need help with your order? {' '}
+            Besoin d’aide avec votre commande ? {' '}
             <Link to="/contact" className="text-primary-600 hover:text-primary-700 font-medium">
-              Contact our support team
+              Contactez le support
             </Link>
-            {' '} or call us at (555) 123-4567
+            {' '} ou appelez-nous au 06 03 28 67 03
           </p>
         </div>
       </div>

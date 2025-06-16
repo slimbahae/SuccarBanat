@@ -64,7 +64,7 @@ const CustomerOrders = () => {
 
   const copyOrderNumber = (orderNumber) => {
     navigator.clipboard.writeText(orderNumber);
-    toast.success('Order number copied to clipboard');
+    toast.success('Numéro de commande copié dans le presse-papiers');
   };
 
   const getStatusColor = (status) => {
@@ -127,10 +127,10 @@ const CustomerOrders = () => {
       document.body.removeChild(link);
       // Clean up the URL
       window.URL.revokeObjectURL(url);
-      toast.success('Invoice downloaded successfully');
+      toast.success('Facture téléchargée avec succès');
     } catch (error) {
-      console.error('Error downloading invoice:', error);
-      toast.error('Failed to download invoice');
+      console.error('Erreur lors du téléchargement de la facture:', error);
+      toast.error('Échec du téléchargement de la facture');
     }
   };
 
@@ -149,9 +149,9 @@ const CustomerOrders = () => {
       return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Order not found</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Commande introuvable</h2>
             <Link to="/customer/orders">
-              <Button>Back to Orders</Button>
+              <Button>Retour aux commandes</Button>
             </Link>
           </div>
         </div>
@@ -162,7 +162,7 @@ const CustomerOrders = () => {
       {
         id: 'confirmed',
         name: 'Order Confirmed',
-        description: 'Your order has been placed successfully',
+        description: 'Votre commande a été passée avec succès',
         completed: true,
         current: order.orderStatus === 'PENDING',
         icon: CheckCircle
@@ -170,7 +170,7 @@ const CustomerOrders = () => {
       {
         id: 'processing',
         name: 'Processing',
-        description: 'We are preparing your items',
+        description: 'Nous préparons vos articles',
         completed: ['PROCESSING', 'SHIPPED', 'DELIVERED'].includes(order.orderStatus),
         current: order.orderStatus === 'PROCESSING',
         icon: Package
@@ -178,7 +178,7 @@ const CustomerOrders = () => {
       {
         id: 'shipped',
         name: 'Shipped',
-        description: 'Your package is on its way',
+        description: 'Votre colis est en route',
         completed: ['SHIPPED', 'DELIVERED'].includes(order.orderStatus),
         current: order.orderStatus === 'SHIPPED',
         icon: Truck
@@ -186,7 +186,7 @@ const CustomerOrders = () => {
       {
         id: 'delivered',
         name: 'Delivered',
-        description: 'Package delivered successfully',
+        description: 'Colis livré avec succès',
         completed: order.orderStatus === 'DELIVERED',
         current: false,
         icon: CheckCircle
@@ -198,7 +198,7 @@ const CustomerOrders = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Link to="/customer/orders" className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-6">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to Orders
+            Retour aux commandes
           </Link>
 
           {/* Order Header */}
@@ -207,7 +207,7 @@ const CustomerOrders = () => {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-                    Order #{order.id.slice(-8)}
+                    Commande #{order.id.slice(-8)}
                     <button 
                       onClick={() => copyOrderNumber(order.id)}
                       className="ml-2 p-1 text-gray-400 hover:text-gray-600"
@@ -216,7 +216,7 @@ const CustomerOrders = () => {
                     </button>
                   </h1>
                   <p className="text-gray-600 mt-1">
-                    Placed on {new Date(order.createdAt).toLocaleDateString('en-US', {
+                    Passée le {new Date(order.createdAt).toLocaleDateString('en-US', {
                       weekday: 'long',
                       year: 'numeric',
                       month: 'long',
@@ -236,7 +236,7 @@ const CustomerOrders = () => {
                       onClick={() => downloadInvoice(order)}
                     >
                       <Download className="h-4 w-4 mr-2" />
-                      Invoice
+                      Facture
                     </Button>
                   </div>
                 </div>
@@ -246,7 +246,7 @@ const CustomerOrders = () => {
             {/* Order Status Tracking */}
             {order.orderStatus !== 'CANCELLED' && (
               <div className="p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-6">Order Tracking</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-6">Suivi de commande</h3>
                 <div className="space-y-6">
                   {trackingSteps.map((step, stepIdx) => (
                     <div key={step.id} className="relative flex items-start">
@@ -272,7 +272,7 @@ const CustomerOrders = () => {
                         </h4>
                         <p className="text-sm text-gray-500">{step.description}</p>
                         {step.current && (
-                          <p className="text-xs text-primary-600 mt-1">Current status</p>
+                          <p className="text-xs text-primary-600 mt-1">Statut actuel</p>
                         )}
                       </div>
                     </div>
@@ -285,10 +285,10 @@ const CustomerOrders = () => {
                       <Truck className="h-5 w-5 text-blue-500 mr-2" />
                       <div>
                         <p className="text-sm font-medium text-blue-900">
-                          Estimated Delivery: {getEstimatedDelivery(order)}
+                          Livraison estimée: {getEstimatedDelivery(order)}
                         </p>
                         <p className="text-sm text-blue-700">
-                          Your package is on its way! Track your shipment for real-time updates.
+                          Votre colis est en route ! Suivez votre envoi pour des mises à jour en temps réel.
                         </p>
                       </div>
                     </div>
@@ -303,7 +303,7 @@ const CustomerOrders = () => {
             <div className="lg:col-span-2">
               <div className="bg-white shadow-sm rounded-lg p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Order Items ({order.items.length})
+                  Articles de la commande ({order.items.length})
                 </h3>
                 <div className="space-y-4">
                   {order.items.map((item, index) => (
@@ -325,16 +325,16 @@ const CustomerOrders = () => {
                         <h4 className="font-medium text-gray-900 mb-1">{item.productName}</h4>
                         <div className="flex items-center space-x-4 text-sm text-gray-600">
                           <span>Qty: {item.quantity}</span>
-                          <span>${item.unitPrice.toFixed(2)} each</span>
+                          <span>${item.unitPrice.toFixed(2)} par unité</span>
                         </div>
                         {order.orderStatus === 'DELIVERED' && (
                           <div className="mt-2 flex items-center space-x-2">
                             <Button size="sm" variant="outline">
                               <Star className="h-4 w-4 mr-1" />
-                              Rate Product
+                              Noter le produit
                             </Button>
                             <Button size="sm" variant="outline">
-                              Buy Again
+                              Acheter à nouveau
                             </Button>
                           </div>
                         )}
@@ -353,15 +353,15 @@ const CustomerOrders = () => {
                       <>
                         <Button size="sm">
                           <RefreshCw className="h-4 w-4 mr-2" />
-                          Reorder
+                          Commander à nouveau
                         </Button>
                         <Button variant="outline" size="sm">
                           <MessageCircle className="h-4 w-4 mr-2" />
-                          Leave Review
+                          Laisser un avis
                         </Button>
                         <Button variant="outline" size="sm">
                           <AlertCircle className="h-4 w-4 mr-2" />
-                          Report Issue
+                          Signaler un problème
                         </Button>
                       </>
                     )}
@@ -374,18 +374,18 @@ const CustomerOrders = () => {
             <div className="space-y-6">
               {/* Order Summary */}
               <div className="bg-white shadow-sm rounded-lg p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Order Summary</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Résumé de commande</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Subtotal</span>
+                    <span className="text-gray-600">Sous-total</span>
                     <span className="text-gray-900">${order.subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Tax</span>
+                    <span className="text-gray-600">Taxes</span>
                     <span className="text-gray-900">${order.tax.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Shipping</span>
+                    <span className="text-gray-600">Livraison</span>
                     <span className="text-gray-900">
                       {order.shippingCost === 0 ? 'Free' : `${order.shippingCost.toFixed(2)}`}
                     </span>
@@ -403,7 +403,7 @@ const CustomerOrders = () => {
               <div className="bg-white shadow-sm rounded-lg p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
                   <MapPin className="h-5 w-5 mr-2" />
-                  Shipping Address
+                  Adresse de Livraison
                 </h3>
                 <div className="text-sm text-gray-600 space-y-1">
                   <p className="font-medium text-gray-900">{order.shippingAddress.fullName}</p>
@@ -423,15 +423,15 @@ const CustomerOrders = () => {
               <div className="bg-white shadow-sm rounded-lg p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
                   <CreditCard className="h-5 w-5 mr-2" />
-                  Payment Information
+                  Informations de paiement
                 </h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Payment Method:</span>
+                    <span className="text-gray-600">Methode de paiement:</span>
                     <span className="font-medium text-gray-900">{order.paymentMethod}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Payment Status:</span>
+                    <span className="text-gray-600">Statut de paiement:</span>
                     <span className={`font-medium ${
                       order.paymentStatus === 'PAID' ? 'text-green-600' : 'text-yellow-600'
                     }`}>
@@ -439,7 +439,7 @@ const CustomerOrders = () => {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Transaction ID:</span>
+                    <span className="text-gray-600">ID de transaction :</span>
                     <span className="font-medium text-gray-900">TXN-{order.id.slice(-8)}</span>
                   </div>
                 </div>
@@ -466,10 +466,10 @@ const CustomerOrders = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Unable to load orders</h2>
-          <p className="text-gray-600 mb-4">Please try again later.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Impossible de charger les commandes</h2>
+          <p className="text-gray-600 mb-4">Veuillez réessayer plus tard.</p>
           <Link to="/customer/dashboard">
-            <Button>Back to Dashboard</Button>
+            <Button>Retour au tableau de bord</Button>
           </Link>
         </div>
       </div>
@@ -483,10 +483,10 @@ const CustomerOrders = () => {
         <div className="mb-8">
           <Link to="/customer/dashboard" className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-4">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to Dashboard
+            Retour au tableau de bord
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">My Orders</h1>
-          <p className="text-gray-600">Track and manage your orders</p>
+          <h1 className="text-3xl font-bold text-gray-900">Mes commandes</h1>
+          <p className="text-gray-600">Suivez et gérez vos commandes</p>
         </div>
 
         {/* Filters */}
@@ -508,16 +508,17 @@ const CustomerOrders = () => {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value="ALL">All Orders</option>
-                <option value="PENDING">Pending</option>
-                <option value="PROCESSING">Processing</option>
-                <option value="SHIPPED">Shipped</option>
-                <option value="DELIVERED">Delivered</option>
-                <option value="CANCELLED">Cancelled</option>
+                <option value="ALL">Toutes les commandes</option>
+                <option value="PENDING">En attente</option>
+                <option value="PROCESSING">En cours</option>
+                <option value="SHIPPED">Expédiées</option>
+                <option value="DELIVERED">Livrées</option>
+                <option value="CANCELLED">Annulées</option>
+
               </select>
             </div>
             <p className="text-sm text-gray-600">
-              {filteredOrders.length} order{filteredOrders.length !== 1 ? 's' : ''} found
+              {filteredOrders.length} commande{filteredOrders.length !== 1 ? 's' : ''} trouvée
             </p>
           </div>
         </div>
@@ -526,14 +527,14 @@ const CustomerOrders = () => {
         {filteredOrders.length === 0 ? (
           <div className="bg-white shadow-sm rounded-lg p-12 text-center">
             <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No orders found</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune commande trouvée</h3>
             <p className="text-gray-600 mb-6">
               {orders.length === 0 
                 ? "You haven't placed any orders yet." 
                 : "No orders match your current filters."}
             </p>
             <Link to="/products">
-              <Button>Start Shopping</Button>
+              <Button>Commencer vos achats</Button>
             </Link>
           </div>
         ) : (
@@ -544,7 +545,7 @@ const CustomerOrders = () => {
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                        Order #{order.id.slice(-8)}
+                        Commande #{order.id.slice(-8)}
                         <button 
                           onClick={() => copyOrderNumber(order.id)}
                           className="ml-2 p-1 text-gray-400 hover:text-gray-600"
@@ -553,7 +554,7 @@ const CustomerOrders = () => {
                         </button>
                       </h3>
                       <p className="text-sm text-gray-600">
-                        Placed on {new Date(order.createdAt).toLocaleDateString()} • 
+                        Passée le {new Date(order.createdAt).toLocaleDateString()} • 
                         {order.items.length} item{order.items.length !== 1 ? 's' : ''}
                       </p>
                     </div>
@@ -594,13 +595,13 @@ const CustomerOrders = () => {
                       <Link to={`/customer/orders/${order.id}`}>
                         <Button variant="outline" size="sm">
                           <Eye className="h-4 w-4 mr-2" />
-                          View Details
+                         Voir les détails
                         </Button>
                       </Link>
                       {order.orderStatus === 'DELIVERED' && (
                         <Button size="sm">
                           <RefreshCw className="h-4 w-4 mr-2" />
-                          Reorder
+                          Commander à nouveau
                         </Button>
                       )}
                     </div>
@@ -611,7 +612,7 @@ const CustomerOrders = () => {
                     <div className="flex items-center justify-between text-sm text-gray-600">
                       <span>{getEstimatedDelivery(order)}</span>
                       {order.orderStatus === 'SHIPPED' && (
-                        <span className="text-blue-600 font-medium">Track Package</span>
+                        <span className="text-blue-600 font-medium">Suivre le colis</span>
                       )}
                     </div>
                   </div>

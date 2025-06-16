@@ -54,11 +54,11 @@ const AdminOrders = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('admin-orders');
-        toast.success('Order status updated successfully');
+        toast.success('Le statut de la commande a été mis à jour avec succès');
         setShowOrderModal(false);
       },
       onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to update order status');
+        toast.error(error.response?.data?.message || 'Échec de la mise à jour du statut de la commande');
       },
     }
   );
@@ -69,11 +69,11 @@ const AdminOrders = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('admin-orders');
-        toast.success(`${selectedOrders.size} orders deleted successfully`);
+        toast.success(`${selectedOrders.size} commandes supprimées avec succès`);
         setSelectedOrders(new Set());
       },
       onError: (error) => {
-        toast.error('Failed to delete selected orders');
+        toast.error('Échec de la suppression des commandes sélectionnées');
       },
     }
   );
@@ -89,7 +89,7 @@ const AdminOrders = () => {
       const failed = results.filter(result => result.status === 'rejected');
       
       if (failed.length > 0) {
-        throw new Error(`${failed.length} orders failed to update`);
+        throw new Error(`${failed.length} commandes n'ont pas pu être mises à jour`);
       }
       
       return successful;
@@ -97,13 +97,13 @@ const AdminOrders = () => {
     {
       onSuccess: (results) => {
         queryClient.invalidateQueries('admin-orders');
-        toast.success(`${results.length} orders updated successfully`);
+        toast.success(`${results.length} commandes mises à jour avec succès`);
         setSelectedOrders(new Set());
         setShowStatusModal(false);
         setBulkStatus('');
       },
       onError: (error) => {
-        toast.error(error.message || 'Failed to update selected orders');
+        toast.error(error.message || 'Échec de la mise à jour des commandes sélectionnées');
         queryClient.invalidateQueries('admin-orders');
       },
     }
@@ -185,14 +185,14 @@ const AdminOrders = () => {
     
     if (exportType === 'selected' && selectedOrders.size > 0) {
       ordersToExport = filteredOrders.filter(order => selectedOrders.has(order.id));
-      filename = `selected-orders-${new Date().toISOString().split('T')[0]}.csv`;
+      filename = `commandes-selectionnees-${new Date().toISOString().split('T')[0]}.csv`;
     } else {
       ordersToExport = filteredOrders;
-      filename = `all-orders-${new Date().toISOString().split('T')[0]}.csv`;
+      filename = `toutes-les-commandes-${new Date().toISOString().split('T')[0]}.csv`;
     }
 
     if (ordersToExport.length === 0) {
-      toast.error('No orders to export');
+      toast.error('Aucune commande à exporter');
       return;
     }
 
@@ -238,12 +238,12 @@ const AdminOrders = () => {
     link.click();
     document.body.removeChild(link);
 
-    toast.success(`${ordersToExport.length} orders exported successfully`);
+    toast.success(`${ordersToExport.length} commandes exportées avec succès`);
   };
 
   const handleBulkAction = (action) => {
     if (selectedOrders.size === 0) {
-      toast.error('Please select orders first');
+      toast.error('Veuillez sélectionner des commandes');
       return;
     }
 
@@ -255,11 +255,11 @@ const AdminOrders = () => {
         setShowStatusModal(true);
         break;
       case 'export':
-        handleExportOrders('selected');
+        handleExportOrders('selectionné');
         break;
       case 'email':
         // Send email to selected customers logic
-        toast.success('Sending emails to selected customers...');
+        toast.success('Envoi des e-mails aux clients sélectionnés...');
         break;
       default:
         break;
@@ -273,7 +273,7 @@ const AdminOrders = () => {
 
   const handleConfirmStatusUpdate = () => {
     if (!bulkStatus) {
-      toast.error('Please select a status');
+      toast.error('Veuillez sélectionner un statut');
       return;
     }
     bulkUpdateStatusMutation.mutate({
@@ -296,28 +296,28 @@ const AdminOrders = () => {
   // Calculate statistics
   const stats = [
     {
-      label: 'Total Orders',
+      label: 'Total des commandes',
       value: orders.length,
       icon: Package,
       color: 'bg-blue-500',
       change: '+12%'
     },
     {
-      label: 'Total Revenue',
+      label: 'Total de revenue',
       value: `$${orders.reduce((sum, order) => sum + (order.total || 0), 0).toFixed(0)}`,
       icon: TrendingUp,
       color: 'bg-green-500',
       change: '+8%'
     },
     {
-      label: 'Pending Orders',
+      label: 'Commandes en attente',
       value: orders.filter(order => order.orderStatus === 'PENDING').length,
       icon: Clock,
       color: 'bg-yellow-500',
       change: '-5%'
     },
     {
-      label: 'Delivered Orders',
+      label: 'Commandes livrés',
       value: orders.filter(order => order.orderStatus === 'DELIVERED').length,
       icon: CheckCircle,
       color: 'bg-purple-500',
@@ -387,7 +387,7 @@ const AdminOrders = () => {
 
   const copyOrderId = (orderId) => {
     navigator.clipboard.writeText(orderId);
-    toast.success('Order ID copied to clipboard');
+    toast.success('ID de commande copié dans le presse-papiers');
   };
 
   if (isLoading) {
@@ -402,8 +402,8 @@ const AdminOrders = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Unable to load orders</h2>
-          <p className="text-gray-600">Please try again later.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Impossible de charger les commandes</h2>
+          <p className="text-gray-600">Veuillez réessayer plus tard.</p>
         </div>
       </div>
     );
@@ -419,16 +419,16 @@ const AdminOrders = () => {
         <div className="mb-8">
           <Link to="/admin/dashboard" className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-4">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to Dashboard
+            Retour au tableau de bord
           </Link>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Order Management</h1>
-              <p className="text-gray-600">Monitor and manage customer orders</p>
+              <h1 className="text-3xl font-bold text-gray-900">Gestion des commandes</h1>
+              <p className="text-gray-600">Surveillez et gérez les commandes clients</p>
             </div>
             <Button variant="outline" onClick={() => handleExportOrders('all')}>
               <Download className="h-4 w-4 mr-2" />
-              Export Orders
+              Exporter les commandes
             </Button>
           </div>
         </div>
@@ -470,12 +470,12 @@ const AdminOrders = () => {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value="">All Status</option>
-                <option value="PENDING">Pending</option>
-                <option value="PROCESSING">Processing</option>
-                <option value="SHIPPED">Shipped</option>
-                <option value="DELIVERED">Delivered</option>
-                <option value="CANCELLED">Cancelled</option>
+                <option value="">Tous les statuts</option>
+                <option value="PENDING">En attente</option>
+                <option value="PROCESSING">En cours</option>
+                <option value="SHIPPED">Expédié</option>
+                <option value="DELIVERED">Livré</option>
+                <option value="CANCELLED">Annulé</option>
               </select>
 
               <select
@@ -483,11 +483,11 @@ const AdminOrders = () => {
                 onChange={(e) => setPaymentFilter(e.target.value)}
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value="">All Payment Status</option>
-                <option value="PENDING">Payment Pending</option>
-                <option value="PAID">Paid</option>
-                <option value="FAILED">Failed</option>
-                <option value="REFUNDED">Refunded</option>
+                <option value="">Tous les statuts de paiement</option>
+                <option value="PENDING">Paiement en attente</option>
+                <option value="PAID">Payé</option>
+                <option value="FAILED">échoué</option>
+                <option value="REFUNDED">Remboursé</option>
               </select>
             </div>
             
@@ -503,7 +503,7 @@ const AdminOrders = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <span className="text-sm font-medium text-gray-700">
-                  {selectedOrders.size} order{selectedOrders.size !== 1 ? 's' : ''} selected
+                  {selectedOrders.size} commande{selectedOrders.size !== 1 ? 's' : ''} sélectioné
                 </span>
                 <div className="flex space-x-2">
                   <Button
@@ -512,7 +512,7 @@ const AdminOrders = () => {
                     onClick={() => handleBulkAction('update-status')}
                   >
                     <RefreshCw className="h-4 w-4 mr-1" />
-                    Update Status
+                    Mettre à jour le statut
                   </Button>
                   <Button
                     variant="outline"
@@ -520,7 +520,7 @@ const AdminOrders = () => {
                     onClick={() => handleBulkAction('export')}
                   >
                     <Download className="h-4 w-4 mr-1" />
-                    Export
+                    Exporter
                   </Button>
                   <Button
                     variant="outline"
@@ -529,7 +529,7 @@ const AdminOrders = () => {
                     className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
                   >
                     <Trash2 className="h-4 w-4 mr-1" />
-                    Delete
+                    Supprimer
                   </Button>
                 </div>
               </div>
@@ -538,7 +538,7 @@ const AdminOrders = () => {
                 size="sm"
                 onClick={() => setSelectedOrders(new Set())}
               >
-                Clear Selection
+                Vider la sélection
               </Button>
             </div>
           </div>
@@ -548,11 +548,11 @@ const AdminOrders = () => {
         {filteredOrders.length === 0 ? (
           <div className="bg-white shadow-sm rounded-lg p-12 text-center">
             <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No orders found</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune commande disponible</h3>
             <p className="text-gray-600">
               {orders.length === 0 
-                ? "No orders have been placed yet." 
-                : "No orders match your current filters."}
+                ? "Aucune commande n'a encore été passée." 
+                : "Aucune commande ne correspond à vos filtres actuels."}
             </p>
           </div>
         ) : (
@@ -577,7 +577,7 @@ const AdminOrders = () => {
                       onClick={() => handleSort('id')}
                     >
                       <div className="flex items-center space-x-1">
-                        <span>Order</span>
+                        <span>Commande</span>
                         {getSortIcon('id')}
                       </div>
                     </th>
@@ -586,7 +586,7 @@ const AdminOrders = () => {
                       onClick={() => handleSort('customerName')}
                     >
                       <div className="flex items-center space-x-1">
-                        <span>Customer</span>
+                        <span>Client</span>
                         {getSortIcon('customerName')}
                       </div>
                     </th>
@@ -613,7 +613,7 @@ const AdminOrders = () => {
                       onClick={() => handleSort('orderStatus')}
                     >
                       <div className="flex items-center space-x-1">
-                        <span>Status</span>
+                        <span>Statut</span>
                         {getSortIcon('orderStatus')}
                       </div>
                     </th>
@@ -622,7 +622,7 @@ const AdminOrders = () => {
                       onClick={() => handleSort('paymentMethod')}
                     >
                       <div className="flex items-center space-x-1">
-                        <span>Payment Method</span>
+                        <span>Methode de payment</span>
                         {getSortIcon('paymentMethod')}
                       </div>
                     </th>
@@ -631,7 +631,7 @@ const AdminOrders = () => {
                       onClick={() => handleSort('paymentStatus')}
                     >
                       <div className="flex items-center space-x-1">
-                        <span>Payment Status</span>
+                        <span>Statut de payment</span>
                         {getSortIcon('paymentStatus')}
                       </div>
                     </th>
@@ -740,11 +740,11 @@ const AdminOrders = () => {
                               value=""
                               className="px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                             >
-                              <option value="">Update Status</option>
-                              {order.orderStatus === 'PENDING' && <option value="PROCESSING">Mark Processing</option>}
-                              {order.orderStatus === 'PROCESSING' && <option value="SHIPPED">Mark Shipped</option>}
-                              {order.orderStatus === 'SHIPPED' && <option value="DELIVERED">Mark Delivered</option>}
-                              {order.orderStatus !== 'CANCELLED' && <option value="CANCELLED">Cancel Order</option>}
+                              <option value="">Mettre à jour le statut</option>
+                              {order.orderStatus === 'PENDING' && <option value="PROCESSING">Marquer comme en cours</option>}
+                              {order.orderStatus === 'PROCESSING' && <option value="SHIPPED">Marquer comme expédié</option>}
+                              {order.orderStatus === 'SHIPPED' && <option value="DELIVERED">Marquer comme livré</option>}
+                              {order.orderStatus !== 'CANCELLED' && <option value="CANCELLED">Annuler la commande</option>}
                             </select>
                           )}
                         </div>
@@ -763,7 +763,7 @@ const AdminOrders = () => {
             <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">Order Details</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">Détails de commande</h2>
                   <button
                     onClick={() => setShowOrderModal(false)}
                     className="text-gray-400 hover:text-gray-500"
@@ -774,22 +774,22 @@ const AdminOrders = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Customer Information</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Information de client</h3>
                     <div className="space-y-2">
                       <p className="text-sm text-gray-600">
-                        <span className="font-medium">Name:</span> {selectedOrder.customerName}
+                        <span className="font-medium">Nom:</span> {selectedOrder.customerName}
                       </p>
                       <p className="text-sm text-gray-600">
                         <span className="font-medium">Email:</span> {selectedOrder.customerEmail}
                       </p>
                       <p className="text-sm text-gray-600">
-                        <span className="font-medium">Phone:</span> {selectedOrder.customerPhone || 'N/A'}
+                        <span className="font-medium">Téléphone:</span> {selectedOrder.customerPhone || 'N/A'}
                       </p>
                     </div>
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Shipping Address</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Adresse de livraison</h3>
                     <div className="space-y-2">
                       <p className="text-sm text-gray-600">
                         {selectedOrder.shippingAddress.addressLine1}
@@ -810,7 +810,7 @@ const AdminOrders = () => {
                 </div>
 
                 <div className="mb-6">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Order Items</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Articles de la commande</h3>
                   <div className="space-y-4">
                     {selectedOrder.items.map((item, index) => (
                       <div key={index} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
@@ -827,8 +827,8 @@ const AdminOrders = () => {
                         </div>
                         <div className="flex-1">
                           <h4 className="text-sm font-medium text-gray-900">{item.productName}</h4>
-                          <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
-                          <p className="text-sm text-gray-500">Price: ${item.unitPrice.toFixed(2)} each</p>
+                          <p className="text-sm text-gray-500">Quantité: {item.quantity}</p>
+                          <p className="text-sm text-gray-500">Prix: ${item.unitPrice.toFixed(2)} par unité </p>
                         </div>
                         <div className="text-right">
                           <p className="text-sm font-medium text-gray-900">
@@ -842,7 +842,7 @@ const AdminOrders = () => {
 
                 <div className="border-t border-gray-200 pt-6">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-medium text-gray-900">Order Summary</h3>
+                    <h3 className="text-lg font-medium text-gray-900">Résumé de la commande</h3>
                     <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedOrder.orderStatus)}`}>
                       {getStatusIcon(selectedOrder.orderStatus)}
                       <span className="ml-1">{selectedOrder.orderStatus}</span>
@@ -850,15 +850,15 @@ const AdminOrders = () => {
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Subtotal</span>
+                      <span className="text-gray-600">Sous-total</span>
                       <span className="text-gray-900">${selectedOrder.subtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Tax</span>
+                      <span className="text-gray-600">Taxes</span>
                       <span className="text-gray-900">${(selectedOrder.subtotal * 0.1).toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Shipping</span>
+                      <span className="text-gray-600">Livraison</span>
                       <span className="text-gray-900">
                         {selectedOrder.subtotal >= 50 ? 'Free' : '$5.00'}
                       </span>
@@ -875,7 +875,7 @@ const AdminOrders = () => {
                     variant="outline"
                     onClick={() => setShowOrderModal(false)}
                   >
-                    Close
+                    Ferme
                   </Button>
                   {selectedOrder.orderStatus !== 'DELIVERED' && selectedOrder.orderStatus !== 'CANCELLED' && (
                     <select
@@ -885,11 +885,11 @@ const AdminOrders = () => {
                       }}
                       className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                     >
-                      <option value="">Update Status</option>
-                      {selectedOrder.orderStatus === 'PENDING' && <option value="PROCESSING">Mark Processing</option>}
-                      {selectedOrder.orderStatus === 'PROCESSING' && <option value="SHIPPED">Mark Shipped</option>}
-                      {selectedOrder.orderStatus === 'SHIPPED' && <option value="DELIVERED">Mark Delivered</option>}
-                      {selectedOrder.orderStatus !== 'CANCELLED' && <option value="CANCELLED">Cancel Order</option>}
+                      <option value="">Mettre à jour le statut</option>
+                      {selectedOrder.orderStatus === 'PENDING' && <option value="PROCESSING">Marquer comme en cours</option>}
+                      {selectedOrder.orderStatus === 'PROCESSING' && <option value="SHIPPED">Marquer comme expédié</option>}
+                      {selectedOrder.orderStatus === 'SHIPPED' && <option value="DELIVERED">Marquer comme livré</option>}
+                      {selectedOrder.orderStatus !== 'CANCELLED' && <option value="CANCELLED">Annuler la commande</option>}
                     </select>
                   )}
                 </div>
@@ -903,7 +903,7 @@ const AdminOrders = () => {
           <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg max-w-md w-full p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">Confirm Delete</h3>
+                <h3 className="text-lg font-medium text-gray-900">Confirmer la suppression</h3>
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
                   className="text-gray-400 hover:text-gray-500"
@@ -912,20 +912,20 @@ const AdminOrders = () => {
                 </button>
               </div>
               <p className="text-sm text-gray-600 mb-6">
-                Are you sure you want to delete {selectedOrders.size} selected order{selectedOrders.size !== 1 ? 's' : ''}? This action cannot be undone.
+                Êtes-vous sûr de vouloir supprimer {selectedOrders.size} la commande selectioné {selectedOrders.size !== 1 ? 's' : ''}? Cette action est irréversible.
               </p>
               <div className="flex justify-end space-x-3">
                 <Button
                   variant="outline"
                   onClick={() => setShowDeleteConfirm(false)}
                 >
-                  Cancel
+                  Annuler
                 </Button>
                 <Button
                   variant="danger"
                   onClick={handleConfirmDelete}
                 >
-                  Delete
+                  Supprimer
                 </Button>
               </div>
             </div>
@@ -937,7 +937,7 @@ const AdminOrders = () => {
           <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg max-w-md w-full p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">Update Order Status</h3>
+                <h3 className="text-lg font-medium text-gray-900">Mettre à jour le statut</h3>
                 <button
                   onClick={() => setShowStatusModal(false)}
                   className="text-gray-400 hover:text-gray-500"
@@ -947,7 +947,7 @@ const AdminOrders = () => {
               </div>
               <div className="mb-6">
                 <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
-                  Select New Status
+                  sélectionner un nouveau statut
                 </label>
                 <select
                   id="status"
@@ -955,7 +955,7 @@ const AdminOrders = () => {
                   onChange={(e) => setBulkStatus(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 >
-                  <option value="">Select a status</option>
+                  <option value="">sélectionnez un statut</option>
                   {getAvailableStatusOptions().map((status) => (
                     <option key={status} value={status}>
                       {status.charAt(0) + status.slice(1).toLowerCase()}
@@ -968,13 +968,13 @@ const AdminOrders = () => {
                   variant="outline"
                   onClick={() => setShowStatusModal(false)}
                 >
-                  Cancel
+                  Annuler
                 </Button>
                 <Button
                   onClick={handleConfirmStatusUpdate}
                   disabled={!bulkStatus}
                 >
-                  Update Status
+                  Mettre à jour
                 </Button>
               </div>
             </div>

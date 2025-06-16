@@ -7,7 +7,8 @@ import {
   MapPin, 
   Facebook, 
   Instagram, 
-  Twitter 
+  Twitter,
+  Linkedin
 } from 'lucide-react';
 
 const Footer = () => {
@@ -15,15 +16,15 @@ const Footer = () => {
 
   const footerLinks = {
     services: [
-      { name: 'Hair Services', href: 'https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services' },
-      { name: 'Skin Care', href: 'https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services' },
+      { name: 'Beauté du regard', href: 'https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services' },
+      { name: 'Soin', href: 'https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services' },
       { name: 'Massage', href: 'https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services' },
-      { name: 'Nail Care', href: 'https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services' },
+      { name: 'Épilation', href: 'https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services' },
+      { name: 'Beauté mains & ongles', href: 'https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services' },
     ],
     company: [
       { name: 'About Us', href: '/about' },
-      { name: 'Contact', href: '/contact' },
-      { name: 'Careers', href: '/careers' },
+      { name: 'Contacts', href:'/Contact'},
       { name: 'Privacy Policy', href: '/privacy' },
     ],
     support: [
@@ -35,9 +36,9 @@ const Footer = () => {
   };
 
   const socialLinks = [
-    { icon: Facebook, href: 'https://facebook.com', label: 'Facebook' },
-    { icon: Instagram, href: 'https://instagram.com', label: 'Instagram' },
-    { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
+    { icon: Facebook, href: 'https://www.facebook.com/profile.php?id=61551637964944', label: 'Facebook' },
+    { icon: Instagram, href: 'https://www.instagram.com/succar_banat', label: 'Instagram' },
+    { icon: Linkedin, href: 'https://www.linkedin.com/in/dounia-asri', label: 'Twitter' },
   ];
 
   return (
@@ -50,29 +51,28 @@ const Footer = () => {
               <div className="bg-gradient-to-r from-primary-500 to-primary-600 p-2 rounded-lg">
                 <Sparkles className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-serif font-bold">
-                Beauty Center
+              <span className="text-xl font-serif font-bold ">
+                SUCCAR BANAT INSTITUT
               </span>
             </Link>
             
             <p className="text-gray-300 text-sm">
-              Your premier destination for beauty and wellness. We offer professional 
-              services and premium products to help you look and feel your best.
+              Retrouvez chez SUCCAR BANAT un univers où le 100% naturel prône. Vous découvrirez ainsi l’étendue des secrets d’Orient et leurs bienfaits.
             </p>
 
             {/* Contact Info */}
             <div className="space-y-2">
               <div className="flex items-center space-x-2 text-sm text-gray-300">
                 <Phone className="h-4 w-4" />
-                <span>(555) 123-4567</span>
+                <span>(212) 603-286703</span>
               </div>
               <div className="flex items-center space-x-2 text-sm text-gray-300">
                 <Mail className="h-4 w-4" />
-                <span>info@beautycenter.com</span>
+                <span>dounia.beaute.pro@gmail.com</span>
               </div>
               <div className="flex items-center space-x-2 text-sm text-gray-300">
                 <MapPin className="h-4 w-4" />
-                <span>123 Beauty Street, City, State 12345</span>
+                <span>110 Rue des Cras, 25000 Besançon, France</span>
               </div>
             </div>
 

@@ -46,10 +46,10 @@ const AdminServices = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('admin-services');
-        toast.success('Service deleted successfully');
+        toast.success('Service supprimé avec succès');
       },
       onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to delete service');
+        toast.error(error.response?.data?.message || 'Échec de la suppression du service');
       },
     }
   );
@@ -58,12 +58,11 @@ const AdminServices = () => {
   const staff = staffData?.data || [];
 
   const categories = [
-    'Hair Services',
-    'Skin Care',
+    'Beauté du regard',
+    'Soin',
     'Massage',
-    'Nail Care',
-    'Body Treatments',
-    'Facial Treatments',
+    'Épilation',
+    'Beauté mains & ongles',
   ];
 
   // Filter services
@@ -78,13 +77,13 @@ const AdminServices = () => {
   });
 
   const handleDeleteService = (service) => {
-    if (window.confirm(`Are you sure you want to delete "${service.name}"?`)) {
+    if (window.confirm(`Êtes-vous sûr de vouloir supprimer "${service.name}"?`)) {
       deleteServiceMutation.mutate(service.id);
     }
   };
 
   const getAssignedStaffNames = (staffIds) => {
-    if (!staffIds || staffIds.length === 0) return 'No staff assigned';
+    if (!staffIds || staffIds.length === 0) return 'Aucun personnel assigné';
     
     const staffNames = staffIds
       .map(id => {
@@ -93,7 +92,7 @@ const AdminServices = () => {
       })
       .filter(name => name);
     
-    return staffNames.length > 0 ? staffNames.join(', ') : 'No staff assigned';
+    return staffNames.length > 0 ? staffNames.join(', ') : 'Aucun personnel assigné';
   };
 
   if (isLoading) {
@@ -108,8 +107,8 @@ const AdminServices = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Unable to load services</h2>
-          <p className="text-gray-600">Please try again later.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Impossible de charger les services</h2>
+          <p className="text-gray-600">Veuillez réessayer plus tard.</p>
         </div>
       </div>
     );
@@ -122,16 +121,16 @@ const AdminServices = () => {
         <div className="mb-8">
           <Link to="/admin/dashboard" className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-4">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to Dashboard
+            Retour au tableau de bord
           </Link>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Service Management</h1>
-              <p className="text-gray-600">Manage your beauty services and treatments</p>
+              <h1 className="text-3xl font-bold text-gray-900">Gestion des services</h1>
+              <p className="text-gray-600">Gérez vos services et soins de beauté</p>
             </div>
             <Button onClick={() => setShowCreateForm(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              Add Service
+              Ajouter un service
             </Button>
           </div>
         </div>
@@ -144,7 +143,7 @@ const AdminServices = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search services..."
+                  placeholder="recherche services..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -164,7 +163,7 @@ const AdminServices = () => {
               </select>
             </div>
             <p className="text-sm text-gray-600">
-              {filteredServices.length} service{filteredServices.length !== 1 ? 's' : ''} found
+              {filteredServices.length} service{filteredServices.length !== 1 ? 's' : ''} trouvé
             </p>
           </div>
         </div>
@@ -173,14 +172,14 @@ const AdminServices = () => {
         {filteredServices.length === 0 ? (
           <div className="bg-white shadow-sm rounded-lg p-12 text-center">
             <Sparkles className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No services found</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun service trouvé</h3>
             <p className="text-gray-600 mb-6">
               {services.length === 0 
                 ? "Get started by adding your first service." 
                 : "No services match your current filters."}
             </p>
             <Button onClick={() => setShowCreateForm(true)}>
-              Add Service
+              Ajouter un service
             </Button>
           </div>
         ) : (
@@ -193,19 +192,19 @@ const AdminServices = () => {
                       Service
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Category
+                      Catégorie
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Price & Duration
+                      Prix et durée
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Assigned Staff
+                      Personnel assigné
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Availability
+                      Disponibilité
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
+                      Statut
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
@@ -379,11 +378,11 @@ const ServiceModal = ({ service, staff, onClose, onSuccess }) => {
     (serviceData) => servicesAPI.create(serviceData),
     {
       onSuccess: () => {
-        toast.success('Service created successfully');
+        toast.success('Service créé avec succès');
         onSuccess();
       },
       onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to create service');
+        toast.error(error.response?.data?.message || 'Échec de la création du service');
       },
     }
   );
@@ -392,11 +391,11 @@ const ServiceModal = ({ service, staff, onClose, onSuccess }) => {
     ({ id, serviceData }) => servicesAPI.update(id, serviceData),
     {
       onSuccess: () => {
-        toast.success('Service updated successfully');
+        toast.success('Service mis à jour avec succès');
         onSuccess();
       },
       onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to update service');
+        toast.error(error.response?.data?.message || 'Échec de la mise à jour du service');
       },
     }
   );
@@ -453,12 +452,11 @@ const ServiceModal = ({ service, staff, onClose, onSuccess }) => {
   };
 
   const categories = [
-    'Hair Services',
-    'Skin Care',
+    'Beauté du regard',
+    'Soin',
     'Massage',
-    'Nail Care',
-    'Body Treatments',
-    'Facial Treatments',
+    'Épilation',
+    'Beauté mains & ongles',
   ];
 
   const isLoading = createServiceMutation.isLoading || updateServiceMutation.isLoading;
@@ -468,7 +466,7 @@ const ServiceModal = ({ service, staff, onClose, onSuccess }) => {
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">
-            {service ? 'Edit Service' : 'Add New Service'}
+            {service ? 'Modifier le service' : 'Ajouter un nouveau service'}
           </h2>
           <button
             onClick={onClose}
@@ -482,11 +480,11 @@ const ServiceModal = ({ service, staff, onClose, onSuccess }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Basic Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Basic Information</h3>
+              <h3 className="text-lg font-medium text-gray-900">Informations générales</h3>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Service Name *
+                 Nom du service *
                 </label>
                 <input
                   type="text"
@@ -511,7 +509,7 @@ const ServiceModal = ({ service, staff, onClose, onSuccess }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Category *
+                  Catégorie *
                 </label>
                 <select
                   required
@@ -519,7 +517,7 @@ const ServiceModal = ({ service, staff, onClose, onSuccess }) => {
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 >
-                  <option value="">Select Category</option>
+                  <option value="">Sélectionner une catégorie</option>
                   {categories.map((category) => (
                     <option key={category} value={category}>
                       {category}
@@ -531,7 +529,7 @@ const ServiceModal = ({ service, staff, onClose, onSuccess }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Price * ($)
+                    Prix * ($)
                   </label>
                   <input
                     type="number"
@@ -546,7 +544,7 @@ const ServiceModal = ({ service, staff, onClose, onSuccess }) => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Duration * (minutes)
+                    durée * (minutes)
                   </label>
                   <input
                     type="number"
@@ -562,11 +560,11 @@ const ServiceModal = ({ service, staff, onClose, onSuccess }) => {
 
             {/* Pricing & Settings */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Settings & Availability</h3>
+              <h3 className="text-lg font-medium text-gray-900">Paramètres et disponibilité</h3>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Discount Percentage (%)
+                  Pourcentage de remise (%)
                 </label>
                 <input
                   type="number"
@@ -583,7 +581,7 @@ const ServiceModal = ({ service, staff, onClose, onSuccess }) => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Discount Start Date
+                      Date de début de la remise
                     </label>
                     <input
                       type="date"
@@ -595,7 +593,7 @@ const ServiceModal = ({ service, staff, onClose, onSuccess }) => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Discount End Date
+                      Date de fin de la remise
                     </label>
                     <input
                       type="date"
@@ -617,7 +615,7 @@ const ServiceModal = ({ service, staff, onClose, onSuccess }) => {
                     className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                   />
                   <label htmlFor="availableMorning" className="ml-2 block text-sm text-gray-900">
-                    Available in Morning (9AM - 12PM)
+                    Disponible le matin (9h - 12h)
                   </label>
                 </div>
 
@@ -630,7 +628,7 @@ const ServiceModal = ({ service, staff, onClose, onSuccess }) => {
                     className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                   />
                   <label htmlFor="availableEvening" className="ml-2 block text-sm text-gray-900">
-                    Available in Evening (1PM - 6PM)
+                    Disponible le soir (13h - 18h)
                   </label>
                 </div>
 
@@ -643,7 +641,7 @@ const ServiceModal = ({ service, staff, onClose, onSuccess }) => {
                     className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                   />
                   <label htmlFor="featured" className="ml-2 block text-sm text-gray-900">
-                    Featured Service
+                    Service en vedette
                   </label>
                 </div>
 
@@ -656,7 +654,7 @@ const ServiceModal = ({ service, staff, onClose, onSuccess }) => {
                     className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                   />
                   <label htmlFor="active" className="ml-2 block text-sm text-gray-900">
-                    Active Service
+                    Service actif
                   </label>
                 </div>
               </div>
@@ -665,10 +663,10 @@ const ServiceModal = ({ service, staff, onClose, onSuccess }) => {
 
           {/* Staff Assignment */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Assigned Staff</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Personnel assigné</h3>
             
             {staff.length === 0 ? (
-              <p className="text-gray-600">No staff members available</p>
+              <p className="text-gray-600">Aucun membre du personnel disponible</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {staff.map((staffMember) => (
@@ -693,7 +691,7 @@ const ServiceModal = ({ service, staff, onClose, onSuccess }) => {
                           {staffMember.firstName} {staffMember.lastName}
                         </p>
                         <p className="text-xs text-gray-600">
-                          {staffMember.specialties?.join(', ') || 'No specialties listed'}
+                          {staffMember.specialties?.join(', ') || 'Aucune spécialité répertoriée'}
                         </p>
                       </div>
                     </div>
@@ -705,7 +703,7 @@ const ServiceModal = ({ service, staff, onClose, onSuccess }) => {
 
           {/* Image URLs */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Service Images</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Images de service</h3>
             
             <div className="space-y-3">
               <div className="flex space-x-2">
@@ -713,11 +711,11 @@ const ServiceModal = ({ service, staff, onClose, onSuccess }) => {
                   type="url"
                   value={newImageUrl}
                   onChange={(e) => setNewImageUrl(e.target.value)}
-                  placeholder="Enter image URL"
+                  placeholder="Entrer URL d'image "
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 />
                 <Button type="button" onClick={addImageUrl} variant="outline">
-                  Add Image
+                  Ajouter une image
                 </Button>
               </div>
 
@@ -744,10 +742,10 @@ const ServiceModal = ({ service, staff, onClose, onSuccess }) => {
           {/* Form Actions */}
           <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              Annuler
             </Button>
             <Button type="submit" loading={isLoading}>
-              {service ? 'Update Service' : 'Create Service'}
+              {service ? 'Mettre à jour le service' : 'Créer un service'}
             </Button>
           </div>
         </form>

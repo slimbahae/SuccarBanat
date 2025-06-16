@@ -26,19 +26,18 @@ const Products = () => {
   );
 
   const categories = [
-    'Hair Care',
-    'Skin Care',
-    'Makeup',
-    'Nail Care',
-    'Body Care',
-    'Fragrances',
+    'Beauté de regard',
+    'Soin',
+    'Massage',
+    'Épilation',
+    'Beauté mains & ongles',
   ];
 
   const sortOptions = [
-    { value: 'name', label: 'Name A-Z' },
-    { value: 'price-low', label: 'Price: Low to High' },
-    { value: 'price-high', label: 'Price: High to Low' },
-    { value: 'featured', label: 'Featured' },
+    { value: 'name', label: 'Nom A-Z' },
+    { value: 'price-low', label: 'Prix : du plus bas au plus élevé' },
+    { value: 'price-high', label: 'Prix : du plus élevé au plus bas' },
+    { value: 'featured', label: 'En vedette' },
   ];
 
   // Sort products
@@ -78,8 +77,8 @@ const Products = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Something went wrong</h2>
-          <p className="text-gray-600">Unable to load products. Please try again later.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Une erreur s'est produite</h2>
+          <p className="text-gray-600">Impossible de charger les produits. Veuillez réessayer plus tard.</p>
         </div>
       </div>
     );
@@ -92,10 +91,10 @@ const Products = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl lg:text-4xl font-serif font-bold text-gray-900 mb-4">
-              Premium Beauty Products
+              Produits de beauté premium
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Discover our curated collection of professional-grade beauty products
+              Découvrez notre collection sélectionnée de produits de beauté de qualité professionnelle
             </p>
           </div>
 
@@ -107,7 +106,7 @@ const Products = () => {
               </div>
               <input
                 type="text"
-                placeholder="Search products..."
+                placeholder="Rechercher des produits..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -124,12 +123,12 @@ const Products = () => {
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
                 <Filter className="h-5 w-5 mr-2" />
-                Filters
+                Filtres
               </h3>
 
               {/* Categories */}
               <div className="mb-6">
-                <h4 className="font-medium text-gray-900 mb-3">Categories</h4>
+                <h4 className="font-medium text-gray-900 mb-3">Catégories</h4>
                 <div className="space-y-2">
                   <button
                     onClick={() => setSelectedCategory('')}
@@ -139,7 +138,7 @@ const Products = () => {
                         : 'text-gray-600 hover:bg-gray-100'
                     }`}
                   >
-                    All Categories
+                    Toutes les catégories
                   </button>
                   {categories.map((category) => (
                     <button
@@ -159,7 +158,7 @@ const Products = () => {
 
               {/* Sort */}
               <div>
-                <h4 className="font-medium text-gray-900 mb-3">Sort By</h4>
+                <h4 className="font-medium text-gray-900 mb-3">Trier par</h4>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
@@ -184,7 +183,7 @@ const Products = () => {
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value="">All Categories</option>
+                <option value="">Toutes les catégories</option>
                 {categories.map((category) => (
                   <option key={category} value={category}>
                     {category}
@@ -207,7 +206,7 @@ const Products = () => {
             {/* Results Count */}
             <div className="mb-6">
               <p className="text-gray-600">
-                Showing {sortedProducts.length} product{sortedProducts.length !== 1 ? 's' : ''}
+                Showing {sortedProducts.length} produit{sortedProducts.length !== 1 ? 's' : ''}
                 {selectedCategory && ` in ${selectedCategory}`}
                 {searchTerm && ` for "${searchTerm}"`}
               </p>
@@ -217,9 +216,9 @@ const Products = () => {
             {sortedProducts.length === 0 ? (
               <div className="text-center py-12">
                 <ShoppingBag className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun produit trouvé</h3>
                 <p className="text-gray-600">
-                  Try adjusting your search or filter criteria
+                  Essayez d’ajuster vos critères de recherche ou de filtre
                 </p>
               </div>
             ) : (
@@ -246,7 +245,7 @@ const Products = () => {
                       <div className="absolute top-3 left-3 flex flex-col space-y-2">
                         {product.featured && (
                           <span className="bg-primary-600 text-white text-xs px-2 py-1 rounded-full">
-                            Featured
+                            En vedette
                           </span>
                         )}
                         {product.discountPercentage && (
@@ -296,7 +295,7 @@ const Products = () => {
                         
                         <Link to={`/products/${product.id}`}>
                           <Button size="sm">
-                            View Details
+                            Voir les détails
                           </Button>
                         </Link>
                       </div>

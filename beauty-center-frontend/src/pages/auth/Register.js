@@ -34,12 +34,12 @@ const Register = () => {
     
     if (result.success) {
       navigate('/login', {
-        state: { message: 'Registration successful! Please sign in.' },
+        state: { message: 'Inscription réussie ! Veuillez vous connecter.' },
       });
     } else {
       setError('email', {
         type: 'manual',
-        message: result.message || 'Registration failed',
+        message: result.message || 'Échec de l’inscription',
       });
     }
     setIsLoading(false);
@@ -51,17 +51,17 @@ const Register = () => {
       <div className="hidden lg:block relative w-0 flex-1">
         <img
           className="absolute inset-0 h-full w-full object-cover"
-          src="https://images.unsplash.com/photo-1559599101-f09722fb4948?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80"
+          src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80"
           alt="Beauty products"
         />
         <div className="absolute inset-0 bg-primary-600 opacity-75" />
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center text-white">
             <h2 className="text-4xl font-serif font-bold mb-4">
-              Join Beauty Center
+              Rejoignez Succar Banat
             </h2>
             <p className="text-xl opacity-90">
-              Start your beauty journey with us today
+              Commencez votre parcours beauté avec nous dès aujourd’hui
             </p>
           </div>
         </div>
@@ -73,18 +73,18 @@ const Register = () => {
           <div>
             <Link to="/" className="flex items-center space-x-2 mb-8">
               <div className="bg-gradient-to-r from-primary-500 to-primary-600 p-2 rounded-lg">
-                <Sparkles className="h-6 w-6 text-white" />
+                <img src="logo-darkmode.png" alt="logo" className="h-6 w-6"/>
               </div>
               <span className="text-2xl font-serif font-bold text-gray-900">
-                Beauty Center
+                Succar Banat Institut
               </span>
             </Link>
             
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Create your account
+              Créez votre compte
             </h2>
             <p className="text-gray-600 mb-8">
-              Join us and discover your natural beauty
+              Rejoignez-nous et découvrez votre beauté naturelle
             </p>
           </div>
 
@@ -92,7 +92,7 @@ const Register = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
-                  First name
+                  Prénom
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -105,12 +105,12 @@ const Register = () => {
                     className={`block w-full pl-10 pr-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 ${
                       errors.firstName ? 'border-red-300' : 'border-gray-300'
                     }`}
-                    placeholder="First name"
+                    placeholder="Prénom"
                     {...register('firstName', {
-                      required: 'First name is required',
+                      required: 'Prénom est requis',
                       minLength: {
                         value: 2,
-                        message: 'First name must be at least 2 characters',
+                        message: 'Le prénom doit contenir au moins 2 caractères',
                       },
                     })}
                   />
@@ -122,7 +122,7 @@ const Register = () => {
 
               <div>
                 <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
-                  Last name
+                  Nom
                 </label>
                 <div className="relative">
                   <input
@@ -132,12 +132,12 @@ const Register = () => {
                     className={`block w-full pl-3 pr-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 ${
                       errors.lastName ? 'border-red-300' : 'border-gray-300'
                     }`}
-                    placeholder="Last name"
+                    placeholder="Nom"
                     {...register('lastName', {
-                      required: 'Last name is required',
+                      required: 'nom est requis',
                       minLength: {
                         value: 2,
-                        message: 'Last name must be at least 2 characters',
+                        message: 'Le nom doit contenir au moins 2 caractères',
                       },
                     })}
                   />
@@ -150,7 +150,7 @@ const Register = () => {
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email address
+                Address email
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -163,12 +163,12 @@ const Register = () => {
                   className={`block w-full pl-10 pr-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 ${
                     errors.email ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder="Enter your email"
+                  placeholder="Entrez votre email"
                   {...register('email', {
-                    required: 'Email is required',
+                    required: 'L’email est requis',
                     pattern: {
                       value: /^\S+@\S+$/i,
-                      message: 'Invalid email address',
+                      message: 'address email invalide',
                     },
                   })}
                 />
@@ -180,7 +180,7 @@ const Register = () => {
 
             <div>
               <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
-                Phone number
+                Numéro de Téléphone
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -193,11 +193,11 @@ const Register = () => {
                   className={`block w-full pl-10 pr-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 ${
                     errors.phoneNumber ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder="Enter your phone number"
+                  placeholder="Entrer votre numéro"
                   {...register('phoneNumber', {
                     pattern: {
                       value: /^[\+]?[1-9][\d]{0,15}$/,
-                      message: 'Invalid phone number',
+                      message: 'Numéro de téléphone invalide',
                     },
                   })}
                 />
@@ -209,7 +209,7 @@ const Register = () => {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
+                Most de passe
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -222,12 +222,12 @@ const Register = () => {
                   className={`block w-full pl-10 pr-10 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 ${
                     errors.password ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder="Create a password"
+                  placeholder="Créez un mot de passe"
                   {...register('password', {
-                    required: 'Password is required',
+                    required: 'Le mot de passe est requis',
                     minLength: {
                       value: 6,
-                      message: 'Password must be at least 6 characters',
+                      message: 'Le mot de passe doit contenir au moins 6 caractères',
                     },
                   })}
                 />
@@ -250,7 +250,7 @@ const Register = () => {
 
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                Confirm password
+                Confirmer le mot de passe
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -263,11 +263,11 @@ const Register = () => {
                   className={`block w-full pl-10 pr-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 ${
                     errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder="Confirm your password"
+                  placeholder="Confirmer le mot de passe"
                   {...register('confirmPassword', {
-                    required: 'Please confirm your password',
+                    required: 'Veuillez confirmer le mot de passe',
                     validate: (value) =>
-                      value === password || 'Passwords do not match',
+                      value === password || 'Les mots de passe ne correspondent pas',
                   })}
                 />
               </div>
@@ -275,31 +275,6 @@ const Register = () => {
                 <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
               )}
             </div>
-
-            <div className="flex items-center">
-              <input
-                id="terms"
-                name="terms"
-                type="checkbox"
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                {...register('terms', {
-                  required: 'You must accept the terms and conditions',
-                })}
-              />
-              <label htmlFor="terms" className="ml-2 block text-sm text-gray-900">
-                I agree to the{' '}
-                <Link to="/terms" className="text-primary-600 hover:text-primary-500">
-                  Terms and Conditions
-                </Link>{' '}
-                and{' '}
-                <Link to="/privacy" className="text-primary-600 hover:text-primary-500">
-                  Privacy Policy
-                </Link>
-              </label>
-            </div>
-            {errors.terms && (
-              <p className="mt-1 text-sm text-red-600">{errors.terms.message}</p>
-            )}
 
             <div>
               <Button
@@ -309,18 +284,18 @@ const Register = () => {
                 loading={isLoading}
                 disabled={isLoading}
               >
-                Create account
+                Créer le compte
               </Button>
             </div>
 
             <div className="text-center">
               <span className="text-sm text-gray-600">
-                Already have an account?{' '}
+                Vous avez déjà un compte ?{' '}
                 <Link
                   to="/login"
                   className="font-medium text-primary-600 hover:text-primary-500"
                 >
-                  Sign in
+                  Connectez-vous
                 </Link>
               </span>
             </div>

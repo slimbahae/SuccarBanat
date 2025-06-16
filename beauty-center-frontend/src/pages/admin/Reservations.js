@@ -42,11 +42,11 @@ const AdminReservations = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('admin-reservations');
-        toast.success('Reservation status updated successfully');
+        toast.success('Statut de la réservation mis à jour avec succès');
         setShowReservationModal(false);
       },
       onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to update reservation status');
+        toast.error(error.response?.data?.message || 'Échec de la mise à jour du statut de la réservation');
       },
     }
   );
@@ -111,21 +111,21 @@ const AdminReservations = () => {
       change: '+12%'
     },
     {
-      label: 'Today\'s Appointments',
+      label: 'Les rendez-vous du jour',
       value: todayReservations.length,
       icon: Clock,
       color: 'bg-green-500',
       change: '+8%'
     },
     {
-      label: 'Upcoming',
+      label: 'À venir',
       value: upcomingReservations.length,
       icon: Users,
       color: 'bg-purple-500',
       change: '+15%'
     },
     {
-      label: 'Service Revenue',
+      label: 'Revenus des services',
       value: `${totalRevenue.toFixed(0)}`,
       icon: TrendingUp,
       color: 'bg-yellow-500',
@@ -186,8 +186,8 @@ const AdminReservations = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Unable to load reservations</h2>
-          <p className="text-gray-600">Please try again later.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Impossible de charger les réservations</h2>
+          <p className="text-gray-600">Veuillez réessayer plus tard.</p>
         </div>
       </div>
     );
@@ -200,16 +200,16 @@ const AdminReservations = () => {
         <div className="mb-8">
           <Link to="/admin/dashboard" className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-4">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to Dashboard
+            Retour au tableau de bord
           </Link>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Reservation Management</h1>
-              <p className="text-gray-600">Monitor and manage service appointments</p>
+              <h1 className="text-3xl font-bold text-gray-900">Gestion des réservations</h1>
+              <p className="text-gray-600">Suivez et gérez les rendez-vous de service</p>
             </div>
             <Button variant="outline">
               <Calendar className="h-4 w-4 mr-2" />
-              View Calendar
+              Voir le calendrier
             </Button>
           </div>
         </div>
@@ -239,7 +239,7 @@ const AdminReservations = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search reservations..."
+                  placeholder="recherche reservations..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -251,11 +251,11 @@ const AdminReservations = () => {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value="">All Status</option>
-                <option value="PENDING">Pending</option>
-                <option value="CONFIRMED">Confirmed</option>
-                <option value="COMPLETED">Completed</option>
-                <option value="CANCELLED">Cancelled</option>
+                <option value="">Tout les Status</option>
+                <option value="PENDING">En attente</option>
+                <option value="CONFIRMED">Confirmé</option>
+                <option value="COMPLETED">Terminé</option>
+                <option value="CANCELLED">Annulé</option>
               </select>
 
               <select
@@ -263,16 +263,16 @@ const AdminReservations = () => {
                 onChange={(e) => setDateFilter(e.target.value)}
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value="">All Dates</option>
-                <option value="today">Today</option>
-                <option value="tomorrow">Tomorrow</option>
-                <option value="week">This Week</option>
-                <option value="month">This Month</option>
+                <option value="">Toutes les dates</option>
+                <option value="today">Aujourd'hui</option>
+                <option value="tomorrow">Demain</option>
+                <option value="week">Cette semaine</option>
+                <option value="month">Ce mois-ci</option>
               </select>
             </div>
             
             <p className="text-sm text-gray-600">
-              {filteredReservations.length} reservation{filteredReservations.length !== 1 ? 's' : ''} found
+              {filteredReservations.length} reservation{filteredReservations.length !== 1 ? 's' : ''} trouvée
             </p>
           </div>
         </div>
@@ -281,11 +281,11 @@ const AdminReservations = () => {
         {filteredReservations.length === 0 ? (
           <div className="bg-white shadow-sm rounded-lg p-12 text-center">
             <Calendar className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No reservations found</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune reservations trouvée</h3>
             <p className="text-gray-600">
               {reservations.length === 0 
-                ? "No reservations have been made yet." 
-                : "No reservations match your current filters."}
+                ? "Aucune réservation n’a encore été effectuée." 
+                : "Aucune réservation ne correspond à vos filtres actuels."}
             </p>
           </div>
         ) : (
@@ -298,19 +298,19 @@ const AdminReservations = () => {
                       Service
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Customer
+                      Client
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Staff
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date & Time
+                      Date & heure
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Amount
+                      Montant
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
+                      Statut
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
@@ -360,7 +360,7 @@ const AdminReservations = () => {
                         </div>
                         {isUpcoming(reservation.reservationDate) && (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mt-1">
-                            Upcoming
+                            À venir
                           </span>
                         )}
                       </td>
@@ -399,7 +399,7 @@ const AdminReservations = () => {
                               onClick={() => handleStatusUpdate(reservation.id, 'COMPLETED')}
                               loading={updateStatusMutation.isLoading}
                             >
-                              Complete
+                              achevé
                             </Button>
                           )}
                           
@@ -410,7 +410,7 @@ const AdminReservations = () => {
                               onClick={() => handleStatusUpdate(reservation.id, 'CANCELLED')}
                               loading={updateStatusMutation.isLoading}
                             >
-                              Cancel
+                              Annuler
                             </Button>
                           )}
                         </div>
@@ -431,7 +431,7 @@ const AdminReservations = () => {
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">
-                  Reservation Details
+                  Détails de reservation 
                 </h2>
                 <p className="text-sm text-gray-600">
                   #{selectedReservation.id.slice(-8)}
@@ -449,7 +449,7 @@ const AdminReservations = () => {
               {/* Status and Actions */}
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900">Status</h3>
+                  <h3 className="text-lg font-medium text-gray-900">Statut</h3>
                   <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedReservation.status)}`}>
                     {getStatusIcon(selectedReservation.status)}
                     <span className="ml-1">{selectedReservation.status}</span>
@@ -464,7 +464,7 @@ const AdminReservations = () => {
                         onClick={() => handleStatusUpdate(selectedReservation.id, 'COMPLETED')}
                         loading={updateStatusMutation.isLoading}
                       >
-                        Mark Completed
+                        Marquer comme achevé
                       </Button>
                     )}
                     <Button
@@ -473,7 +473,7 @@ const AdminReservations = () => {
                       onClick={() => handleStatusUpdate(selectedReservation.id, 'CANCELLED')}
                       loading={updateStatusMutation.isLoading}
                     >
-                      Cancel Reservation
+                      Annuler la reservation
                     </Button>
                   </div>
                 )}
@@ -482,7 +482,7 @@ const AdminReservations = () => {
               {/* Reservation Details */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-3">Service Information</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-3">Information de Service</h3>
                   <div className="bg-gray-50 rounded-lg p-4 space-y-3">
                     <div className="flex items-center">
                       <Sparkles className="h-5 w-5 text-primary-600 mr-2" />
@@ -503,25 +503,25 @@ const AdminReservations = () => {
                     </div>
                     <div className="flex items-center">
                       <User className="h-5 w-5 text-gray-400 mr-2" />
-                      <span>with {selectedReservation.staffName}</span>
+                      <span>avec {selectedReservation.staffName}</span>
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-3">Customer Information</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-3">Information de client</h3>
                   <div className="bg-gray-50 rounded-lg p-4 space-y-3">
                     <div>
                       <p className="font-medium">{selectedReservation.customerName}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">
-                        Booked on: {new Date(selectedReservation.createdAt).toLocaleDateString()}
+                        Réservé le: {new Date(selectedReservation.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                     {selectedReservation.notes && (
                       <div>
-                        <p className="text-sm font-medium text-gray-700">Special Requests:</p>
+                        <p className="text-sm font-medium text-gray-700">Demandes spéciales :</p>
                         <p className="text-sm text-gray-600">{selectedReservation.notes}</p>
                       </div>
                     )}
@@ -532,7 +532,7 @@ const AdminReservations = () => {
               {/* Add-ons */}
               {selectedReservation.addons && selectedReservation.addons.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-3">Add-on Services</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-3">Services supplémentaires</h3>
                   <div className="space-y-2">
                     {selectedReservation.addons.map((addon) => (
                       <div key={addon.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
@@ -547,7 +547,7 @@ const AdminReservations = () => {
               {/* Total Amount */}
               <div className="bg-primary-50 rounded-lg p-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-medium text-gray-900">Total Amount</span>
+                  <span className="text-lg font-medium text-gray-900">Montant total</span>
                   <span className="text-2xl font-bold text-primary-600">
                     ${selectedReservation.totalAmount.toFixed(2)}
                   </span>
@@ -558,11 +558,11 @@ const AdminReservations = () => {
               <div className="flex space-x-3 pt-4 border-t border-gray-200">
                 <Button variant="outline" className="flex-1">
                   <MessageCircle className="h-4 w-4 mr-2" />
-                  Contact Customer
+                  Contact du client
                 </Button>
                 <Button variant="outline" className="flex-1">
                   <MessageCircle className="h-4 w-4 mr-2" />
-                  Contact Staff
+                  Contact du Staff
                 </Button>
               </div>
             </div>
