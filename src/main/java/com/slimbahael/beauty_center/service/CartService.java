@@ -87,6 +87,8 @@ public class CartService {
                 .filter(item -> item.getProductId().equals(request.getProductId()))
                 .findFirst();
 
+        BigDecimal unitPrice = getCurrentPrice(product);
+
         if (existingItemOpt.isPresent()) {
             // Update existing item quantity
             Cart.CartItem existingItem = existingItemOpt.get();
@@ -97,15 +99,16 @@ public class CartService {
             }
 
             existingItem.setQuantity(newQuantity);
-            existingItem.setTotalPrice(product.getPrice().multiply(BigDecimal.valueOf(newQuantity)));
+            existingItem.setUnitPrice(unitPrice);
+            existingItem.setTotalPrice(unitPrice.multiply(BigDecimal.valueOf(newQuantity)));
         } else {
             // Add new item to cart
             Cart.CartItem newItem = Cart.CartItem.builder()
                     .productId(product.getId())
                     .productName(product.getName())
                     .quantity(request.getQuantity())
-                    .unitPrice(product.getPrice())
-                    .totalPrice(product.getPrice().multiply(BigDecimal.valueOf(request.getQuantity())))
+                    .unitPrice(unitPrice)
+                    .totalPrice(unitPrice.multiply(BigDecimal.valueOf(request.getQuantity())))
                     .build();
 
             cart.getItems().add(newItem);
@@ -154,9 +157,10 @@ public class CartService {
                 throw new BadRequestException("Not enough stock available");
             }
 
-            // Update quantity
+            BigDecimal unitPrice = getCurrentPrice(product);
             item.setQuantity(request.getQuantity());
-            item.setTotalPrice(product.getPrice().multiply(BigDecimal.valueOf(request.getQuantity())));
+            item.setUnitPrice(unitPrice);
+            item.setTotalPrice(unitPrice.multiply(BigDecimal.valueOf(request.getQuantity())));
         }
 
         // Update cart subtotal
@@ -218,27 +222,49 @@ public class CartService {
     private CartResponse mapCartToResponse(Cart cart) {
         List<CartResponse.CartItemDto> itemDtos = cart.getItems().stream()
                 .map(item -> {
-                    // Get product to get updated info like image
+                    // Get product to get updated info like image and latest price
                     Product product = productRepository.findById(item.getProductId())
                             .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+                    BigDecimal unitPrice = getCurrentPrice(product);
 
                     return CartResponse.CartItemDto.builder()
                             .productId(item.getProductId())
                             .productName(item.getProductName())
                             .quantity(item.getQuantity())
-                            .unitPrice(item.getUnitPrice())
-                            .totalPrice(item.getTotalPrice())
+                            .unitPrice(unitPrice)
+                            .totalPrice(unitPrice.multiply(BigDecimal.valueOf(item.getQuantity())))
                             .imageUrl(product.getImageUrls() != null && !product.getImageUrls().isEmpty() ?
                                     product.getImageUrls().get(0) : null)
                             .build();
                 })
                 .collect(Collectors.toList());
 
+        BigDecimal subtotal = itemDtos.stream()
+                .map(CartResponse.CartItemDto::getTotalPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         return CartResponse.builder()
                 .id(cart.getId())
                 .items(itemDtos)
-                .subtotal(cart.getSubtotal())
+                .subtotal(subtotal)
                 .itemCount(itemDtos.size())
                 .build();
+    }
+
+    // Helper method to get the current price taking discount into account
+    private BigDecimal getCurrentPrice(Product product) {
+        if (product.getDiscountPercentage() != null &&
+                product.getDiscountStartDate() != null &&
+                product.getDiscountEndDate() != null) {
+
+            Date now = new Date();
+            if (now.after(product.getDiscountStartDate()) && now.before(product.getDiscountEndDate())) {
+                BigDecimal discountAmount = product.getPrice()
+                        .multiply(product.getDiscountPercentage())
+                        .divide(new BigDecimal("100"));
+                return product.getPrice().subtract(discountAmount);
+            }
+        }
+        return product.getPrice();
     }
 }

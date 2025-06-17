@@ -1,9 +1,9 @@
-// Enhanced AdminProducts component with discount functionality
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import {
   Search,
+  Filter,
   Plus,
   Edit,
   Trash2,
@@ -11,14 +11,11 @@ import {
   ArrowLeft,
   Package,
   Star,
-  X,
-  Image as ImageIcon,
-  Tag,
-  Calendar,
-  TrendingDown,
-  Clock,
+  AlertCircle,
   CheckCircle,
-  AlertTriangle
+  X,
+  Upload,
+  Image as ImageIcon
 } from 'lucide-react';
 import { enhancedProductsAPI as productsAPI } from '../../services/api';
 import Button from '../../components/UI/Button';
@@ -29,7 +26,6 @@ import toast from 'react-hot-toast';
 const AdminProducts = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [discountFilter, setDiscountFilter] = useState(''); // New discount filter
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const queryClient = useQueryClient();
@@ -64,14 +60,6 @@ const AdminProducts = () => {
     'Beauté mains & ongles',
   ];
 
-  const discountFilterOptions = [
-    { value: '', label: 'Toutes les remises' },
-    { value: 'ACTIVE', label: 'Remises actives' },
-    { value: 'SCHEDULED', label: 'Remises programmées' },
-    { value: 'EXPIRED', label: 'Remises expirées' },
-    { value: 'NO_DISCOUNT', label: 'Sans remise' }
-  ];
-
   // Filter products
   const filteredProducts = products.filter(product => {
     const matchesSearch = searchTerm === '' ||
@@ -81,9 +69,7 @@ const AdminProducts = () => {
 
     const matchesCategory = selectedCategory === '' || product.category === selectedCategory;
 
-    const matchesDiscount = discountFilter === '' || product.discountStatus === discountFilter;
-
-    return matchesSearch && matchesCategory && matchesDiscount;
+    return matchesSearch && matchesCategory;
   });
 
   const handleDeleteProduct = (product) => {
@@ -96,57 +82,6 @@ const AdminProducts = () => {
     if (quantity === 0) return { label: 'Rupture de stock', color: 'text-red-600' };
     if (quantity <= 5) return { label: 'Stock faible', color: 'text-yellow-600' };
     return { label: 'En stock', color: 'text-green-600' };
-  };
-
-  const getDiscountBadge = (product) => {
-    if (!product.hasDiscount) {
-      return null;
-    }
-
-    const badgeConfig = {
-      'ACTIVE': {
-        color: 'bg-green-100 text-green-800',
-        icon: CheckCircle,
-        label: `Actif -${product.discountPercentage}%`
-      },
-      'SCHEDULED': {
-        color: 'bg-blue-100 text-blue-800',
-        icon: Clock,
-        label: `Programmé -${product.discountPercentage}%`
-      },
-      'EXPIRED': {
-        color: 'bg-red-100 text-red-800',
-        icon: AlertTriangle,
-        label: `Expiré -${product.discountPercentage}%`
-      }
-    };
-
-    const config = badgeConfig[product.discountStatus];
-    if (!config) return null;
-
-    const IconComponent = config.icon;
-
-    return (
-        <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${config.color}`}>
-        <IconComponent className="h-3 w-3 mr-1" />
-          {config.label}
-      </span>
-    );
-  };
-
-  const formatPrice = (product) => {
-    if (product.discountActive && product.finalPrice !== product.price) {
-      return (
-          <div className="text-sm">
-            <div className="font-semibold text-green-600">${product.finalPrice}</div>
-            <div className="text-gray-500 line-through text-xs">${product.price}</div>
-          </div>
-      );
-    } else {
-      return (
-          <div className="text-sm font-semibold text-gray-900">${product.price}</div>
-      );
-    }
   };
 
   if (isLoading) {
@@ -180,7 +115,7 @@ const AdminProducts = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Gestion des produits</h1>
-                <p className="text-gray-600">Gérez votre catalogue de produits et les remises</p>
+                <p className="text-gray-600">Gérez votre catalogue de produits</p>
               </div>
               <Button onClick={() => setShowCreateForm(true)}>
                 <Plus className="h-4 w-4 mr-2" />
@@ -189,10 +124,10 @@ const AdminProducts = () => {
             </div>
           </div>
 
-          {/* Enhanced Filters */}
+          {/* Filters */}
           <div className="bg-white shadow-sm rounded-lg p-6 mb-6">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-              <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+              <div className="flex items-center space-x-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
@@ -203,7 +138,6 @@ const AdminProducts = () => {
                       className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   />
                 </div>
-
                 <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
@@ -216,25 +150,10 @@ const AdminProducts = () => {
                       </option>
                   ))}
                 </select>
-
-                <select
-                    value={discountFilter}
-                    onChange={(e) => setDiscountFilter(e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                >
-                  {discountFilterOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                  ))}
-                </select>
               </div>
-
-              <div className="flex items-center space-x-4 text-sm text-gray-600">
-                <span>{filteredProducts.length} produit{filteredProducts.length !== 1 ? 's' : ''}</span>
-                <span>•</span>
-                <span>{filteredProducts.filter(p => p.discountActive).length} en promotion</span>
-              </div>
+              <p className="text-sm text-gray-600">
+                {filteredProducts.length} produit{filteredProducts.length !== 1 ? 's' : ''} trouvé{filteredProducts.length !== 1 ? 's' : ''}
+              </p>
             </div>
           </div>
 
@@ -268,9 +187,6 @@ const AdminProducts = () => {
                         Prix
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Remise
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Stock
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -291,7 +207,7 @@ const AdminProducts = () => {
                           <tr key={product.id} className="hover:bg-gray-50">
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
-                                <div className="flex-shrink-0 h-12 w-12 relative">
+                                <div className="flex-shrink-0 h-12 w-12">
                                   {product.imageUrls && product.imageUrls[0] ? (
                                       <img
                                           className="h-12 w-12 rounded-lg object-cover"
@@ -301,11 +217,6 @@ const AdminProducts = () => {
                                   ) : (
                                       <div className="h-12 w-12 bg-gray-200 rounded-lg flex items-center justify-center">
                                         <Package className="h-6 w-6 text-gray-400" />
-                                      </div>
-                                  )}
-                                  {product.discountActive && (
-                                      <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                        <TrendingDown className="h-3 w-3" />
                                       </div>
                                   )}
                                 </div>
@@ -328,12 +239,16 @@ const AdminProducts = () => {
                           </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              {formatPrice(product)}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              {getDiscountBadge(product) || (
-                                  <span className="text-xs text-gray-400">Aucune</span>
-                              )}
+                              <div className="text-sm text-gray-900">
+                                {product.finalPrice !== product.price ? (
+                                    <>
+                                      <span className="font-semibold">${product.finalPrice}</span>
+                                      <span className="text-gray-500 line-through ml-1">${product.price}</span>
+                                    </>
+                                ) : (
+                                    <span className="font-semibold">${product.price}</span>
+                                )}
+                              </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className={`text-sm font-medium ${stockStatus.color}`}>
@@ -396,7 +311,7 @@ const AdminProducts = () => {
 
         {/* Create/Edit Product Modal */}
         {(showCreateForm || editingProduct) && (
-            <ProductModalWithDiscount
+            <ProductModal
                 product={editingProduct}
                 onClose={() => {
                   setShowCreateForm(false);
@@ -413,8 +328,8 @@ const AdminProducts = () => {
   );
 };
 
-// Enhanced Product Modal Component with Discount Management
-const ProductModalWithDiscount = ({ product, onClose, onSuccess }) => {
+// Enhanced Product Modal Component with Image Upload
+const ProductModal = ({ product, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
     name: product?.name || '',
     description: product?.description || '',
@@ -435,32 +350,6 @@ const ProductModalWithDiscount = ({ product, onClose, onSuccess }) => {
 
   const [newSpecification, setNewSpecification] = useState({ name: '', value: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [discountPreview, setDiscountPreview] = useState(null);
-
-  // Calculate discount preview
-  React.useEffect(() => {
-    if (formData.price && formData.discountPercentage) {
-      const originalPrice = parseFloat(formData.price);
-      const discountPercent = parseFloat(formData.discountPercentage);
-
-      if (originalPrice > 0 && discountPercent > 0 && discountPercent <= 100) {
-        const discountAmount = (originalPrice * discountPercent) / 100;
-        const finalPrice = originalPrice - discountAmount;
-
-        setDiscountPreview({
-          originalPrice,
-          discountPercent,
-          discountAmount: discountAmount.toFixed(2),
-          finalPrice: finalPrice.toFixed(2),
-          savings: discountPercent
-        });
-      } else {
-        setDiscountPreview(null);
-      }
-    } else {
-      setDiscountPreview(null);
-    }
-  }, [formData.price, formData.discountPercentage]);
 
   const createProductMutation = useMutation(
       (productData) => productsAPI.create(productData),
@@ -495,59 +384,8 @@ const ProductModalWithDiscount = ({ product, onClose, onSuccess }) => {
     }));
   };
 
-  const validateForm = () => {
-    if (!formData.name.trim()) {
-      toast.error('Le nom du produit est requis');
-      return false;
-    }
-
-    if (!formData.category) {
-      toast.error('La catégorie est requise');
-      return false;
-    }
-
-    if (!formData.price || parseFloat(formData.price) <= 0) {
-      toast.error('Le prix doit être supérieur à 0');
-      return false;
-    }
-
-    if (!formData.stockQuantity || parseInt(formData.stockQuantity) < 0) {
-      toast.error('La quantité en stock ne peut pas être négative');
-      return false;
-    }
-
-    // Validate discount data
-    if (formData.discountPercentage) {
-      const discount = parseFloat(formData.discountPercentage);
-      if (discount < 0 || discount > 100) {
-        toast.error('Le pourcentage de remise doit être entre 0 et 100');
-        return false;
-      }
-
-      if (!formData.discountStartDate || !formData.discountEndDate) {
-        toast.error('Les dates de début et de fin de remise sont requises');
-        return false;
-      }
-
-      const startDate = new Date(formData.discountStartDate);
-      const endDate = new Date(formData.discountEndDate);
-
-      if (startDate >= endDate) {
-        toast.error('La date de début doit être antérieure à la date de fin');
-        return false;
-      }
-    }
-
-    return true;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
@@ -587,15 +425,6 @@ const ProductModalWithDiscount = ({ product, onClose, onSuccess }) => {
     setFormData({
       ...formData,
       specifications: formData.specifications.filter((_, i) => i !== index)
-    });
-  };
-
-  const clearDiscount = () => {
-    setFormData({
-      ...formData,
-      discountPercentage: '',
-      discountStartDate: '',
-      discountEndDate: ''
     });
   };
 
@@ -770,101 +599,51 @@ const ProductModalWithDiscount = ({ product, onClose, onSuccess }) => {
                   />
                 </div>
 
-                {/* Enhanced Discount Section */}
-                <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-lg p-4 border border-red-200">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-md font-medium text-gray-900 flex items-center">
-                      <Tag className="h-4 w-4 mr-2 text-red-600" />
-                      Gestion des remises
-                    </h4>
-                    {(formData.discountPercentage || formData.discountStartDate || formData.discountEndDate) && (
-                        <button
-                            type="button"
-                            onClick={clearDiscount}
-                            className="text-sm text-red-600 hover:text-red-800"
-                            disabled={isLoading}
-                        >
-                          Effacer la remise
-                        </button>
-                    )}
-                  </div>
-
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Pourcentage de remise (%)
-                      </label>
-                      <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          max="100"
-                          value={formData.discountPercentage}
-                          onChange={(e) => setFormData({ ...formData, discountPercentage: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                          disabled={isLoading}
-                          placeholder="Ex: 25 pour 25%"
-                      />
-                    </div>
-
-                    {formData.discountPercentage && (
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              <Calendar className="inline h-4 w-4 mr-1" />
-                              Date de début
-                            </label>
-                            <input
-                                type="date"
-                                value={formData.discountStartDate}
-                                onChange={(e) => setFormData({ ...formData, discountStartDate: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                                disabled={isLoading}
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              <Calendar className="inline h-4 w-4 mr-1" />
-                              Date de fin
-                            </label>
-                            <input
-                                type="date"
-                                value={formData.discountEndDate}
-                                onChange={(e) => setFormData({ ...formData, discountEndDate: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                                disabled={isLoading}
-                            />
-                          </div>
-                        </div>
-                    )}
-
-                    {/* Discount Preview */}
-                    {discountPreview && (
-                        <div className="bg-white rounded-lg p-4 border border-gray-200">
-                          <h5 className="text-sm font-medium text-gray-900 mb-2">Aperçu de la remise</h5>
-                          <div className="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                              <span className="text-gray-600">Prix original:</span>
-                              <span className="ml-2 font-medium">${discountPreview.originalPrice}</span>
-                            </div>
-                            <div>
-                              <span className="text-gray-600">Remise:</span>
-                              <span className="ml-2 font-medium text-red-600">-${discountPreview.discountAmount}</span>
-                            </div>
-                            <div>
-                              <span className="text-gray-600">Prix final:</span>
-                              <span className="ml-2 font-bold text-green-600">${discountPreview.finalPrice}</span>
-                            </div>
-                            <div>
-                              <span className="text-gray-600">Économies:</span>
-                              <span className="ml-2 font-medium text-red-600">{discountPreview.savings}%</span>
-                            </div>
-                          </div>
-                        </div>
-                    )}
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Pourcentage de remise (%)
+                  </label>
+                  <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      value={formData.discountPercentage}
+                      onChange={(e) => setFormData({ ...formData, discountPercentage: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      disabled={isLoading}
+                  />
                 </div>
+
+                {formData.discountPercentage && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Date de début de la remise
+                        </label>
+                        <input
+                            type="date"
+                            value={formData.discountStartDate}
+                            onChange={(e) => setFormData({ ...formData, discountStartDate: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                            disabled={isLoading}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Date de fin de la remise
+                        </label>
+                        <input
+                            type="date"
+                            value={formData.discountEndDate}
+                            onChange={(e) => setFormData({ ...formData, discountEndDate: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                            disabled={isLoading}
+                        />
+                      </div>
+                    </div>
+                )}
 
                 <div className="space-y-3">
                   <div className="flex items-center">

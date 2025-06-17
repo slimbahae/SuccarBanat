@@ -350,5 +350,4 @@ export const enhancedProductsAPI = {
   }
 };
 
-
 export default api;
