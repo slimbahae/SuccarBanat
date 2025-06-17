@@ -63,6 +63,9 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .requiresChannel(channel ->
+                        channel.requestMatchers(r -> r.getHeader("X-Forwarded-Proto") != null)
+                                .requiresSecure())
                 .build();
     }
 

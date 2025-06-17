@@ -308,6 +308,12 @@ public class OrderService {
             log.error("Failed to send order confirmation email for order {}: {}", savedOrder.getId(), e.getMessage());
         }
 
+        try {
+            emailService.sendNewOrderNotificationToAdmin(orderResponse);
+        } catch (Exception e) {
+            log.error("Failed to send admin notification for order {}: {}", savedOrder.getId(), e.getMessage());
+        }
+
         return orderResponse;
     }
 
@@ -361,6 +367,17 @@ public class OrderService {
         order.setUpdatedAt(new Date());
 
         Order updatedOrder = orderRepository.save(order);
+        OrderResponse orderResponse = mapOrderToResponse(updatedOrder);
+
+        // 🔥 NEW: Send cancelled order notification to admin
+        if (status.equals("CANCELLED")) {
+            try {
+                emailService.sendCancelledOrderNotificationToAdmin(orderResponse, "Commande annulée par l'administrateur");
+            } catch (Exception e) {
+                log.error("Failed to send cancelled order notification to admin for order {}: {}",
+                        updatedOrder.getId(), e.getMessage());
+            }
+        }
 
         // Send order status update SMS
         User customer = userRepository.findById(order.getCustomerId())
@@ -375,7 +392,7 @@ public class OrderService {
             smsService.sendSms(customer.getPhoneNumber(), message);
         }
 
-        return mapOrderToResponse(updatedOrder);
+        return orderResponse;
     }
 
     // Helper method to map Order entity to OrderResponse DTO

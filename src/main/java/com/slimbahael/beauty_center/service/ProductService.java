@@ -6,6 +6,9 @@ import com.slimbahael.beauty_center.exception.ResourceNotFoundException;
 import com.slimbahael.beauty_center.model.Product;
 import com.slimbahael.beauty_center.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,9 +19,11 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final EmailService emailService; // 🔥 Added
 
     public List<ProductResponse> getAllProducts() {
         return productRepository.findAll()
@@ -95,7 +100,21 @@ public class ProductService {
         }
 
         Product savedProduct = productRepository.save(product);
-        return mapProductToResponse(savedProduct);
+        ProductResponse productResponse = mapProductToResponse(savedProduct);
+
+        // 🔥 NEW: Send admin notification
+        try {
+            // Get current user from security context
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String userEmail = authentication.getName();
+
+            emailService.sendProductAddedNotificationToAdmin(productResponse, userEmail);
+        } catch (Exception e) {
+            log.error("Failed to send product added notification to admin for product {}: {}",
+                    savedProduct.getName(), e.getMessage());
+        }
+
+        return productResponse;
     }
 
     public ProductResponse updateProduct(String id, ProductRequest productRequest) {
@@ -132,7 +151,19 @@ public class ProductService {
         }
 
         Product updatedProduct = productRepository.save(existingProduct);
-        return mapProductToResponse(updatedProduct);
+        ProductResponse productResponse = mapProductToResponse(updatedProduct);
+
+        // 🔥 NEW: Check for low stock and notify admin
+        try {
+            if (updatedProduct.isActive() && updatedProduct.getStockQuantity() <= 5) { // Low stock threshold
+                emailService.sendLowStockNotificationToAdmin(productResponse);
+            }
+        } catch (Exception e) {
+            log.error("Failed to send low stock notification to admin for product {}: {}",
+                    updatedProduct.getName(), e.getMessage());
+        }
+
+        return productResponse;
     }
 
     public void deleteProduct(String id) {
@@ -140,6 +171,23 @@ public class ProductService {
             throw new ResourceNotFoundException("Product not found with id: " + id);
         }
         productRepository.deleteById(id);
+    }
+
+    // 🔥 NEW: Add method to check all products for low stock (can be called by scheduler)
+    public void checkLowStockProducts() {
+        List<Product> lowStockProducts = productRepository.findAll().stream()
+                .filter(product -> product.isActive() && product.getStockQuantity() <= 5)
+                .collect(Collectors.toList());
+
+        for (Product product : lowStockProducts) {
+            try {
+                ProductResponse productResponse = mapProductToResponse(product);
+                emailService.sendLowStockNotificationToAdmin(productResponse);
+            } catch (Exception e) {
+                log.error("Failed to send low stock notification for product {}: {}",
+                        product.getName(), e.getMessage());
+            }
+        }
     }
 
     // Helper method to map Product entity to ProductResponse DTO
