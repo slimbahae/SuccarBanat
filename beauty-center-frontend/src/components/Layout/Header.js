@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { 
   Menu, 
@@ -15,8 +15,10 @@ import {
 import Button from '../UI/Button';
 import { useQuery } from 'react-query';
 import { cartAPI } from '../../services/api';
+import { useTranslation } from 'react-i18next';
 
 const Header = () => {
+  const { t } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { isAuthenticated, user, logout } = useAuth();
@@ -42,9 +44,9 @@ const Header = () => {
 
   const navigation = [
     { name: 'Accueil', href: '/' },
-    { name: 'Prestations', href: 'https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services' },
+    { name: 'Prestations', href: '/services' },
     { name: 'Produits', href: '/products' },
-    { name: 'Contacts', href:'/Contact'},
+    { name: 'Contacts', href:'/contact'},
   ];
  
   const userMenuItems = {
@@ -61,14 +63,14 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-gradient-to-br from-primary-600/20 to-transparent  shadow-sm border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 ">
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
               <div className="bg-transparent p-2 rounded-lg">
-                <img src="logo-darkmode.png" alt="logo" className="h-12 w-12"/>
+                <img src="/logo-dark.png" alt="logo" className="h-12 w-12"/>
               </div>
               <span className="text-xl font-serif font-bold text-gray-900">
                 SUCCAR BANAT INSTITUT
@@ -145,7 +147,7 @@ const Header = () => {
                       className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       <LogOut className="h-4 w-4 mr-3" />
-                      Se déconnecter
+                      {t('logout')}
                     </button>
                   </div>
                 )}
@@ -154,12 +156,12 @@ const Header = () => {
               <div className="flex items-center space-x-3">
                 <Link to="/login">
                   <Button variant="ghost" size="sm">
-                    Se connecter
+                    {t('login')}
                   </Button>
                 </Link>
                 <Link to="/register">
                   <Button size="sm">
-                    S’inscrire
+                    {t('register')}
                   </Button>
                 </Link>
               </div>

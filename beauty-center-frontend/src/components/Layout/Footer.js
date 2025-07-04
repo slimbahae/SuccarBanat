@@ -10,28 +10,24 @@ import {
   Twitter,
   Linkedin
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const Footer = () => {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   const footerLinks = {
     services: [
-      { name: 'Beauté du regard', href: 'https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services' },
-      { name: 'Soin', href: 'https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services' },
-      { name: 'Massage', href: 'https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services' },
-      { name: 'Épilation', href: 'https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services' },
-      { name: 'Beauté mains & ongles', href: 'https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services' },
+      { name: 'Beauté du regard', href: '/services' },
+      { name: 'Soin', href: '/services' },
+      { name: 'Massage', href: '/services' },
+      { name: 'Épilation', href: '/services' },
+      { name: 'Beauté mains & ongles', href: '/services' },
     ],
     company: [
-      { name: 'About Us', href: '/about' },
-      { name: 'Contacts', href:'/Contact'},
-      { name: 'Privacy Policy', href: '/privacy' },
+      { name: 'Contact', href:'/contact'},
     ],
     support: [
-      { name: 'Help Center', href: '/help' },
-      { name: 'Booking Policy', href: '/booking-policy' },
-      { name: 'Cancellation', href: '/cancellation' },
-      { name: 'Gift Cards', href: '/gift-cards' },
     ],
   };
 
@@ -57,14 +53,14 @@ const Footer = () => {
             </Link>
             
             <p className="text-gray-300 text-sm">
-              Retrouvez chez SUCCAR BANAT un univers où le 100% naturel prône. Vous découvrirez ainsi l’étendue des secrets d’Orient et leurs bienfaits.
+              {t('footer.description')}
             </p>
 
             {/* Contact Info */}
             <div className="space-y-2">
               <div className="flex items-center space-x-2 text-sm text-gray-300">
                 <Phone className="h-4 w-4" />
-                <span>(212) 603-286703</span>
+                <span>+33 6 03 28 67 03</span>
               </div>
               <div className="flex items-center space-x-2 text-sm text-gray-300">
                 <Mail className="h-4 w-4" />
@@ -112,7 +108,7 @@ const Footer = () => {
 
           {/* Company */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Company</h3>
+            <h3 className="text-lg font-semibold mb-4">Entreprise</h3>
             <ul className="space-y-2">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
@@ -128,21 +124,7 @@ const Footer = () => {
           </div>
 
           {/* Support */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Support</h3>
-            <ul className="space-y-2">
-              {footerLinks.support.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-gray-300 hover:text-white transition-colors text-sm"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Support : désactivé car pas de liens fonctionnels */}
         </div>
 
         {/* Bottom Section */}
@@ -157,19 +139,19 @@ const Footer = () => {
                 to="/terms"
                 className="text-gray-400 hover:text-white transition-colors text-sm"
               >
-                Terms of Service
+                {t('footer.terms')}
               </Link>
               <Link
                 to="/privacy"
                 className="text-gray-400 hover:text-white transition-colors text-sm"
               >
-                Privacy Policy
+                {t('footer.privacy')}
               </Link>
               <Link
                 to="/cookies"
                 className="text-gray-400 hover:text-white transition-colors text-sm"
               >
-                Cookie Policy
+                {t('footer.cookies')}
               </Link>
             </div>
           </div>

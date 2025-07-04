@@ -26,7 +26,7 @@ const Login = () => {
       navigate(from, { replace: true });
     } else {
       console.error('Échec de la connexion:', result);
-      let errorMessage = result.message || 'Une erreur inattendue s’est produite';
+      let errorMessage = result.message || 'Une erreur inattendue s\'est produite';
       if (errorMessage.includes('User is disabled')) {
         errorMessage = 'Votre compte est désactivé. Veuillez contacter le support.';
       } else if (errorMessage.includes('Bad credentials')) {
@@ -47,7 +47,7 @@ const Login = () => {
           <div>
             <Link to="/" className="flex items-center space-x-2 mb-8">
               <div className="bg-gradient-to-r from-primary-500 to-primary-600 p-2 rounded-lg">
-                <img src="logo-darkmode.png" alt="logo" className="h-6 w-6"/>
+                <img src="/logo-dark.png" alt="logo" className="h-6 w-6"/>
               </div>
               <span className="text-2xl font-serif font-bold text-gray-900">
                 Succar Banat Institut
@@ -194,8 +194,8 @@ const Login = () => {
       <div className="hidden lg:block relative w-0 flex-1">
         <img
           className="absolute inset-0 h-full w-full object-cover"
-          src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80"
-          alt="Beauty salon"
+          src="https://client.ludovic-godard-photo.com/wp-content/uploads/picu/collections/4227/091024-09-03-13-dounia-asri-4509%C2%A9-ludovic-godard-bd.jpg"
+          alt="Dounia Asri"
         />
         <div className="absolute inset-0 bg-primary-600 opacity-75" />
         <div className="absolute inset-0 flex items-center justify-center">

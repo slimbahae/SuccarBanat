@@ -9,15 +9,22 @@ import {
   Package, 
   User,
   TrendingUp,
-  Heart
+  Heart,
+  ArrowRight,
+  CreditCard,
+  MapPin
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { cartAPI, ordersAPI } from '../../services/api';
 import Button from '../../components/UI/Button';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
+import { useTranslation } from 'react-i18next';
+
+const euroFormatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
 
 const CustomerDashboard = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   // Fetch user's data
   const { data: cartData } = useQuery('cart', cartAPI.get);
@@ -73,10 +80,10 @@ const CustomerDashboard = () => {
         {/* Welcome Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Bon retour, {user?.firstName}! 👋
+            {t('welcomeHeader')} {user?.firstName}! 👋
           </h1>
           <p className="text-gray-600 mt-2">
-            Voici ce qui se passe dans votre parcours beauté
+            {t('welcomeDescription')}
           </p>
         </div>
 
@@ -106,7 +113,7 @@ const CustomerDashboard = () => {
           {/* Quick Actions */}
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Actions immédiates
+              {t('quickActionsTitle')}
             </h3>
             <div className="space-y-3">
               {quickActions.map((action, index) => (
@@ -131,11 +138,11 @@ const CustomerDashboard = () => {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">
-                Commande Récente
+                {t('recentOrdersTitle')}
               </h3>
               <Link to="/customer/orders">
                 <Button variant="outline" size="sm">
-                  Voir tout 
+                  {t('viewAllOrders')}
                 </Button>
               </Link>
             </div>
@@ -143,10 +150,10 @@ const CustomerDashboard = () => {
             {recentOrders.length === 0 ? (
               <div className="text-center py-6">
                 <Package className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-600 mb-4">Aucune commande récente</p>
+                <p className="text-gray-600 mb-4">{t('noRecentOrders')}</p>
                 <Link to="/products">
                   <Button size="sm">
-                    Voir les produits
+                    {t('viewProducts')}
                   </Button>
                 </Link>
               </div>
@@ -166,7 +173,7 @@ const CustomerDashboard = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-gray-900">${order.total}</p>
+                      <p className="font-semibold text-gray-900">{euroFormatter.format(order.total)}</p>
                       <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                         order.orderStatus === 'DELIVERED' 
                           ? 'bg-green-100 text-green-800'

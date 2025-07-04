@@ -16,12 +16,16 @@ import { cartAPI } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/UI/Button';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
-import toast from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
+
+const euroFormatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
 
 const Cart = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Fetch cart data
   const { data: cartData, isLoading, error } = useQuery(
@@ -233,10 +237,10 @@ const Cart = () => {
                                   {item.productName}
                                 </Link>
                               </h3>
-                              <p className="ml-4">${item.totalPrice.toFixed(2)}</p>
+                              <p className="ml-4">{euroFormatter.format(item.totalPrice)}</p>
                             </div>
                             <p className="mt-1 text-sm text-gray-500">
-                              ${item.unitPrice.toFixed(2)} à l’unité
+                              {euroFormatter.format(item.unitPrice)} à l’unité
                             </p>
                           </div>
                           <div className="flex-1 flex items-end justify-between text-sm">
@@ -292,12 +296,12 @@ const Cart = () => {
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Sous-total</span>
-                    <span className="text-gray-900">${subtotal.toFixed(2)}</span>
+                    <span className="text-gray-900">{euroFormatter.format(subtotal)}</span>
                   </div>
                   
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Taxes</span>
-                    <span className="text-gray-900">${tax.toFixed(2)}</span>
+                    <span className="text-gray-900">{euroFormatter.format(tax)}</span>
                   </div>
                   
                   <div className="flex justify-between text-sm">
@@ -310,14 +314,14 @@ const Cart = () => {
                       )}
                     </div>
                     <span className="text-gray-900">
-                      {shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}
+                      {shipping === 0 ? 'Free' : euroFormatter.format(shipping)}
                     </span>
                   </div>
                   
                   <div className="border-t border-gray-200 pt-4">
                     <div className="flex justify-between text-base font-medium text-gray-900">
                       <span>Total</span>
-                      <span>${total.toFixed(2)}</span>
+                      <span>{euroFormatter.format(total)}</span>
                     </div>
                   </div>
                 </div>
@@ -337,12 +341,12 @@ const Cart = () => {
                   <div className="flex items-center justify-center space-x-4">
                     <div className="flex items-center">
                       <Truck className="h-4 w-4 mr-1" />
-                      <span>Livraison gratuite dès 50 $</span>
+                      <span>{t('freeShipping')}</span>
                     </div>
                   </div>
                   <p className="mt-2">
                     <Tag className="h-4 w-4 inline mr-1" />
-                    Politique de retour sous 30 jours
+                    {t('returnPolicy')}
                   </p>
                 </div>
               </div>
@@ -355,7 +359,7 @@ const Cart = () => {
                 <div className="flex space-x-2">
                   <input
                     type="text"
-                    placeholder="Entrer le code promo"
+                    placeholder={t('enterPromoCode')}
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   />
                   <Button variant="outline">Appliquer</Button>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { 
@@ -18,9 +18,13 @@ import { productsAPI, cartAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import Button from '../components/UI/Button';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
-import toast from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
+
+const euroFormatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
 
 const ProductDetail = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const { isAuthenticated, user } = useAuth();
   const [quantity, setQuantity] = useState(1);
@@ -106,7 +110,7 @@ const ProductDetail = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Produit introuvable</h2>
-          <p className="text-gray-600 mb-4">Le produit que vous recherchez n’existe pas.</p>
+          <p className="text-gray-600 mb-4">Le produit que vous recherchez n'existe pas.</p>
           <Link to="/products">
             <Button>Retour au Produits</Button>
           </Link>
@@ -119,12 +123,6 @@ const ProductDetail = () => {
   const images = productData.imageUrls || [];
   const isOutOfStock = productData.stockQuantity === 0;
   const hasDiscount = productData.finalPrice !== productData.price;
-
-  const benefits = [
-    { icon: Truck, text: 'Free shipping on orders over $50' },
-    { icon: Shield, text: '30-day satisfaction guarantee' },
-    { icon: RotateCcw, text: 'Easy returns & exchanges' },
-  ];
 
   return (
     <div className="min-h-screen bg-white">
@@ -187,25 +185,6 @@ const ProductDetail = () => {
                   <ShoppingCart className="h-16 w-16 text-gray-400" />
                 </div>
               )}
-              
-              {/* Badges */}
-              <div className="absolute top-4 left-4 flex flex-col space-y-2">
-                {productData.featured && (
-                  <span className="bg-primary-600 text-white text-xs px-2 py-1 rounded-full">
-                    En vedette
-                  </span>
-                )}
-                {hasDiscount && (
-                  <span className="bg-red-600 text-white text-xs px-2 py-1 rounded-full">
-                    -{productData.discountPercentage}%
-                  </span>
-                )}
-                {isOutOfStock && (
-                  <span className="bg-gray-600 text-white text-xs px-2 py-1 rounded-full">
-                    Rupture de stock
-                  </span>
-                )}
-              </div>
             </div>
           </div>
 
@@ -234,37 +213,24 @@ const ProductDetail = () => {
               </div>
             </div>
 
-            {/* Rating */}
-            <div className="flex items-center mb-4">
-              <div className="flex items-center">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
-                    key={star}
-                    className="h-5 w-5 fill-yellow-400 text-yellow-400"
-                  />
-                ))}
-              </div>
-              <p className="ml-2 text-sm text-gray-600">(127 avis)</p>
-            </div>
-
             {/* Price */}
             <div className="mb-6">
               <div className="flex items-center space-x-3">
                 {hasDiscount ? (
                   <>
                     <p className="text-3xl font-bold text-gray-900">
-                      ${productData.finalPrice}
+                      {euroFormatter.format(productData.finalPrice)}
                     </p>
                     <p className="text-xl text-gray-500 line-through">
-                      ${productData.price}
+                      {euroFormatter.format(productData.price)}
                     </p>
                     <span className="bg-red-100 text-red-800 text-sm px-2 py-1 rounded-full">
-                      Économisez ${(productData.price - productData.finalPrice).toFixed(2)}
+                      Économisez {euroFormatter.format(productData.price - productData.finalPrice)}
                     </span>
                   </>
                 ) : (
                   <p className="text-3xl font-bold text-gray-900">
-                    ${productData.price}
+                    {euroFormatter.format(productData.price)}
                   </p>
                 )}
               </div>
@@ -364,18 +330,6 @@ const ProductDetail = () => {
                 )}
               </div>
             )}
-
-            {/* Benefits */}
-            <div className="border-t border-gray-200 pt-6">
-              <div className="space-y-3">
-                {benefits.map((benefit, index) => (
-                  <div key={index} className="flex items-center text-sm text-gray-600">
-                    <benefit.icon className="h-5 w-5 text-primary-600 mr-3" />
-                    {benefit.text}
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </div>

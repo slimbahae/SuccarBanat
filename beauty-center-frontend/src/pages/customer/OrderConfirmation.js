@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { 
@@ -11,15 +11,22 @@ import {
   ArrowRight,
   Star,
   Heart,
-  Gift
+  Gift,
+  ArrowLeft,
+  MapPin,
+  CreditCard
 } from 'lucide-react';
 import { ordersAPI } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/UI/Button';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
-import toast from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
+
+const euroFormatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
 
 const OrderConfirmation = () => {
+  const { t } = useTranslation();
   const { orderId } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -127,7 +134,7 @@ const OrderConfirmation = () => {
                 <CheckCircle className="h-6 w-6 text-white" />
               </div>
               <span className="text-sm font-medium text-green-600">Confirmée</span>
-              <span className="text-xs text-gray-500 mt-1">À l’instant</span>
+              <span className="text-xs text-gray-500 mt-1">À l'instant</span>
             </div>
             
             <div className="flex-1 h-px bg-gray-200 mx-4" />
@@ -234,22 +241,22 @@ const OrderConfirmation = () => {
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Sous-total</span>
-                <span className="text-gray-900">${order.subtotal.toFixed(2)}</span>
+                <span className="text-gray-900">{euroFormatter.format(order.subtotal)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Taxes</span>
-                <span className="text-gray-900">${order.tax.toFixed(2)}</span>
+                <span className="text-gray-900">{euroFormatter.format(order.tax)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Livraison</span>
                 <span className="text-gray-900">
-                  {order.shippingCost === 0 ? 'Free' : `$${order.shippingCost.toFixed(2)}`}
+                  {order.shippingCost === 0 ? 'Free' : euroFormatter.format(order.shippingCost)}
                 </span>
               </div>
               <div className="border-t border-gray-200 pt-2">
                 <div className="flex justify-between font-semibold text-lg">
                   <span className="text-gray-900">Total</span>
-                  <span className="text-primary-600">${order.total.toFixed(2)}</span>
+                  <span className="text-primary-600">{euroFormatter.format(order.total)}</span>
                 </div>
               </div>
             </div>
@@ -344,35 +351,13 @@ const OrderConfirmation = () => {
           </div>
         </div>
 
-        {/* Recommendation Section */}
-        <div className="mt-8 bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg p-6">
-          <div className="text-center">
-            <Heart className="h-8 w-8 text-primary-600 mx-auto mb-3" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Vous aimez votre achat ? 
-            </h3>
-            <p className="text-gray-600 mb-4">
-              idez les autres à découvrir ces produits incroyables en laissant un avis !
-            </p>
-            <div className="flex justify-center space-x-1 mb-4">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star key={star} className="h-6 w-6 text-yellow-400 fill-current" />
-              ))}
-            </div>
-            <Button variant="outline" size="sm">
-              Laisser un avis
-            </Button>
-          </div>
-        </div>
-
-        {/* Help Section */}
+        {/* Section d'aide */}
         <div className="mt-6 text-center text-sm text-gray-600">
           <p>
-            Besoin d’aide avec votre commande ? {' '}
+            Une question sur votre commande ? {' '}
             <Link to="/contact" className="text-primary-600 hover:text-primary-700 font-medium">
-              Contactez le support
+              Contactez-nous
             </Link>
-            {' '} ou appelez-nous au 06 03 28 67 03
           </p>
         </div>
       </div>

@@ -19,13 +19,19 @@ import {
   Copy,
   Share2,
   MapPin,
-  CreditCard
+  CreditCard,
+  Calendar,
+  Phone,
+  Mail
 } from 'lucide-react';
 import { ordersAPI } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/UI/Button';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
+
+const euroFormatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
 
 const CustomerOrders = () => {
   const { user } = useAuth();
@@ -33,6 +39,7 @@ const CustomerOrders = () => {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   // Fetch customer orders
   const { data: ordersData, isLoading, error } = useQuery(
@@ -149,9 +156,9 @@ const CustomerOrders = () => {
       return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Commande introuvable</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('order.notFound')}</h2>
             <Link to="/customer/orders">
-              <Button>Retour aux commandes</Button>
+              <Button>{t('order.returnOrders')}</Button>
             </Link>
           </div>
         </div>
@@ -198,7 +205,7 @@ const CustomerOrders = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Link to="/customer/orders" className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-6">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Retour aux commandes
+            {t('order.returnOrders')}
           </Link>
 
           {/* Order Header */}
@@ -246,7 +253,7 @@ const CustomerOrders = () => {
             {/* Order Status Tracking */}
             {order.orderStatus !== 'CANCELLED' && (
               <div className="p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-6">Suivi de commande</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-6">{t('order.tracking')}</h3>
                 <div className="space-y-6">
                   {trackingSteps.map((step, stepIdx) => (
                     <div key={step.id} className="relative flex items-start">
@@ -272,7 +279,7 @@ const CustomerOrders = () => {
                         </h4>
                         <p className="text-sm text-gray-500">{step.description}</p>
                         {step.current && (
-                          <p className="text-xs text-primary-600 mt-1">Statut actuel</p>
+                          <p className="text-xs text-primary-600 mt-1">{t('order.currentStatus')}</p>
                         )}
                       </div>
                     </div>
@@ -285,10 +292,10 @@ const CustomerOrders = () => {
                       <Truck className="h-5 w-5 text-blue-500 mr-2" />
                       <div>
                         <p className="text-sm font-medium text-blue-900">
-                          Livraison estimée: {getEstimatedDelivery(order)}
+                          {t('order.estimatedDelivery')} {getEstimatedDelivery(order)}
                         </p>
                         <p className="text-sm text-blue-700">
-                          Votre colis est en route ! Suivez votre envoi pour des mises à jour en temps réel.
+                          {t('order.shippingTracking')}
                         </p>
                       </div>
                     </div>
@@ -331,10 +338,10 @@ const CustomerOrders = () => {
                           <div className="mt-2 flex items-center space-x-2">
                             <Button size="sm" variant="outline">
                               <Star className="h-4 w-4 mr-1" />
-                              Noter le produit
+                              {t('order.rateProduct')}
                             </Button>
                             <Button size="sm" variant="outline">
-                              Acheter à nouveau
+                              {t('order.buyAgain')}
                             </Button>
                           </div>
                         )}
@@ -353,15 +360,15 @@ const CustomerOrders = () => {
                       <>
                         <Button size="sm">
                           <RefreshCw className="h-4 w-4 mr-2" />
-                          Commander à nouveau
+                          {t('order.buyAgain')}
                         </Button>
                         <Button variant="outline" size="sm">
                           <MessageCircle className="h-4 w-4 mr-2" />
-                          Laisser un avis
+                          {t('order.leaveReview')}
                         </Button>
                         <Button variant="outline" size="sm">
                           <AlertCircle className="h-4 w-4 mr-2" />
-                          Signaler un problème
+                          {t('order.reportProblem')}
                         </Button>
                       </>
                     )}
@@ -374,25 +381,25 @@ const CustomerOrders = () => {
             <div className="space-y-6">
               {/* Order Summary */}
               <div className="bg-white shadow-sm rounded-lg p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Résumé de commande</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">{t('order.orderSummary')}</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Sous-total</span>
+                    <span className="text-gray-600">{t('order.subtotal')}</span>
                     <span className="text-gray-900">${order.subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Taxes</span>
+                    <span className="text-gray-600">{t('order.taxes')}</span>
                     <span className="text-gray-900">${order.tax.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Livraison</span>
+                    <span className="text-gray-600">{t('order.shipping')}</span>
                     <span className="text-gray-900">
                       {order.shippingCost === 0 ? 'Free' : `${order.shippingCost.toFixed(2)}`}
                     </span>
                   </div>
                   <div className="border-t border-gray-200 pt-3">
                     <div className="flex justify-between font-semibold">
-                      <span className="text-gray-900">Total</span>
+                      <span className="text-gray-900">{t('order.total')}</span>
                       <span className="text-primary-600">${order.total.toFixed(2)}</span>
                     </div>
                   </div>
@@ -403,7 +410,7 @@ const CustomerOrders = () => {
               <div className="bg-white shadow-sm rounded-lg p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
                   <MapPin className="h-5 w-5 mr-2" />
-                  Adresse de Livraison
+                  {t('order.shippingAddress')}
                 </h3>
                 <div className="text-sm text-gray-600 space-y-1">
                   <p className="font-medium text-gray-900">{order.shippingAddress.fullName}</p>
@@ -423,15 +430,15 @@ const CustomerOrders = () => {
               <div className="bg-white shadow-sm rounded-lg p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
                   <CreditCard className="h-5 w-5 mr-2" />
-                  Informations de paiement
+                  {t('order.paymentInformation')}
                 </h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Methode de paiement:</span>
+                    <span className="text-gray-600">{t('order.paymentMethod')}:</span>
                     <span className="font-medium text-gray-900">{order.paymentMethod}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Statut de paiement:</span>
+                    <span className="text-gray-600">{t('order.paymentStatus')}:</span>
                     <span className={`font-medium ${
                       order.paymentStatus === 'PAID' ? 'text-green-600' : 'text-yellow-600'
                     }`}>
@@ -439,7 +446,7 @@ const CustomerOrders = () => {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">ID de transaction :</span>
+                    <span className="text-gray-600">{t('order.transactionID')}:</span>
                     <span className="font-medium text-gray-900">TXN-{order.id.slice(-8)}</span>
                   </div>
                 </div>
@@ -466,10 +473,10 @@ const CustomerOrders = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Impossible de charger les commandes</h2>
-          <p className="text-gray-600 mb-4">Veuillez réessayer plus tard.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('order.loadError')}</h2>
+          <p className="text-gray-600 mb-4">{t('order.tryAgainLater')}</p>
           <Link to="/customer/dashboard">
-            <Button>Retour au tableau de bord</Button>
+            <Button>{t('order.returnDashboard')}</Button>
           </Link>
         </div>
       </div>
@@ -483,10 +490,10 @@ const CustomerOrders = () => {
         <div className="mb-8">
           <Link to="/customer/dashboard" className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-4">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Retour au tableau de bord
+            {t('order.returnDashboard')}
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Mes commandes</h1>
-          <p className="text-gray-600">Suivez et gérez vos commandes</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('order.myOrders')}</h1>
+          <p className="text-gray-600">{t('order.followManage')}</p>
         </div>
 
         {/* Filters */}
@@ -497,7 +504,7 @@ const CustomerOrders = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search orders..."
+                  placeholder={t('order.searchOrders')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -508,17 +515,17 @@ const CustomerOrders = () => {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value="ALL">Toutes les commandes</option>
-                <option value="PENDING">En attente</option>
-                <option value="PROCESSING">En cours</option>
-                <option value="SHIPPED">Expédiées</option>
-                <option value="DELIVERED">Livrées</option>
-                <option value="CANCELLED">Annulées</option>
+                <option value="ALL">{t('order.allOrders')}</option>
+                <option value="PENDING">{t('order.pending')}</option>
+                <option value="PROCESSING">{t('order.processing')}</option>
+                <option value="SHIPPED">{t('order.shipped')}</option>
+                <option value="DELIVERED">{t('order.delivered')}</option>
+                <option value="CANCELLED">{t('order.cancelled')}</option>
 
               </select>
             </div>
             <p className="text-sm text-gray-600">
-              {filteredOrders.length} commande{filteredOrders.length !== 1 ? 's' : ''} trouvée
+              {filteredOrders.length} {t('order.foundOrders')}
             </p>
           </div>
         </div>
@@ -527,14 +534,14 @@ const CustomerOrders = () => {
         {filteredOrders.length === 0 ? (
           <div className="bg-white shadow-sm rounded-lg p-12 text-center">
             <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune commande trouvée</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">{t('order.noOrdersFound')}</h3>
             <p className="text-gray-600 mb-6">
               {orders.length === 0 
-                ? "You haven't placed any orders yet." 
-                : "No orders match your current filters."}
+                ? t('order.noOrdersYet') 
+                : t('order.noOrdersMatch')}
             </p>
             <Link to="/products">
-              <Button>Commencer vos achats</Button>
+              <Button>{t('order.startShopping')}</Button>
             </Link>
           </div>
         ) : (
@@ -595,13 +602,13 @@ const CustomerOrders = () => {
                       <Link to={`/customer/orders/${order.id}`}>
                         <Button variant="outline" size="sm">
                           <Eye className="h-4 w-4 mr-2" />
-                         Voir les détails
+                         {t('order.viewDetails')}
                         </Button>
                       </Link>
                       {order.orderStatus === 'DELIVERED' && (
                         <Button size="sm">
                           <RefreshCw className="h-4 w-4 mr-2" />
-                          Commander à nouveau
+                          {t('order.buyAgain')}
                         </Button>
                       )}
                     </div>
@@ -612,7 +619,7 @@ const CustomerOrders = () => {
                     <div className="flex items-center justify-between text-sm text-gray-600">
                       <span>{getEstimatedDelivery(order)}</span>
                       {order.orderStatus === 'SHIPPED' && (
-                        <span className="text-blue-600 font-medium">Suivre le colis</span>
+                        <span className="text-blue-600 font-medium">{t('order.trackShipment')}</span>
                       )}
                     </div>
                   </div>

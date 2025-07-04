@@ -23,9 +23,12 @@ import {
   useStripe,
   useElements
 } from '@stripe/react-stripe-js';
+import { useTranslation } from 'react-i18next';
 
 // Initialize Stripe promise outside component to prevent re-creation
-const stripePromise = loadStripe("pk_test_51RWjd8PDrOVRMnP5KOZWA2WVPxeZ7N2MWmZaujdzsElNhtOB8OPInNaYhdbJYarYaGIPt3ivXmQLG61IYuv0ULMQ00TyLWgIUZ");
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
+
+const euroFormatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
 
 const CheckoutForm = ({ 
   clientSecret, 
@@ -40,15 +43,16 @@ const CheckoutForm = ({
 }) => {
   const stripe = useStripe();
   const elements = useElements();
+  const { t } = useTranslation();
 
   const handleStripePayment = useCallback(async () => {
     if (!stripe || !elements) {
-      toast.error("Stripe ne s'est pas encore chargé. Veuillez patienter et réessayer.");
+      toast.error(t("stripe_not_ready"));
       return;
     }
 
     if (!clientSecret) {
-      toast.error("Le paiement n’a pas été initialisé. Veuillez réessayer.");
+      toast.error(t("payment_not_initialized"));
       return;
     }
 
@@ -56,7 +60,7 @@ const CheckoutForm = ({
 
     const cardElement = elements.getElement(CardElement);
     if (!cardElement) {
-      toast.error("La saisie de la carte n’est pas disponible.");
+      toast.error(t("card_input_unavailable"));
       setIsProcessing(false);
       return;
     }
@@ -82,11 +86,11 @@ const CheckoutForm = ({
       });
 
       if (error) {
-        let errorMessage = "Le paiement a échoué. Veuillez réessayer.";
+        let errorMessage = t("payment_failed");
         if (error.type === "card_error") {
           errorMessage = error.message;
         } else if (error.type === "validation_error") {
-          errorMessage = "Veuillez vérifier les informations de votre carte et réessayer.";
+          errorMessage = t("verify_card_info");
         }
         toast.error(errorMessage);
         setIsProcessing(false);
@@ -103,15 +107,15 @@ const CheckoutForm = ({
         };
         checkoutMutation.mutate(checkoutData);
       } else {
-        toast.error("Le paiement n’a pas été effectué avec succès. Veuillez réessayer.");
+        toast.error(t("payment_not_succeeded"));
         setIsProcessing(false);
       }
     } catch (err) {
       console.error("Error de paiment:", err);
-      toast.error("Une erreur inattendue s’est produite lors du traitement du paiement. Veuillez réessayer.");
+      toast.error(t("unexpected_error"));
       setIsProcessing(false);
     }
-  }, [stripe, elements, clientSecret, setIsProcessing, getValuesFromParentForm, checkoutMutation]);
+  }, [stripe, elements, clientSecret, setIsProcessing, getValuesFromParentForm, checkoutMutation, t]);
 
   useEffect(() => {
     if (stripe && elements && clientSecret) {
@@ -129,7 +133,7 @@ const CheckoutForm = ({
     ) {
       createPaymentIntentMutation.mutate({
         amount: Math.round(total * 100), // Convert to cents
-        currency: "usd",
+        currency: "eur",
         customerEmail: getValuesFromParentForm("email"),
         description: `Commande Succar Banat - ${getValuesFromParentForm("fullName")}`,
       });
@@ -175,7 +179,7 @@ const CheckoutForm = ({
           {(isProcessing || createPaymentIntentMutation.isLoading) && (
             <div className="mt-4 flex items-center text-sm text-gray-600">
               <LoadingSpinner size="small" />
-              <span className="ml-2">Traitement du paiement...</span>
+              <span className="ml-2">{t("processing_payment")}...</span>
             </div>
           )}
           {process.env.NODE_ENV === "development" && (
@@ -184,14 +188,14 @@ const CheckoutForm = ({
               • 4242 4242 4242 4242 (Visa)<br/>
               • 4000 0566 5566 5556 (Visa Debit)<br/>
               • 5555 5555 5555 4444 (Mastercard)<br/>
-              Utilisez n’importe quelle date d’expiration future et un CVC à 3 chiffres
+              Utilisez n'importe quelle date d'expiration future et un CVC à 3 chiffres
             </div>
           )}
         </>
       ) : (
         <div className="mt-4 flex items-center text-sm text-gray-600">
           <LoadingSpinner size="small" />
-          <span className="ml-2">Préparation du paiement sécurisé...</span>
+          <span className="ml-2">{t("preparing_secure_payment")}...</span>
         </div>
       )}
     </div>
@@ -201,6 +205,7 @@ const CheckoutForm = ({
 // Wrapper component to handle Stripe loading
 const StripeElementsWrapper = ({ children }) => {
   const [stripeLoaded, setStripeLoaded] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const checkStripe = async () => {
@@ -211,18 +216,18 @@ const StripeElementsWrapper = ({ children }) => {
         }
       } catch (error) {
         console.error('Échec du chargement de Stripe:', error);
-        toast.error('Échec du chargement du système de paiement. Veuillez rafraîchir la page.');
+        toast.error(t("stripe_loading_error"));
       }
     };
 
     checkStripe();
-  }, []);
+  }, [t]);
 
   if (!stripeLoaded) {
     return (
       <div className="flex items-center justify-center p-8">
         <LoadingSpinner size="large" />
-        <span className="ml-3 text-gray-600">Chargement du système de paiement...</span>
+        <span className="ml-3 text-gray-600">{t("loading_payment_system")}...</span>
       </div>
     );
   }
@@ -257,6 +262,7 @@ const Checkout = () => {
   const [clientSecret, setClientSecret] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [stripePaymentTrigger, setStripePaymentTrigger] = useState(null);
+  const { t } = useTranslation();
 
   const { data: cartData, isLoading: cartLoading } = useQuery("cart", cartAPI.get);
 
@@ -287,7 +293,7 @@ const Checkout = () => {
       },
       onError: (error) => {
         console.error("Erreur d'intention de paiement :", error);
-        toast.error("Échec de l'initialisation du paiement : " + (error.response?.data?.message || error.message));
+        toast.error(t("payment_initialization_error") + (error.response?.data?.message || error.message));
         setIsProcessing(false);
       },
     }
@@ -299,12 +305,12 @@ const Checkout = () => {
       onSuccess: (response) => {
         queryClient.invalidateQueries("cart");
         queryClient.invalidateQueries("customer-orders");
-        toast.success("Commande passée avec succès !");
+        toast.success(t("order_success"));
         navigate(`/customer/order-confirmation/${response.data.id}`);
       },
       onError: (error) => {
         console.error("Erreur lors du paiement :", error);
-        toast.error(error.response?.data?.message || "Paiement échoué");
+        toast.error(error.response?.data?.message || t("payment_failed"));
         setIsProcessing(false);
       },
     }
@@ -322,7 +328,7 @@ const Checkout = () => {
         if (stripePaymentTrigger) {
           await stripePaymentTrigger();
         } else {
-          toast.error("Le système de paiement n’est pas prêt. Veuillez patienter un instant puis réessayer.");
+          toast.error(t("payment_system_not_ready"));
         }
       } else {
         setCurrentStep(3);
@@ -347,10 +353,10 @@ const Checkout = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Votre panier est vide</h2>
-          <p className="text-gray-600 mb-4">Ajoutez des articles à votre panier avant de passer à la caisse.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t("empty_cart")}</h2>
+          <p className="text-gray-600 mb-4">{t("add_items_before_checkout")}</p>
           <Link to="/products">
-            <Button>Continuer vos achats</Button>
+            <Button>{t("continue_shopping")}</Button>
           </Link>
         </div>
       </div>
@@ -358,13 +364,13 @@ const Checkout = () => {
   }
 
   const steps = [
-    { id: 1, name: "nformations de livraison", icon: User },
-    { id: 2, name: "Méthode de paiement", icon: CreditCard },
-    { id: 3, name: "Vérification de la commande", icon: CheckCircle },
+    { id: 1, name: t("shipping_information"), icon: User },
+    { id: 2, name: t("payment_method"), icon: CreditCard },
+    { id: 3, name: t("order_verification"), icon: CheckCircle },
   ];
 
   const countryOptions = [
-    { value: "", label: "électionnez un pays" },
+    { value: "", label: t("select_country") },
     { value: "US", label: "États-Unis" },
     { value: "CA", label: "Canada" },
     { value: "GB", label: "Royaume-Uni" },
@@ -378,9 +384,9 @@ const Checkout = () => {
         <div className="mb-8">
           <Link to="/customer/cart" className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-4">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Retour au panier
+            {t("back_to_cart")}
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Passer à la caisse</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{t("checkout")}</h1>
         </div>
 
         <div className="mb-8">
@@ -421,19 +427,19 @@ const Checkout = () => {
                   <div className="bg-white shadow-sm rounded-lg p-6">
                     <h2 className="text-lg font-medium text-gray-900 mb-6">
                       <MapPin className="h-5 w-5 inline mr-2" />
-                      Informations de livraison
+                      {t("shipping_information")}
                     </h2>
                     
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                       <div className="sm:col-span-2">
                         <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-                          Nom complet
+                          {t("full_name")}
                         </label>
                         <input
                           id="fullName"
                           type="text"
                           className="input"
-                          {...register("fullName", { required: "Nom complet est requis" })}
+                          {...register("fullName", { required: t("full_name_required") })}
                         />
                         {errors.fullName && (
                           <p className="mt-1 text-sm text-red-600">{errors.fullName.message}</p>
@@ -442,17 +448,17 @@ const Checkout = () => {
 
                       <div>
                         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                          Email
+                          {t("email")}
                         </label>
                         <input
                           id="email"
                           type="email"
                           className="input"
                           {...register("email", { 
-                            required: "Email est requis",
+                            required: t("email_required"),
                             pattern: {
                               value: /^\S+@\S+$/i,
-                              message: "Adresse email invalide"
+                              message: t("invalid_email")
                             }
                           })}
                         />
@@ -463,13 +469,13 @@ const Checkout = () => {
 
                       <div>
                         <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
-                          Numéro de téléphone
+                          {t("phone_number")}
                         </label>
                         <input
                           id="phoneNumber"
                           type="tel"
                           className="input"
-                          {...register("phoneNumber", { required: "Numéro de téléphone est requis" })}
+                          {...register("phoneNumber", { required: t("phone_number_required") })}
                         />
                         {errors.phoneNumber && (
                           <p className="mt-1 text-sm text-red-600">{errors.phoneNumber.message}</p>
@@ -478,13 +484,13 @@ const Checkout = () => {
 
                       <div className="sm:col-span-2">
                         <label htmlFor="addressLine1" className="block text-sm font-medium text-gray-700 mb-2">
-                          Adresse-ligne 1
+                          {t("address_line_1")}
                         </label>
                         <input
                           id="addressLine1"
                           type="text"
                           className="input"
-                          {...register("addressLine1", { required: "Address is required" })}
+                          {...register("addressLine1", { required: t("address_required") })}
                         />
                         {errors.addressLine1 && (
                           <p className="mt-1 text-sm text-red-600">{errors.addressLine1.message}</p>
@@ -493,7 +499,7 @@ const Checkout = () => {
 
                       <div className="sm:col-span-2">
                         <label htmlFor="addressLine2" className="block text-sm font-medium text-gray-700 mb-2">
-                          Adresse-ligne 2 (optionnel)
+                          {t("address_line_2")} (optionnel)
                         </label>
                         <input
                           id="addressLine2"
@@ -505,13 +511,13 @@ const Checkout = () => {
 
                       <div>
                         <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
-                          Ville
+                          {t("city")}
                         </label>
                         <input
                           id="city"
                           type="text"
                           className="input"
-                          {...register("city", { required: "la ville est requis" })}
+                          {...register("city", { required: t("city_required") })}
                         />
                         {errors.city && (
                           <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
@@ -520,13 +526,13 @@ const Checkout = () => {
 
                       <div>
                         <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-2">
-                          Région
+                          {t("state")}
                         </label>
                         <input
                           id="state"
                           type="text"
                           className="input"
-                          {...register("state", { required: "La région est requis" })}
+                          {...register("state", { required: t("state_required") })}
                         />
                         {errors.state && (
                           <p className="mt-1 text-sm text-red-600">{errors.state.message}</p>
@@ -535,13 +541,13 @@ const Checkout = () => {
 
                       <div>
                         <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-2">
-                          Code Postal
+                          {t("postal_code")}
                         </label>
                         <input
                           id="postalCode"
                           type="text"
                           className="input"
-                          {...register("postalCode", { required: "Code Postal est requis" })}
+                          {...register("postalCode", { required: t("postal_code_required") })}
                         />
                         {errors.postalCode && (
                           <p className="mt-1 text-sm text-red-600">{errors.postalCode.message}</p>
@@ -550,12 +556,12 @@ const Checkout = () => {
 
                       <div>
                         <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-2">
-                          Pays
+                          {t("country")}
                         </label>
                         <select
                           id="country"
                           className="input"
-                          {...register("country", { required: "Pays est requis" })}
+                          {...register("country", { required: t("country_required") })}
                         >
                           {countryOptions.map((opt) => (
                             <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -573,50 +579,8 @@ const Checkout = () => {
                   <div className="bg-white shadow-sm rounded-lg p-6">
                     <h2 className="text-lg font-medium text-gray-900 mb-6">
                       <CreditCard className="h-5 w-5 inline mr-2" />
-                      Methode de paiement
+                      {t("payment_method")}
                     </h2>
-                    
-                    <div className="space-y-4">
-                      <div className="flex items-center">
-                        <input
-                          id="stripe"
-                          type="radio"
-                          value="STRIPE"
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
-                          {...register("paymentMethod")}
-                        />
-                        <label htmlFor="stripe" className="ml-3 block text-sm font-medium text-gray-700">
-                          Carte de crédit/débit (Stripe)
-                        </label>
-                      </div>
-
-                      <div className="flex items-center">
-                        <input
-                          id="paypal"
-                          type="radio"
-                          value="PAYPAL"
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
-                          {...register("paymentMethod")}
-                        />
-                        <label htmlFor="paypal" className="ml-3 block text-sm font-medium text-gray-700">
-                          PayPal
-                        </label>
-                      </div>
-
-                      <div className="flex items-center">
-                        <input
-                          id="bank_transfer"
-                          type="radio"
-                          value="BANK_TRANSFER"
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
-                          {...register("paymentMethod")}
-                        />
-                        <label htmlFor="bank_transfer" className="ml-3 block text-sm font-medium text-gray-700">
-                          Virement bancaire
-                        </label>
-                      </div>
-                    </div>
-
                     <CheckoutForm 
                       clientSecret={clientSecret} 
                       isProcessing={isProcessing}
@@ -628,23 +592,6 @@ const Checkout = () => {
                       onStripeReady={setStripePaymentTrigger}
                       paymentMethod={paymentMethod}
                     />
-
-                    {paymentMethod === "PAYPAL" && (
-                      <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                        <p className="text-sm text-blue-800">
-                          Vous serez redirigé(e) vers PayPal pour finaliser votre paiement.
-                        </p>
-                      </div>
-                    )}
-
-                    {paymentMethod === "BANK_TRANSFER" && (
-                      <div className="mt-6 p-4 bg-yellow-50 rounded-lg">
-                        <p className="text-sm text-yellow-800">
-                          Les instructions pour le virement bancaire seront fournies après la confirmation de la commande.
-                          Votre commande sera traitée une fois le paiement reçu.
-                        </p>
-                      </div>
-                    )}
                   </div>
                 )}
 
@@ -653,7 +600,7 @@ const Checkout = () => {
                     <div className="bg-white shadow-sm rounded-lg p-6">
                       <h2 className="text-lg font-medium text-gray-900 mb-6">
                         <CheckCircle className="h-5 w-5 inline mr-2" />
-                        Vérifiez votre commande
+                        {t("verify_order")}
                       </h2>
                       
                       <div className="space-y-4">
@@ -673,12 +620,12 @@ const Checkout = () => {
                             <div className="flex-1">
                               <h4 className="font-medium text-gray-900 mb-1">{item.productName}</h4>
                               <div className="flex items-center space-x-4 text-sm text-gray-600">
-                                <span>Qté: {item.quantity}</span>
-                                <span>${item.unitPrice.toFixed(2)} par unité</span>
+                                <span>{t("qty")}: {item.quantity}</span>
+                                <span>{euroFormatter.format(item.unitPrice)} par unité</span>
                               </div>
                             </div>
                             <div className="text-right">
-                              <p className="font-semibold text-gray-900">${item.totalPrice.toFixed(2)}</p>
+                              <p className="font-semibold text-gray-900">{euroFormatter.format(item.totalPrice)}</p>
                             </div>
                           </div>
                         ))}
@@ -686,32 +633,26 @@ const Checkout = () => {
                     </div>
 
                     <div className="bg-white shadow-sm rounded-lg p-6">
-                      <h3 className="text-lg font-medium text-gray-900 mb-4">Methode de paiement</h3>
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">{t("payment_method")}</h3>
                       <div className="flex items-center space-x-3">
                         <div className="flex items-center justify-center w-10 h-10 bg-primary-100 rounded-lg">
                           <CreditCard className="h-6 w-6 text-primary-600" />
                         </div>
                         <div>
                           <p className="font-medium text-gray-900">
-                            {paymentMethod === "STRIPE" && "Credit/Debit Card (Stripe)"}
-                            {paymentMethod === "PAYPAL" && "PayPal"}
-                            {paymentMethod === "BANK_TRANSFER" && "Bank Transfer"}
+                            {paymentMethod === "STRIPE" && t("credit_debit_card_stripe")}
                           </p>
-                          {paymentMethod === "STRIPE" && (
-                            <p className="text-sm text-gray-600">Le paiement sera traité en toute sécurité via Stripe.</p>
-                          )}
                         </div>
                       </div>
                     </div>
 
                     <div className="bg-blue-50 rounded-lg p-4">
-                      <h4 className="font-medium text-blue-900 mb-2">Termes de commande</h4>
+                      <h4 className="font-medium text-blue-900 mb-2">{t("order_terms")}</h4>
                       <ul className="text-sm text-blue-800 space-y-1">
-                        <li>• Livraison gratuite pour les commandes supérieures à 50 $</li>
-                        <li>• Politique de retour sous 30 jours pour les articles non ouverts</li>
-                        <li>• Confirmation de commande envoyée par email</li>
-                        <li>• Livraison estimée : 3 à 5 jours ouvrables</li>
-
+                        <li>• {t("free_shipping_above_50_eur")}</li>
+                        <li>• {t("return_policy_within_30_days")}</li>
+                        <li>• {t("order_confirmation_email")}</li>
+                        <li>• {t("estimated_delivery_3_to_5_business_days")}</li>
                       </ul>
                     </div>
                   </div>
@@ -725,7 +666,7 @@ const Checkout = () => {
                       onClick={() => setCurrentStep(currentStep - 1)}
                       disabled={isProcessing}
                     >
-                      Retour
+                      {t("back")}
                     </Button>
                   )}
                   
@@ -736,8 +677,8 @@ const Checkout = () => {
                     disabled={isProcessing}
                   >
                     {currentStep === 3 ? 
-                      (isProcessing ? "Traitement du paiement..." : "Passer la commande") : 
-                      "Continuer"
+                      (isProcessing ? t("processing_payment") : t("place_order")) : 
+                      t("continue")
                     }
                   </Button>
                 </div>
@@ -746,7 +687,7 @@ const Checkout = () => {
               <div className="mt-10 lg:mt-0 lg:col-span-5">
                 <div className="bg-white shadow-sm rounded-lg sticky top-8">
                   <div className="px-4 py-6 sm:px-6">
-                    <h2 className="text-lg font-medium text-gray-900 mb-4">Résumé de la commande</h2>
+                    <h2 className="text-lg font-medium text-gray-900 mb-4">{t("order_summary")}</h2>
                     
                     <div className="flow-root">
                       <ul className="-my-4 divide-y divide-gray-200">
@@ -766,7 +707,7 @@ const Checkout = () => {
                             <div className="ml-4 flex-1">
                               <div className="flex justify-between text-sm">
                                 <h3 className="font-medium text-gray-900">{item.productName}</h3>
-                                <p className="text-gray-900">${item.totalPrice.toFixed(2)}</p>
+                                <p className="text-gray-900">{euroFormatter.format(item.totalPrice)}</p>
                               </div>
                               <p className="mt-1 text-sm text-gray-500">Qty: {item.quantity}</p>
                             </div>
@@ -777,40 +718,40 @@ const Checkout = () => {
 
                     <div className="border-t border-gray-200 mt-6 pt-6 space-y-4">
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Sous-total</span>
-                        <span className="text-gray-900">${cart?.subtotal?.toFixed(2)}</span>
+                        <span className="text-gray-600">{t("subtotal")}</span>
+                        <span className="text-gray-900">{euroFormatter.format(cart?.subtotal)}</span>
                       </div>
                       
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Tax</span>
-                        <span className="text-gray-900">${(cart?.subtotal * 0.1)?.toFixed(2)}</span>
+                        <span className="text-gray-600">{t("tax")}</span>
+                        <span className="text-gray-900">{euroFormatter.format(cart?.subtotal * 0.1)}</span>
                       </div>
                       
                       <div className="flex justify-between text-sm">
                         <div className="flex items-center">
-                          <span className="text-gray-600">Livraison</span>
+                          <span className="text-gray-600">{t("shipping")}</span>
                           {cart?.subtotal >= 50 && (
                             <span className="ml-2 text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">
-                              GRATUIT
+                              {t("free")}
                             </span>
                           )}
                         </div>
                         <span className="text-gray-900">
-                          {cart?.subtotal >= 50 ? "Free" : "$5.00"}
+                          {cart?.subtotal >= 50 ? t("free") : euroFormatter.format(5)}
                         </span>
                       </div>
                       
                       <div className="border-t border-gray-200 pt-4">
                         <div className="flex justify-between text-base font-medium text-gray-900">
-                          <span>Total</span>
-                          <span>${total?.toFixed(2)}</span>
+                          <span>{t("total")}</span>
+                          <span>{euroFormatter.format(total)}</span>
                         </div>
                       </div>
                     </div>
 
                     <div className="mt-6 flex items-center justify-center text-sm text-gray-500">
                       <Shield className="h-4 w-4 mr-2 text-green-500" />
-                      Paiement sécurisé avec chiffrement SSL
+                      {t("secure_payment_with_ssl_encryption")}
                     </div>
                   </div>
                 </div>

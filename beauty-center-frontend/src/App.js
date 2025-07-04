@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 // Layout components
 import Layout from './components/Layout/Layout';
@@ -12,6 +13,7 @@ import LoadingSpinner from './components/UI/LoadingSpinner';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
+import Services from './pages/Services';
 import Contact from './pages/Contact';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
@@ -99,6 +101,7 @@ const DashboardRoute = () => {
 };
 
 function AppContent() {
+  const { t } = useTranslation();
   return (
     <Router>
       <Layout>
@@ -107,6 +110,7 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/services" element={<Services />} />
           <Route path="/contact" element={<Contact />} />
 
           {/* Auth Routes */}
@@ -231,6 +235,7 @@ function AppContent() {
 }
 
 function App() {
+  const { t } = useTranslation();
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>

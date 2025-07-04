@@ -1,12 +1,27 @@
-import React from 'react';
-import { MapPin, Phone, Mail, Clock, Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { MapPin, Phone, Mail, Clock, Sparkles, Send, CheckCircle } from 'lucide-react';
+import Button from '../components/UI/Button';
+import { toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
+import emailjs from 'emailjs-com';
 
 const Contact = () => {
+  const { t } = useTranslation();
   const contactInfo = [
     {
       icon: MapPin,
       title: 'Adresse',
-      content: '110 Rue des Cras, 25000 Besançon, France',
+      content: (
+        <a
+          href="https://maps.app.goo.gl/MFDhp3vEaXRAHWAy7"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-primary-700 transition-colors"
+        >
+          110 Rue des Cras, 25000 Besançon, France
+        </a>
+      ),
       color: 'from-[#DDCABC] to-[#B97230]',
       iconColor: 'text-[#3D2118]',
       bgColor: 'bg-[#DDCABC]'
@@ -14,7 +29,14 @@ const Contact = () => {
     {
       icon: Phone,
       title: 'Téléphone',
-      content: '06 03 28 67 03',
+      content: (
+        <a
+          href="tel:0603286703"
+          className="underline hover:text-primary-700 transition-colors"
+        >
+          06 03 28 67 03
+        </a>
+      ),
       color: 'from-[#DDCABC] to-[#B97230]',
       iconColor: 'text-[#3D2118]',
       bgColor: 'bg-[#DDCABC]'
@@ -22,7 +44,14 @@ const Contact = () => {
     {
       icon: Mail,
       title: 'Email',
-      content: 'dounia.beaute.pro@gmail.com',
+      content: (
+        <a
+          href="mailto:dounia.beaute.pro@gmail.com"
+          className="underline hover:text-primary-700 transition-colors"
+        >
+          dounia.beaute.pro@gmail.com
+        </a>
+      ),
       color: 'from-[#DDCABC] to-[#B97230]',
       iconColor: 'text-[#3D2118]',
       bgColor: 'bg-[#DDCABC]'
@@ -30,12 +59,44 @@ const Contact = () => {
     {
       icon: Clock,
       title: 'Horaires',
-      content: 'Lundi: 13h-19h30\ndu mardi au vendredi: 9h30 - 19h30\nsamedi: 9h30 - 15h',
+      content: `Lundi : fermé\nMardi : 10h-19h\nMercredi : 10h-19h\nJeudi : 10h-19h\nVendredi : 10h-19h\nSamedi : 10h-15h\nDimanche : fermé`,
       color: 'from-[#DDCABC] to-[#B97230]',
       iconColor: 'text-[#3D2118]',
       bgColor: 'bg-[#DDCABC]'
     },
   ];
+
+  // EmailJS form state
+  const [formLoading, setFormLoading] = useState(false);
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+
+  const handleFormChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    setFormLoading(true);
+    emailjs.send(
+      'service_lkr4gxp', // replace with your EmailJS service ID
+      'template_gnxb21e', // replace with your EmailJS template ID
+      {
+        from_name: formData.name,
+        from_email: formData.email,
+        message: formData.message,
+      },
+      '6vGdFqTXg9cqMUYI_' // replace with your EmailJS user/public key
+    )
+      .then(() => {
+        setFormLoading(false);
+        setFormData({ name: '', email: '', message: '' });
+        toast.success('Message envoyé avec succès !');
+      })
+      .catch(() => {
+        setFormLoading(false);
+        toast.error('Erreur lors de l\'envoi du message.');
+      });
+  };
 
   return (
     <div className="min-h-screen bg-[#DDCABC] relative overflow-hidden">
@@ -54,10 +115,10 @@ const Contact = () => {
               <Sparkles className="h-8 w-8 text-[#B97230] animate-pulse" />
             </div>
             <h1 className="text-5xl font-serif font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-[#3D2118] via-[#B97230] to-[#936342]">
-              Contactez-nous
+              {t('contact.title')}
             </h1>
             <p className="text-xl text-[#3D2118]/80 max-w-2xl mx-auto leading-relaxed">
-              Nous sommes là pour répondre à toutes vos questions et vous accompagner dans votre parcours beauté.
+              {t('contact.description')}
             </p>
           </div>
         </div>
@@ -97,9 +158,9 @@ const Contact = () => {
             <div className="bg-white rounded-2xl shadow-xl p-8 transform transition-all duration-300 hover:shadow-2xl border-2 border-[#B97230]/30">
               <h2 className="text-2xl font-serif font-bold text-[#3D2118] mb-6 flex items-center">
                 <MapPin className="h-6 w-6 text-[#B97230] mr-2" />
-                Notre emplacement
+                {t('contact.location.title')}
               </h2>
-              <div className="aspect-video bg-[#DDCABC] rounded-lg overflow-hidden shadow-lg border border-[#B97230]/20">
+              <div className="aspect-video bg-[#DDCABC] rounded-lg overflow-hidden shadow-lg border border-[#B97230]/20 mb-8">
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2710.1234567890123!2d6.023456789012345!3d47.23456789012345!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x478d7c8c4c4c4c4c%3A0x1234567890123456!2s110%20Rue%20des%20Cras%2C%2025000%20Besan%C3%A7on%2C%20France!5e0!3m2!1sfr!2sfr!4v1234567890123!5m2!1sfr!2sfr"
                   width="100%"
@@ -112,6 +173,42 @@ const Contact = () => {
                   className="transform transition-transform duration-300 hover:scale-105"
                 ></iframe>
               </div>
+              {/* Contact Form */}
+              <form onSubmit={handleFormSubmit} className="space-y-6 mt-8">
+                <h3 className="text-xl font-semibold text-[#3D2118] mb-2">Contactez-nous</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Votre nom"
+                    value={formData.name}
+                    onChange={handleFormChange}
+                    required
+                    className="px-4 py-3 rounded-lg border border-[#B97230]/30 focus:ring-2 focus:ring-[#B97230] focus:outline-none bg-[#F9F6F2] text-[#3D2118]"
+                  />
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Votre email"
+                    value={formData.email}
+                    onChange={handleFormChange}
+                    required
+                    className="px-4 py-3 rounded-lg border border-[#B97230]/30 focus:ring-2 focus:ring-[#B97230] focus:outline-none bg-[#F9F6F2] text-[#3D2118]"
+                  />
+                </div>
+                <textarea
+                  name="message"
+                  placeholder="Votre message"
+                  value={formData.message}
+                  onChange={handleFormChange}
+                  required
+                  rows={4}
+                  className="w-full px-4 py-3 rounded-lg border border-[#B97230]/30 focus:ring-2 focus:ring-[#B97230] focus:outline-none bg-[#F9F6F2] text-[#3D2118]"
+                />
+                <Button type="submit" size="lg" className="w-full md:w-auto" disabled={formLoading}>
+                  {formLoading ? 'Envoi en cours...' : 'Envoyer'}
+                </Button>
+              </form>
             </div>
           </div>
         </div>

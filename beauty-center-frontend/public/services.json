@@ -1,0 +1,280 @@
+{
+    "services": [
+      {
+        "category": "Beauté du regard",
+        "categoryImage": "https://items-images-production-f.squarecdn.com/files/f68a8f28f3c18d3bee126a6e88a215b1fc16f49b/original.jpeg?width=640&enable=upscale&dpr=1",
+        "services": [
+          {
+            "title": "Rehaussement cils « yeux de biche »",
+            "description": "Le rehaussement des cils consiste à recourber et à donner du volume aux cils naturels. Vos cils seront plus longs et plus volumineux, ouvrant ainsi, votre regard. Les avantages comprennent un effet naturel, un gain de temps le matin, une apparence plus",
+            "price": "Price varies",
+            "duration": "1 hr+",
+            "image": "https://items-images-production-f.squarecdn.com/files/03f684184cde43a8bb0fb466a906e094b77aaff4/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/L2422LKD62KZKPFQVQ7MKJ2M"
+          },
+          {
+            "title": "Brow lift",
+            "description": "Nous faisons en sorte de sublimer votre beauté naturelle. Cette technique permet de sculpter vos sourcils sans les épiler.",
+            "price": "Price varies",
+            "duration": "40 min",
+            "image": "https://items-images-production-f.squarecdn.com/files/03f684184cde43a8bb0fb466a906e094b77aaff4/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/4A672RCW6VMK324OD66URJBO"
+          }
+        ]
+      },
+      {
+        "category": "Massages",
+        "categoryImage": "https://items-images-production-f.squarecdn.com/files/ad44be425085808db2e008dfeb8107a3e3d0fc5c/original.jpeg?width=640&enable=upscale&dpr=1",
+        "services": [
+          {
+            "title": "MASSAGE CORPS SUR MESURE",
+            "description": "Notre massage réalisé avec des huiles naturels vous aide à diminuer le stress, l'anxiété et les effets de la dépression. Vos idées deviennent plus claires et vos émotions seines. Le sommeil est plus facile après un massage. Enfin nos massages permettent à votre cerveau de sécréter des endorphines.",
+            "price": "Price varies",
+            "duration": "40 min+",
+            "image": "https://items-images-production-f.squarecdn.com/files/ad44be425085808db2e008dfeb8107a3e3d0fc5c/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/YQJZYT6EJDNQUN7VVB3TV5QO"
+          },
+          {
+            "title": "MADÉROTHERAPIE",
+            "description": "La madérotherapie est une technique de massage nécessitant l'utilisation d'instrument en bois spécialement conçu pour réduire la cellulite, raffermir et remodeler le corps. bois naturel et lisse, c'est instruments de madérothérapie peuvent s'utiliser sur différentes parties du corps. Peut ce combinée avec d'autres techniques de massage ou de soin corps pour optimiser les résultats.",
+            "price": "Price varies",
+            "duration": "15 min+",
+            "image": "https://items-images-production-f.squarecdn.com/files/6515634559e954a5834d6043fd9d39f4025ce7c4/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/IIY7PVFGJZAT7SA27L6HZU6F"
+          }
+        ]
+      },
+      {
+        "category": "Soins à la carte",
+        "categoryImage": "https://items-images-production-f.squarecdn.com/files/50648ef1903ce82b36b59f6e7dc923aef1d508c6/original.jpeg?width=640&enable=upscale&dpr=1",
+        "services": [
+          {
+            "title": "MASSAGE DRAINAGE LYMPHATIQUE CORPS",
+            "description": "Le drainage lymphatique est une technique de massage doux visant à stimuler le système lymphatique, ce qui peut avoir plusieurs avantages, notamment la réduction de la rétention d'eau, de l'enflure et des toxines. Il favorise la circulation sanguine, soulage la sensation de jambes lourdes, et peut être utile pour améliorer la santé de la peau, réduire l'apparence de la cellulite et promouvoir une meilleure récupération après une activité physique intense.",
+            "price": "Price varies",
+            "duration": "30 min+",
+            "image": "https://items-images-production-f.squarecdn.com/files/05d5f2de94762bc7c0eb5e7693dd10314171279f/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/PG24ZRRNADJEPZ3634A7IYG4"
+          },
+          {
+            "title": "MASSAGE CUIR CHEVELU - Combinaison possible avec autres soins",
+            "description": "Le massage du cuir chevelu, stimule la micro-circulation, contribuent à la bonne irrigation des bulbes capillaires pour avoir des cheveux plus forts et plus résistants. Les massages peuvent aussi favoriser la repousse des cheveux. Laissez-vous transporter par des gestes experts qui stimulent la circulation sanguine, réduisent le stress et nourrissent vos cheveux de la racine aux pointes. Offrez à votre cuir chevelu l'attention qu'il mérite et laissez-vous envelopper par une sensation de bien-être. Parce que prendre soin de soi commence par un geste simple, mais puissant.",
+            "price": "Price varies",
+            "duration": "20 min+",
+            "image": "https://items-images-production-f.squarecdn.com/files/a2d87456bdcaef5bf3c560de7479217d81d43731/original.png?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/GLN66YSAG7K5WFBYXU7WIFA4"
+          },
+          {
+            "title": "Soins Visage sur-mesure",
+            "description": "Une expérience d'une heure ou 1h30 au choix, dédiée à la beauté. Notre approche commence par une analyse professionnelle précise de votre peau, adaptée à votre profil unique. Ensuite, nous appliquerons un soin visage spécialement conçu en fonction de cette analyse, pour vous offrir une expérience de beauté personnalisée et exceptionnelle. Dans mon institut de beauté, Succar Banat, je me suis engagée à créer des soins visage uniques en combinant des actifs pour obtenir des résultats optimaux, adaptés à chaque type de peau.",
+            "price": "Price varies",
+            "duration": "30 min+",
+            "image": "https://items-images-production-f.squarecdn.com/files/9f8f2febe130f8dec9538814362e4063b246e47d/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/BAZI4WWJQMSNXGRG37P2VFQP"
+          },
+          {
+            "title": "Massage - circulation sanguine jambes (Femme)",
+            "description": "Il agit en stimulant la circulation sanguine, réduisant progressivement cette désagréable sensation de gonflement et de lourdeur. L'apparition de varices peut en effet résulter de la négligence des jambes lourdes. Lorsque les jambes sont sujettes à une mauvaise circulation sanguine et à une rétention d'eau chronique, cela exerce une pression supplémentaire sur les vaisseaux sanguins.",
+            "price": "€65.00",
+            "duration": "1 hr",
+            "image": "https://items-images-production-f.squarecdn.com/files/05d5f2de94762bc7c0eb5e7693dd10314171279f/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/7PPLTUZ3UKQCJF6SOJ6KXQJG"
+          }
+        ]
+      },
+      {
+        "category": "Épilation Fil",
+        "categoryImage": "https://items-images-production-f.squarecdn.com/files/c8ca8e4206799e5f8fe2d584e1c090dd4a2a9268/original.jpeg?width=640&enable=upscale&dpr=1",
+        "services": [
+          {
+            "title": "Épilation Visage complet ( Plusieurs options possibles)",
+            "description": "Dounia Asri pratique cette technique ancestrale depuis 9 ans et vous garantit : Précision : élimine efficacement les poils fins et courts. Durabilité : les résultats durent plus longtemps avec une repousse plus lente et plus fine. Réduction du risque d'irritation",
+            "price": "Price varies",
+            "duration": "25 min+",
+            "image": "https://items-images-production-f.squarecdn.com/files/4a2772971ab5c3f0fb6ad6b120bcdcd87dbf1ec6/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/356QA6WERV4PFFYC44VMFURI"
+          },
+          {
+            "title": "Épilation Sourcils / Lèvres (plusieurs options possibles)",
+            "description": "Dounia Asri pratique cette technique ancestrale depuis 9 ans et vous garantit : Précision : élimine efficacement les poils fins et courts. Durabilité : les résultats durent plus longtemps avec une repousse plus lente et plus fine. Réduction du risque d'irritation",
+            "price": "Price varies",
+            "duration": "5 min+",
+            "image": "https://items-images-production-f.squarecdn.com/files/9d8bc78d90a9238ecefae557d64a99bbab365835/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/PVEKUPUI7I6COZLWQTPHNHQ6"
+          },
+          {
+            "title": "Épilation cou",
+            "description": "La cire orientale, également appelée cire au sucre, est une méthode d'épilation aux nombreux avantages. Composée d'ingrédients naturels, elle est douce pour la peau, réduit la douleur, exfolie la peau, offre des résultats durables, diminue la repousse des poils et peut être utilisée sur diverses parties du corps. De plus, elle est respectueuse de l'environnement.",
+            "price": "€9.00",
+            "duration": "15 min",
+            "image": "https://items-images-production-f.squarecdn.com/files/8136c39e8f1b6c5098c9bd887dcc57c43fe06557/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/EZD3XGY4SWNO6LVDDMXRKT6Y"
+          },
+          {
+            "title": "Épilation joues",
+            "description": "L'épilation au fil est une méthode d'épilation précise qui arrache les poils à la racine, laissant la peau lisse et nette. Elle est douce pour la peau, réduit les risques d'irritation et convient à des zones sensibles comme le visage. De plus, cette technique permet un modelage précis des sourcils et est relativement rapide.",
+            "price": "€8.00",
+            "duration": "20 min",
+            "image": "https://items-images-production-f.squarecdn.com/files/8136c39e8f1b6c5098c9bd887dcc57c43fe06557/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/SW5BQFA3YD66JWEFHW4HC6W3"
+          },
+          {
+            "title": "Épilation Menton",
+            "description": "L'épilation au fil est une méthode d'épilation précise qui arrache les poils à la racine, laissant la peau lisse et nette. Elle est douce pour la peau, réduit les risques d'irritation et convient à des zones sensibles comme le visage. De plus, cette technique permet un modelage précis des sourcils et est relativement rapide.",
+            "price": "€9.00",
+            "duration": "10 min",
+            "image": "https://items-images-production-f.squarecdn.com/files/8136c39e8f1b6c5098c9bd887dcc57c43fe06557/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/IRODFW3H336336WIKVP6IBMW"
+          }
+        ]
+      },
+      {
+        "category": "Épilation Cire orientale",
+        "categoryImage": "https://items-images-production-f.squarecdn.com/files/bf072366d75bba9d550314d2618ddb9a9456bdaf/original.jpeg?width=640&enable=upscale&dpr=1",
+        "services": [
+          {
+            "title": "Épilation - Corps - J/M/A (Plusieurs options possibles)",
+            "description": "Notre cire est faite maison by @Succar_Banat, méthode traditionnelle à base de sucre. L'épilation à la cire orientale offre une méthode de retrait des poils efficace et durable. Ses avantages incluent une peau lisse, une repousse plus lente, une exfoliation naturelle, et une diminution des poils incarnés. Cette technique d'épilation est reconnu depuis des générations pour ses bienfaits sur la peau de celles qui l'utilise.",
+            "price": "Price varies",
+            "duration": "40 min+",
+            "image": "https://items-images-production-f.squarecdn.com/files/bf072366d75bba9d550314d2618ddb9a9456bdaf/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/BSQW54XSMX5SGXNNY6QEETTG"
+          },
+          {
+            "title": "Épilation Maillot (Plusieurs options possibles)",
+            "description": "Notre cire est faite maison by @Succar_Banat, méthode traditionnelle à base de sucre. L'épilation à la cire orientale offre une méthode de retrait des poils efficace et durable. Ses avantages incluent une peau lisse, une repousse plus lente, une exfoliation naturelle, et une diminution des poils incarnés. Cette technique d'épilation est reconnu depuis des générations pour ses bienfaits sur la peau de celles qui l'utilise.",
+            "price": "Price varies",
+            "duration": "10 min+",
+            "image": "https://items-images-production-f.squarecdn.com/files/6affb2ca9c37cb9ddadd8af5972db59e372ab595/original.png?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/3VXJHT6MKKGPD4YZA4C6WYY2"
+          },
+          {
+            "title": "GOMMAGE PRÉ-ÉPILATION Savon Beldi ( Peau plus belle & Douce)",
+            "description": "Un gommage au savon noir exfolie la peau en éliminant les cellules mortes, favorisant ainsi une épilation plus efficace et réduisant les risques de poils incarnés. De plus, il hydrate la peau, laissant une surface plus douce pour une épilation optimale.",
+            "price": "Price varies",
+            "duration": "10 min+",
+            "image": "https://items-images-production-f.squarecdn.com/files/09002084c8458ffec64e2f26afc7de7af33892ca/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/OVGWR273W2KHMUORIMPL5CJA"
+          },
+          {
+            "title": "Épilation dos / bas dos",
+            "description": "La cire orientale, également appelée cire au sucre, est une méthode d'épilation aux nombreux avantages. Composée d'ingrédients naturels, elle est douce pour la peau, réduit la douleur, exfolie la peau, offre des résultats durables, diminue la repousse des poils et peut être utilisée sur diverses parties du corps.",
+            "price": "Price varies",
+            "duration": "15 min+",
+            "image": "https://items-images-production-f.squarecdn.com/files/8136c39e8f1b6c5098c9bd887dcc57c43fe06557/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/MRMD2VKK43DDQUXNOXOWT3DF"
+          },
+          {
+            "title": "Épilation fesses",
+            "description": "La cire orientale, également appelée cire au sucre, est une méthode d'épilation aux nombreux avantages. Composée d'ingrédients naturels, elle est douce pour la peau, réduit la douleur, exfolie la peau, offre des résultats durables, diminue la repousse des poils et peut être utilisée sur diverses parties du corps. De plus, elle est respectueuse de l'environnement.",
+            "price": "€7.00",
+            "duration": "5 min",
+            "image": "https://items-images-production-f.squarecdn.com/files/bf072366d75bba9d550314d2618ddb9a9456bdaf/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/O3JNHA7CCHV4JQICYFGFPIKG"
+          },
+          {
+            "title": "Épilation Jambes (Plusieurs options possibles)",
+            "description": "Notre cire est faite maison by @Succar_Banat, méthode traditionnelle à base de sucre. L'épilation à la cire orientale offre une méthode de retrait des poils efficace et durable. Ses avantages incluent une peau lisse, une repousse plus lente, une exfoliation naturelle, et une diminution des poils incarnés. Cette technique d'épilation est reconnu depuis des générations pour ses bienfaits sur la peau de celles qui l'utilise.",
+            "price": "Price varies",
+            "duration": "20 min+",
+            "image": "https://items-images-production-f.squarecdn.com/files/bf072366d75bba9d550314d2618ddb9a9456bdaf/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/37Y2ZVZPJ7WOPIUGUVVATW4Z"
+          },
+          {
+            "title": "Épilation épaules",
+            "description": "La cire orientale, également appelée cire au sucre, est une méthode d'épilation aux nombreux avantages. Composée d'ingrédients naturels, elle est douce pour la peau, réduit la douleur, exfolie la peau, offre des résultats durables, diminue la repousse des poils et peut être utilisée sur diverses parties du corps. De plus, elle est respectueuse de l'environnement.",
+            "price": "€6.00",
+            "duration": "10 min",
+            "image": "https://items-images-production-f.squarecdn.com/files/bf072366d75bba9d550314d2618ddb9a9456bdaf/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/3IAVBGE3SU5UUYUCWACKMDKT"
+          },
+          {
+            "title": "Épilation Aisselles",
+            "description": "Les deux techniques sont possibles",
+            "price": "€13.00",
+            "duration": "10 min",
+            "image": "https://items-images-production-f.squarecdn.com/files/6395606db08c26eccd4dcf662c8841ad828c7b8e/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/7VEYCXEGFYUAG7MOL4X2KJH6"
+          },
+          {
+            "title": "Épilation Ventre / nombril",
+            "description": "La cire orientale, également appelée cire au sucre, est une méthode d'épilation aux nombreux avantages. Composée d'ingrédients naturels, elle est douce pour la peau, réduit la douleur, exfolie la peau, offre des résultats durables, diminue la repousse des poils et peut être utilisée sur diverses parties du corps. De plus, elle est respectueuse de l'environnement.",
+            "price": "Price varies",
+            "duration": "5 min+",
+            "image": "https://items-images-production-f.squarecdn.com/files/8136c39e8f1b6c5098c9bd887dcc57c43fe06557/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/BYYLK3PEKNPQFVFXJHZPXLEM"
+          },
+          {
+            "title": "Épilation Bras / Demi bras",
+            "description": "La cire orientale, également appelée cire au sucre, est une méthode d'épilation aux nombreux avantages. Composée d'ingrédients naturels, elle est douce pour la peau, réduit la douleur, exfolie la peau, offre des résultats durables, diminue la repousse des poils et peut être utilisée sur diverses parties du corps. De plus, elle est respectueuse de l'environnement.",
+            "price": "Price varies",
+            "duration": "15 min+",
+            "image": "https://items-images-production-f.squarecdn.com/files/8136c39e8f1b6c5098c9bd887dcc57c43fe06557/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/PXH5PZSQKYQA2NVE7JWQA5SD"
+          },
+          {
+            "title": "Épilation corps complet (Femme)",
+            "description": "Pour une future mariée, une épilation complète du corps à la cire orientale est une excellente option. Cette méthode douce et naturelle élimine les poils de manière efficace et durable, laissant la peau lisse et soyeuse. De plus, le gommage naturel intégré aide à exfolier la peau, créant ainsi une toile parfaite pour une journée spéciale. Veillez à effectuer cette épilation quelques jours avant le mariage pour permettre à la peau de retrouver son éclat.",
+            "price": "Price varies",
+            "duration": "1 hr 30 min+",
+            "image": "https://items-images-production-f.squarecdn.com/files/bf072366d75bba9d550314d2618ddb9a9456bdaf/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/TUTIY4B6L47GMSU63OTMQDSQ"
+          }
+        ]
+      },
+      {
+        "category": "Other",
+        "categoryImage": null,
+        "services": [
+          {
+            "title": "Beauté des pieds ANTI CALLOSITÉ",
+            "description": "Nettoyage pieds & ongles Anti callosité gommage masque 100% naturel",
+            "price": "Price varies",
+            "duration": "30 min+",
+            "image": "https://items-images-production-f.squarecdn.com/files/e6ead3abb56804b2d4d295dddc05c1d969f5001b/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/2FMLE2O42X7Q7PYYUYRSSEXO"
+          },
+          {
+            "title": "MicroBlading ou retouche",
+            "description": "Ce rendez-vous gratuit est conçu pour explorer vos besoins spécifiques en matière de micro blending. Lors de cette discussion, nous analyserons votre situation afin de déterminer si un micro blending est approprié pour vous. L'objectif est de vous offrir des conseils personnalisés, d'identifier vos attentes et d'évaluer les bénéfices potentiels de cette technique. Cela vous permettra de prendre une décision éclairée sur la suite à donner à votre projet.",
+            "price": "Price varies",
+            "duration": "30 min+",
+            "image": "https://items-images-production-f.squarecdn.com/files/165e3103400042faa6a5d26bbd92d31b06e26955/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/XPEJ7AZRLNK2K4IRZEDEQIPL"
+          },
+          {
+            "title": "Décoloration de sourcils",
+            "description": "Décoloration de vos sourcils, afin de redessiner une forme sans les épiler.",
+            "price": "€15.00",
+            "duration": "30 min",
+            "image": "https://items-images-production-f.squarecdn.com/files/03f684184cde43a8bb0fb466a906e094b77aaff4/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/R2L7JEUUUU5IQOELIDC5OJNC"
+          },
+          {
+            "title": "Beauté mains & ongles",
+            "description": "Prenez soin de vos mains et révélez la beauté de vos ongles avec nos prestations manucure ! Que vous souhaitiez une mise en beauté naturelle, une touche de couleur ou une pose plus sophistiquée, nous vous proposons des soins adaptés à vos envies. Profitez d'un moment de détente et laissez-vous chouchouter !",
+            "price": "Price varies",
+            "duration": "30 min+",
+            "image": "https://items-images-production-f.squarecdn.com/files/8748a2ea4789aa256204d67f826d4dd0aeee0995/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/NNMYIJHL6MOB7JRMRPTWLU2O"
+          },
+          {
+            "title": "Supplément soins",
+            "description": "",
+            "price": "Price varies",
+            "duration": "20 min+",
+            "image": "https://items-images-production-f.squarecdn.com/files/e1907e3e4fb9ecb2515e71d4d88536f9cc282c01/original.jpeg?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/OMEEIA44OFC62PL5SHQGU4FL"
+          },
+          {
+            "title": "Gelée coiffante boucle F/H 100 %🌿",
+            "description": "",
+            "price": "€10.00",
+            "duration": "20 min",
+            "image": "https://items-images-production-f.squarecdn.com/files/f71348505d85dac661f0f0134cc2427618dcb1aa/original.png?width=384&height=384&fit=cover&enable=upscale&dpr=1",
+            "link": "https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services/5GIQXTZBFQ7SOBN2RP5GELG3"
+          }
+        ]
+      }
+    ]
+  }

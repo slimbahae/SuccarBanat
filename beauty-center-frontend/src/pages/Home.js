@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { Quote } from "lucide-react";
@@ -16,8 +16,12 @@ import {
 import Button from '../components/UI/Button';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
 import { productsAPI, servicesAPI } from '../services/api';
+import { useTranslation } from 'react-i18next';
+
+const euroFormatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
 
 const Home = () => {
+  const { t } = useTranslation();
   // Fetch featured products and services
   const { data: featuredProducts, isLoading: productsLoading } = useQuery(
     'featured-products',
@@ -30,26 +34,26 @@ const Home = () => {
   );
 
   const stats = [
-    { label: 'Clients Satisfaits', value: '800+', icon: Users, color: 'from-[#DDCABC] to-[#B97230]', iconColor: 'text-[#3D2118]' },
-    { label: 'Naturel', value: '100%', icon: Flower, color: 'from-[#B97230] to-[#936342]', iconColor: 'text-[#3D2118]' },
-    { label: 'Traditionnel', value: '100%', icon: Sparkles, color: 'from-[#936342] to-[#904913]', iconColor: 'text-[#DDCABC]' },
-    { label: 'Années d’Expérience', value: '10+', icon: Star, color: 'from-[#904913] to-[#3D2118]', iconColor: 'text-[#DDCABC]' },
+    { label: t('Clients Satisfaits'), value: '800+', icon: Users, color: 'from-[#DDCABC] to-[#B97230]', iconColor: 'text-[#3D2118]' },
+    { label: t('Naturel'), value: '100%', icon: Flower, color: 'from-[#B97230] to-[#936342]', iconColor: 'text-[#3D2118]' },
+    { label: t('Traditionnel'), value: '100%', icon: Sparkles, color: 'from-[#936342] to-[#904913]', iconColor: 'text-[#DDCABC]' },
+    { label: t('Années d\'Expérience'), value: '10+', icon: Star, color: 'from-[#904913] to-[#3D2118]', iconColor: 'text-[#DDCABC]' },
   ];
 
   const features = [
     {
-      title: 'Expertise Professionnelle',
-      description: 'Vous êtes entre les mains de professionnels certifiés qui vous offrent des soins de beauté d’exception.',
+      title: t('Expertise Professionnelle'),
+      description: t('Vous êtes entre les mains de professionnels certifiés qui vous offrent des soins de beauté d\'exception.'),
       icon: Award,
     },
     {
-      title: 'Produits Haut de Gamme',
-      description: 'Vous profitez des meilleurs produits de beauté 100% naturels, rien que pour vous.',
+      title: t('Produits Haut de Gamme'),
+      description: t('Vous profitez des meilleurs produits de beauté 100% naturels, rien que pour vous.'),
       icon: Star,
     },
     {
-      title: 'Environnement Relaxant',
-      description: 'Vous vous détendez dans une ambiance paisible et luxueuse, pensée pour votre bien-être.',
+      title: t('Environnement Relaxant'),
+      description: t('Vous vous détendez dans une ambiance paisible et luxueuse, pensée pour votre bien-être.'),
       icon: Sparkles,
     },
   ];
@@ -57,7 +61,7 @@ const Home = () => {
   const testimonials = [
   {
     content:
-      "Très satisfaite de mon passage chez Dounia qui a des mains de fée professionnelle, méticuleuse et très gentille. J'ai hâte d'y retourner pour d'autres prestations. La meilleure de toutes",
+      t("Très satisfaite de mon passage chez Dounia qui a des mains de fée professionnelle, méticuleuse et très gentille. J'ai hâte d'y retourner pour d'autres prestations. La meilleure de toutes"),
     author: {
       name: "Aleyna Lena",
       image: "/placeholder.svg?height=100&width=100",
@@ -65,7 +69,7 @@ const Home = () => {
   },
   {
     content:
-      "Très bel institut. Prestation de qualité et résultat plus que satisfaisant, c’est de loin la meilleure !",
+      t("Très bel institut. Prestation de qualité et résultat plus que satisfaisant, c'est de loin la meilleure !"),
     author: {
       name: "imane b",
       image: "/placeholder.svg?height=100&width=100",
@@ -73,7 +77,7 @@ const Home = () => {
   },
   {
     content:
-      "Je sors à l'instant de l'institut où Dounia m'a fait passé un excellent moment de détente. Ses massages du cuir chevelu et du corps se sont parfaitement adaptés à mes besoins. J'y retournerai très prochainement avec un grand plaisir. Merci encore !",
+      t("Je sors à l'instant de l'institut où Dounia m'a fait passé un excellent moment de détente. Ses massages du cuir chevelu et du corps se sont parfaitement adaptés à mes besoins. J'y retournerai très prochainement avec un grand plaisir. Merci encore !"),
     author: {
       name: "Adrianne Guyot",
       image: "/placeholder.svg?height=100&width=100",
@@ -81,7 +85,7 @@ const Home = () => {
   },
   {
     content:
-      "Première fois que je vais à l’institut ! Un super accueil et une super prestation, j’y retournerais sans hésiter",
+      t("Première fois que je vais à l'institut ! Un super accueil et une super prestation, j'y retournerais sans hésiter"),
     author: {
       name: "Clem Martins",
       image: "/placeholder.svg?height=100&width=100",
@@ -90,6 +94,15 @@ const Home = () => {
   
 ] 
 
+  // Inject Elfsight script for Google Reviews widget
+  useEffect(() => {
+    if (!document.querySelector('script[src="https://static.elfsight.com/platform/platform.js"]')) {
+      const script = document.createElement('script');
+      script.src = 'https://static.elfsight.com/platform/platform.js';
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  }, []);
 
   return (
     <div className="space-y-0">
@@ -114,12 +127,11 @@ const Home = () => {
             <div className="space-y-8">
               <div className="space-y-4">
                 <h1 className="text-4xl lg:text-6xl font-serif font-bold text-gray-900 leading-tight">
-                  Institut de beauté
-                  <span className="block text-primary-600">𝑵𝒂𝒕𝒖𝒓𝒆𝒍 & 𝑶𝒓𝒊𝒆𝒏𝒕𝒂𝒍</span>
+                  {t('Institut de beauté')}
+                  <span className="block text-primary-600">𝑵𝒂𝒖𝒓𝒆 & 𝑶𝒓𝒊𝒆𝒏𝒕𝒂𝒍</span>
                 </h1>
                 <p className="text-xl text-gray-600 leading-relaxed">
-                  Retrouvez chez SUCCAR BANAT un univers où le 100% naturel prône 
-                  Vous découvrirez ainsi l’étendue des secrets d’Orient et leurs bienfaits
+                  {t('Retrouvez chez SUCCAR BANAT un univers où le 100% naturel prône. Vous découvrirez ainsi l\'étendue des secrets d\'Orient et leurs bienfaits')}
                 </p>
               </div>
               
@@ -127,27 +139,33 @@ const Home = () => {
                 <Link to="https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services">
                   <Button size="lg" className="w-full sm:w-auto">
                     <Calendar className="mr-2 h-5 w-5" />
-                    Prendre RDV
+                    {t('Prendre RDV')}
                   </Button>
                 </Link>
                 <Link to="/products">
                   <Button variant="outline" size="lg" className="w-full sm:w-auto">
                     <ShoppingBag className="mr-2 h-5 w-5" />
-                    Explorer la boutique
+                    {t('Explorer la boutique')}
+                  </Button>
+                </Link>
+                <Link to="/services">
+                  <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                    <Calendar className="mr-2 h-5 w-5" />
+                    {t('Explorer les services')}
                   </Button>
                 </Link>
               </div>
 
               <div className="flex items-center space-x-2 text-sm text-gray-600">
                 <CheckCircle className="h-5 w-5 text-primary-600" />
-                <span>Une équipe de professionnels certifiés</span>
+                <span>{t('Une équipe de professionnels certifiés')}</span>
               </div>
             </div>
 
             <div className="relative">
               <div className="aspect-square bg-gradient-to-br from-primary-200 to-primary-300 rounded-3xl overflow-hidden shadow-2xl">
                 <img
-                  src="accueil_pic.jpeg"
+                  src="/accueil_pic.jpeg"
                   alt="Beauty salon interior"
                   className="w-full h-full object-cover"
                 />
@@ -171,11 +189,44 @@ const Home = () => {
                         />
                       ))}
                     </div>
-                    <p className="text-sm text-gray-600">800+ Clients Satisfaits</p>
+                    <p className="text-sm text-gray-600">800+ {t('Clients Satisfaits')}</p>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Meet Dounia Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center gap-12">
+          <div className="md:w-1/2 w-full flex justify-center">
+            <div className="rounded-3xl overflow-hidden shadow-2xl w-72 h-72 md:w-96 md:h-96 bg-gray-100 flex items-center justify-center">
+              <img
+                src="https://client.ludovic-godard-photo.com/wp-content/uploads/picu/collections/4227/091024-08-34-22-dounia-asri-4345%C2%A9-ludovic-godard-bd.jpg"
+                alt="Dounia Asri, fondatrice de Succar Banat"
+                className="object-cover w-full h-full"
+                loading="lazy"
+              />
+            </div>
+          </div>
+          <div className="md:w-1/2 w-full space-y-6">
+            <h2 className="text-3xl lg:text-4xl font-serif font-extrabold text-primary-700 mb-2 tracking-tight">
+              <span className="block font-sans text-gray-900 text-2xl lg:text-3xl mb-1 uppercase tracking-widest">Rencontrer Dounia</span>
+              <span className="block font-serif italic text-primary-700 text-3xl lg:text-4xl">La femme derrière Succar Banat !</span>
+            </h2>
+            <h3 className="text-xl font-bold text-primary-800 font-sans uppercase tracking-wide">Dounia Asri</h3>
+            <p className="text-gray-700 text-lg font-light font-sans">
+              Diplômée <span className="font-semibold">(BTS esthétique & management)</span> avec <span className="font-semibold">10 ans d'expérience</span>, Dounia est la fondatrice de l'institut de beauté et des produits Succar Banat. Véritable passionnée, elle a fait de sa vocation un art de vivre, en mettant son expertise et son cœur au service de chaque client(e).
+            </p>
+            <p className="text-gray-700 text-lg font-sans">
+              <span className="font-semibold text-primary-700">Son objectif ?</span> Révéler l'éclat de votre peau, sublimer votre regard, prendre soin de votre corps et de vos cheveux, tout en respectant votre authenticité. Dounia croit que la beauté n'est pas une transformation, mais une révélation de ce qui est déjà là. Son approche bienveillante et personnalisée fait de chaque visite un moment unique, où l'on se sent compris(e), valorisé(e) et rayonnant(e).
+            </p>
+            <blockquote className="border-l-4 border-primary-400 bg-primary-50/60 p-6 rounded-xl shadow font-serif italic text-xl text-primary-800 relative">
+              <svg className="absolute -left-4 -top-4 w-10 h-10 text-primary-200 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5h.01M15 5h.01M6.5 8.5a5.5 5.5 0 0111 0c0 2.485-2.015 4.5-4.5 4.5S8 10.985 8 8.5z" /></svg>
+              <span className="block">"Ma priorité, c'est de <span className="font-bold text-primary-700">sublimer chaque client(e)</span> tout en préservant sa véritable identité. Le <span className="font-bold text-primary-700">relooking beauté</span>, pour moi, c'est révéler la meilleure version de soi-même, sans jamais masquer l'essentiel : <span className="underline">votre personnalité</span>."</span>
+            </blockquote>
           </div>
         </div>
       </section>
@@ -204,10 +255,10 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-serif font-bold text-gray-900 mb-4">
-              Produits Sélectionnés avec Soin
+              {t('Produits Sélectionnés avec Soin')}
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Explorez notre sélection raffinée de produits de beauté de qualité professionnelle
+              {t('Explorez notre sélection raffinée de produits de beauté de qualité professionnelle')}
             </p>
           </div>
 
@@ -254,21 +305,21 @@ const Home = () => {
                         {product.finalPrice !== product.price ? (
                           <>
                             <span className="text-lg font-bold text-gray-900">
-                              ${product.finalPrice}
+                              {euroFormatter.format(product.finalPrice)}
                             </span>
                             <span className="text-sm text-gray-500 line-through">
-                              ${product.price}
+                              {euroFormatter.format(product.price)}
                             </span>
                           </>
                         ) : (
                           <span className="text-lg font-bold text-gray-900">
-                            ${product.price}
+                            {euroFormatter.format(product.price)}
                           </span>
                         )}
                       </div>
                       <Link to={`/products/${product.id}`}>
                         <Button size="sm" variant="outline">
-                          View
+                          {t('View')}
                         </Button>
                       </Link>
                     </div>
@@ -281,7 +332,13 @@ const Home = () => {
           <div className="text-center">
             <Link to="/products">
               <Button variant="outline" size="lg">
-                Explorer la boutique
+                {t('Explorer la boutique')}
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+            <Link to="/services">
+              <Button variant="outline" size="lg" className="ml-4">
+                {t('Explorer les services')}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
@@ -294,17 +351,17 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-serif font-bold text-gray-900 mb-4">
-              Bienvenue chez Succar Banat
+              {t('Bienvenue chez Succar Banat')}
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              <b>Mon promesse :</b> vous rendre belles et confiantes chaque matin, même durant les périodes les plus délicates du mois.
+              <b>{t('Mon promesse :')}</b> {t('vous rendre belles et confiantes chaque matin, même durant les périodes les plus délicates du mois.')}
             </p>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              <b>Ma mission :</b> transformer mes années d’apprentissage et d’expérience en prestations parfaites, répondant précisément à vos besoins, mêmes ceux qui restent silencieux.
-              J’ai appris à lire entre les lignes, à décoder vos souhaits, même s’ils étaient timidement formulés. 
+              <b>{t('Ma mission :')}</b> {t('transformer mes années d\'apprentissage et d\'expérience en prestations parfaites, répondant précisément à vos besoins, mêmes ceux qui restent silencieux.')}
+              {t('J\'ai appris à lire entre les lignes, à décoder vos souhaits, même s\'ils étaient timidement formulés.')}
             </p>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              <b>Mon souhait :</b> vous libérer du maquillage et faire en sorte qu’ils deviennent un choix, une manière de sublimer votre beauté naturelle et non une nécessité.
+              <b>{t('Mon souhait :')}</b> {t('vous libérer du maquillage et faire en sorte qu\'ils deviennent un choix, une manière de sublimer votre beauté naturelle et non une nécessité.')}
             </p>
           </div>
 
@@ -328,49 +385,25 @@ const Home = () => {
 
       {/*section d'avie*/}
       <section id="testimonials" className="py-20 bg-[#DDCABC]/50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Leurs témoignages, notre fierté</h2>
-          <p className="mt-4 text-lg text-[#3D2118]/80 max-w-2xl mx-auto">
-            Chaque cliente compte, et leurs retours sont ma plus belle récompense. Voici ce que disent celles qui m’ont fait confiance. <br>
-            </br>Des témoignages sincères qui reflètent la passion que je mets dans chaque prestation.
-          </p>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t('Leurs témoignages, notre fierté')}</h2>
+          </div>
+          <div className="flex justify-center">
+            <div className="elfsight-app-1dd8ddb6-5652-4561-9794-80331816660b" data-elfsight-app-lazy></div>
+          </div>
         </div>
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-4 bg-[#EADED0]/50">
-          {testimonials.map((testimonial, index) => (
-            <div key={index} className="border-0 shadow-md">
-              <div className="p-6">
-                <Quote className="h-8 w-8 text-[#B97230]/60 mb-4" />
-                <p className="text-lg mb-6">{testimonial.content}</p>
-                <div className="flex items-center">
-                  <div className="flex-shrink-0 mr-4">
-                    <img
-                      className="h-12 w-12 rounded-full"
-                      src="avie_pic.jpeg"
-                      alt=""
-                      width={48}
-                      height={48}
-                    />
-                  </div>
-                  <div>
-                    <div className="font-medium">{testimonial.author.name}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-b from-[#DDCABC] to-[#936342]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl lg:text-4xl font-serif font-bold text-white mb-4">
-              C’est l’heure de briller autrement !
+              {t('C\'est l\'heure de briller autrement !')}
             </h2>
             <p className="text-xl text-primary-100 mb-8">
-              Offrez-vous un moment rien qu’à vous — réservez dès maintenant et sentez la différence.
+              {t('Offrez-vous un moment rien qu\'à vous — réservez dès maintenant et sentez la différence.')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services">
@@ -379,7 +412,7 @@ const Home = () => {
                   className="bg-white !text-gray-900 border-2 border-gray-900 hover:bg-gray-900 hover:!text-white focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 w-full sm:w-auto transition-all duration-200"
                 >
                   <Calendar className="mr-2 h-5 w-5" />
-                  Prendre RDV
+                  {t('Prendre RDV')}
                 </Button>
               </Link>
               <Link to="/contact">
@@ -388,7 +421,7 @@ const Home = () => {
                   size="lg" 
                   className="border-white text-white hover:bg-white hover:text-primary-600 w-full sm:w-auto"
                 >
-                  Contact
+                  {t('Contact')}
                 </Button>
               </Link>
             </div>

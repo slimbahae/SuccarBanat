@@ -1,15 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
-import { Search, Filter, ShoppingBag, Star } from 'lucide-react';
+import { Search, Filter, ShoppingBag } from 'lucide-react';
 import { productsAPI } from '../services/api';
 import Button from '../components/UI/Button';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
+import { useTranslation } from 'react-i18next';
+
+const euroFormatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
 
 const Products = () => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [sortBy, setSortBy] = useState('name');
+  const [imgErrors, setImgErrors] = React.useState({});
 
   // Fetch all products
   const { data: products, isLoading, error } = useQuery(
@@ -24,14 +29,6 @@ const Products = () => {
       }
     }
   );
-
-  const categories = [
-    'Beauté de regard',
-    'Soin',
-    'Massage',
-    'Épilation',
-    'Beauté mains & ongles',
-  ];
 
   const sortOptions = [
     { value: 'name', label: 'Nom A-Z' },
@@ -91,10 +88,10 @@ const Products = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl lg:text-4xl font-serif font-bold text-gray-900 mb-4">
-              Produits de beauté premium
+              {t('products.title')}
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Découvrez notre collection sélectionnée de produits de beauté de qualité professionnelle
+              {t('products.description')}
             </p>
           </div>
 
@@ -106,7 +103,7 @@ const Products = () => {
               </div>
               <input
                 type="text"
-                placeholder="Rechercher des produits..."
+                placeholder={t('products.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -123,42 +120,12 @@ const Products = () => {
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
                 <Filter className="h-5 w-5 mr-2" />
-                Filtres
+                {t('products.filters')}
               </h3>
-
-              {/* Categories */}
-              <div className="mb-6">
-                <h4 className="font-medium text-gray-900 mb-3">Catégories</h4>
-                <div className="space-y-2">
-                  <button
-                    onClick={() => setSelectedCategory('')}
-                    className={`block w-full text-left px-3 py-2 rounded-md text-sm ${
-                      selectedCategory === ''
-                        ? 'bg-primary-100 text-primary-800'
-                        : 'text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    Toutes les catégories
-                  </button>
-                  {categories.map((category) => (
-                    <button
-                      key={category}
-                      onClick={() => setSelectedCategory(category)}
-                      className={`block w-full text-left px-3 py-2 rounded-md text-sm ${
-                        selectedCategory === category
-                          ? 'bg-primary-100 text-primary-800'
-                          : 'text-gray-600 hover:bg-gray-100'
-                      }`}
-                    >
-                      {category}
-                    </button>
-                  ))}
-                </div>
-              </div>
 
               {/* Sort */}
               <div>
-                <h4 className="font-medium text-gray-900 mb-3">Trier par</h4>
+                <h4 className="font-medium text-gray-900 mb-3">{t('products.sortBy')}</h4>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
@@ -183,12 +150,7 @@ const Products = () => {
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value="">Toutes les catégories</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
+                <option value="">{t('products.allCategories')}</option>
               </select>
               <select
                 value={sortBy}
@@ -206,9 +168,7 @@ const Products = () => {
             {/* Results Count */}
             <div className="mb-6">
               <p className="text-gray-600">
-                Showing {sortedProducts.length} produit{sortedProducts.length !== 1 ? 's' : ''}
-                {selectedCategory && ` in ${selectedCategory}`}
-                {searchTerm && ` for "${searchTerm}"`}
+                {`Affichage de ${sortedProducts.length} produit${sortedProducts.length > 1 ? 's' : ''}`}
               </p>
             </div>
 
@@ -216,9 +176,9 @@ const Products = () => {
             {sortedProducts.length === 0 ? (
               <div className="text-center py-12">
                 <ShoppingBag className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun produit trouvé</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t('products.noProductsFound')}</h3>
                 <p className="text-gray-600">
-                  Essayez d’ajuster vos critères de recherche ou de filtre
+                  {t('products.adjustSearchOrFilter')}
                 </p>
               </div>
             ) : (
@@ -229,31 +189,18 @@ const Products = () => {
                     className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-shadow"
                   >
                     <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 relative">
-                      {product.imageUrls && product.imageUrls[0] ? (
+                      {product.imageUrls && product.imageUrls[0] && !imgErrors[product.id] ? (
                         <img
                           src={product.imageUrls[0]}
                           alt={product.name}
                           className="w-full h-full object-cover"
+                          onError={() => setImgErrors(errors => ({ ...errors, [product.id]: true }))}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <ShoppingBag className="h-12 w-12 text-gray-400" />
                         </div>
                       )}
-                      
-                      {/* Badges */}
-                      <div className="absolute top-3 left-3 flex flex-col space-y-2">
-                        {product.featured && (
-                          <span className="bg-primary-600 text-white text-xs px-2 py-1 rounded-full">
-                            En vedette
-                          </span>
-                        )}
-                        {product.discountPercentage && (
-                          <span className="bg-red-600 text-white text-xs px-2 py-1 rounded-full">
-                            -{product.discountPercentage}%
-                          </span>
-                        )}
-                      </div>
                     </div>
 
                     <div className="p-4">
@@ -261,10 +208,6 @@ const Products = () => {
                         <span className="text-xs text-gray-500 uppercase tracking-wide">
                           {product.brand}
                         </span>
-                        <div className="flex items-center space-x-1">
-                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          <span className="text-sm text-gray-600">4.5</span>
-                        </div>
                       </div>
                       
                       <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
@@ -280,22 +223,22 @@ const Products = () => {
                           {product.finalPrice !== product.price ? (
                             <>
                               <span className="text-lg font-bold text-gray-900">
-                                ${product.finalPrice}
+                                {euroFormatter.format(product.finalPrice)}
                               </span>
                               <span className="text-sm text-gray-500 line-through">
-                                ${product.price}
+                                {euroFormatter.format(product.price)}
                               </span>
                             </>
                           ) : (
                             <span className="text-lg font-bold text-gray-900">
-                              ${product.price}
+                              {euroFormatter.format(product.price)}
                             </span>
                           )}
                         </div>
                         
                         <Link to={`/products/${product.id}`}>
                           <Button size="sm">
-                            Voir les détails
+                            {t('products.viewDetails')}
                           </Button>
                         </Link>
                       </div>
