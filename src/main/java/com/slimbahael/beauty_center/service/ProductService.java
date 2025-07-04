@@ -1,5 +1,6 @@
 package com.slimbahael.beauty_center.service;
 
+import com.slimbahael.beauty_center.service.RatingService;
 import com.slimbahael.beauty_center.dto.ProductRequest;
 import com.slimbahael.beauty_center.dto.ProductResponse;
 import com.slimbahael.beauty_center.exception.ResourceNotFoundException;
@@ -10,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,7 +23,8 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final EmailService emailService; // 🔥 Added
+    private final EmailService emailService;
+    private final RatingService ratingService;
 
     public List<ProductResponse> getAllProducts() {
         return productRepository.findAll()
@@ -219,6 +220,10 @@ public class ProductService {
                     .collect(Collectors.toList());
         }
 
+        // Get rating information
+        Double averageRating = ratingService.getProductAverageRating(product.getId());
+        Long totalRatings = ratingService.getProductRatingCount(product.getId());
+
         return ProductResponse.builder()
                 .id(product.getId())
                 .name(product.getName())
@@ -239,6 +244,8 @@ public class ProductService {
                 .discountPercentage(product.getDiscountPercentage())
                 .discountStartDate(product.getDiscountStartDate())
                 .discountEndDate(product.getDiscountEndDate())
+                .averageRating(averageRating)
+                .totalRatings(totalRatings)
                 .build();
     }
 }

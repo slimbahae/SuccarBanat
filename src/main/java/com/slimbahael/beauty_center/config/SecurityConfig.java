@@ -63,9 +63,9 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .requiresChannel(channel ->
-                        channel.requestMatchers(r -> r.getHeader("X-Forwarded-Proto") != null)
-                                .requiresSecure())
+             //   .requiresChannel(channel ->
+             //           channel.requestMatchers(r -> r.getHeader("X-Forwarded-Proto") != null)
+             //                   .requiresSecure())
                 .build();
     }
 
@@ -74,7 +74,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // Allow specific origins (your React app)
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000", "http://127.0.0.1:3000"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000", "http://127.0.0.1:3000", "https://succarbanat.vercel.app"));
 
         // Allow all HTTP methods
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));

@@ -21,12 +21,12 @@ import java.util.Map;
 public class StripeService {
 
     /**
-     * Create a payment intent for the given amount
+     * Create a payment intent for the given amount in EUR
      */
     public PaymentIntentResponse createPaymentIntent(PaymentIntentRequest request) {
         try {
             // Convert amount to cents (Stripe expects amounts in smallest currency unit)
-            long amountInCents = request.getAmount().longValue();
+            long amountInCents = request.getAmount().multiply(BigDecimal.valueOf(100)).longValue(); // if amount is in euros
 
             // Create metadata
             Map<String, String> metadata = new HashMap<>();
@@ -40,7 +40,7 @@ public class StripeService {
             // Build payment intent parameters
             PaymentIntentCreateParams.Builder paramsBuilder = PaymentIntentCreateParams.builder()
                     .setAmount(amountInCents)
-                    .setCurrency(request.getCurrency())
+                    .setCurrency("eur") // Force EUR
                     .setAutomaticPaymentMethods(
                             PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
                                     .setEnabled(true)
@@ -57,7 +57,7 @@ public class StripeService {
             // Create the payment intent
             PaymentIntent paymentIntent = PaymentIntent.create(params);
 
-            log.info("Created payment intent: {} for amount: ${}",
+            log.info("Created payment intent: {} for amount: €{}",
                     paymentIntent.getId(), request.getAmount());
 
             return PaymentIntentResponse.builder()

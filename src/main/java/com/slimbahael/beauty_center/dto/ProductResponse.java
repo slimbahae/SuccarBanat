@@ -33,6 +33,9 @@ public class ProductResponse {
     private BigDecimal discountPercentage;
     private Date discountStartDate;
     private Date discountEndDate;
+    // Rating information
+    private Double averageRating;
+    private Long totalRatings;
     private BigDecimal finalPrice; // Price after applying discount
 
     @Data
