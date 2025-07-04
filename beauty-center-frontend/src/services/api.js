@@ -77,6 +77,10 @@ export const authAPI = {
     console.log('Attempting registration for:', userData.email);
     return api.post('/auth/register', userData);
   },
+  verifyEmail: (token) => api.post('/auth/verify-email', { token }),
+  resendVerification: (email) => api.post(`/auth/resend-verification?email=${encodeURIComponent(email)}`),
+  forgotPassword: (email, recaptchaToken) => api.post('/auth/forgot-password', { email, recaptchaToken }),
+  resetPassword: (token, newPassword) => api.post('/auth/reset-password', { token, newPassword }),
 };
 
 // Products API

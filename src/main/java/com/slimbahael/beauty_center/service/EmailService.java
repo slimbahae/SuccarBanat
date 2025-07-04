@@ -27,6 +27,9 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
 
+    @Value("${app.business.email}")
+    private String fromEmail;
+
     @Value("${app.admin.email:admin@beautycenter.com}")
     private String adminEmail;
 
@@ -35,6 +38,125 @@ public class EmailService {
 
     @Value("${app.business.email:noreply@beautycenter.com}")
     private String businessEmail;
+
+    public void sendEmailVerification(String toEmail, String verificationToken, String firstName) {
+        try {
+            Context context = new Context();
+            context.setVariable("firstName", firstName);
+            context.setVariable("verificationUrl", "http://localhost:3000/verify-email?token=" + verificationToken);
+            context.setVariable("businessName", businessName);
+
+            sendTemplatedEmail(toEmail, "Verify Your Email - " + businessName, "email-verification", context);
+            log.info("Email verification sent to: {}", toEmail);
+
+        } catch (Exception e) {
+            log.error("Failed to send email verification to: {}", toEmail, e);
+            throw new RuntimeException("Failed to send verification email");
+        }
+    }
+
+    public void sendPasswordReset(String toEmail, String resetToken, String firstName) {
+        try {
+            Context context = new Context();
+            context.setVariable("firstName", firstName);
+            context.setVariable("resetUrl", "http://localhost:3000/reset-password?token=" + resetToken);
+            context.setVariable("businessName", businessName);
+
+            sendTemplatedEmail(toEmail, "Password Reset - " + businessName, "password-reset", context);
+            log.info("Password reset email sent to: {}", toEmail);
+
+        } catch (Exception e) {
+            log.error("Failed to send password reset email to: {}", toEmail, e);
+            throw new RuntimeException("Failed to send password reset email");
+        }
+    }
+
+    public void sendWelcomeEmail(String toEmail, String firstName) {
+        try {
+            Context context = new Context();
+            context.setVariable("firstName", firstName);
+            context.setVariable("businessName", businessName);
+
+            sendTemplatedEmail(toEmail, "Welcome to " + businessName + "! 🎉", "welcome", context);
+            log.info("Welcome email sent to: {}", toEmail);
+
+        } catch (Exception e) {
+            log.error("Failed to send welcome email to: {}", toEmail, e);
+            throw new RuntimeException("Failed to send welcome email");
+        }
+    }
+
+    public void sendOrderStatusUpdateEmail(String toEmail, OrderResponse order, String status) {
+        try {
+            Context context = new Context();
+            context.setVariable("order", order);
+            context.setVariable("businessName", businessName);
+            context.setVariable("status", status);
+            context.setVariable("orderTotal", formatCurrencyEuro(order.getTotal()));
+
+            String emailContent = templateEngine.process("order-status-update", context);
+            sendHtmlEmail(toEmail, "Order Status Update - " + businessName, emailContent);
+
+            log.info("Order status update email sent to: {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send order status update email to {}: {}", toEmail, e.getMessage());
+        }
+    }
+
+    public void sendReservationReminderEmail(String toEmail, ReservationResponse reservation) {
+        try {
+            Context context = new Context();
+            context.setVariable("reservation", reservation);
+            context.setVariable("businessName", businessName);
+            context.setVariable("reservationDateFormatted",
+                    new SimpleDateFormat("MMMM dd, yyyy 'at' HH:mm").format(reservation.getReservationDate()));
+
+            String emailContent = templateEngine.process("reservation-reminder", context);
+            sendHtmlEmail(toEmail, "Appointment Reminder - " + businessName, emailContent);
+
+            log.info("Reservation reminder email sent to: {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send reservation reminder email to {}: {}", toEmail, e.getMessage());
+        }
+    }
+
+    public void sendDailySummaryToAdmin(DailySummaryData summaryData) {
+        try {
+            Context context = new Context();
+            context.setVariable("summary", summaryData);
+            context.setVariable("businessName", businessName);
+            context.setVariable("dateFormatted",
+                    new SimpleDateFormat("MMMM dd, yyyy", Locale.FRENCH).format(summaryData.getDate()));
+            context.setVariable("totalRevenueFormatted", formatCurrencyEuro(summaryData.getTotalRevenue()));
+
+            String emailContent = templateEngine.process("admin-daily-summary", context);
+            sendHtmlEmail(adminEmail,
+                    "📊 Résumé Quotidien - " + businessName,
+                    emailContent);
+
+            log.info("Daily summary email sent to admin for date: {}", summaryData.getDate());
+        } catch (Exception e) {
+            log.error("Failed to send daily summary email to admin: {}", e.getMessage());
+        }
+    }
+
+    public void sendNewUserRegistrationNotificationToAdmin(UserResponse user) {
+        try {
+            Context context = new Context();
+            context.setVariable("user", user);
+            context.setVariable("businessName", businessName);
+
+            String emailContent = templateEngine.process("admin-new-user", context);
+            sendHtmlEmail(adminEmail,
+                    "👤 Nouvel Utilisateur - " + user.getFirstName() + " " + user.getLastName() + " - " + businessName,
+                    emailContent);
+
+            log.info("New user registration notification sent to admin for user: {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Failed to send new user registration notification to admin for user {}: {}",
+                    user.getEmail(), e.getMessage());
+        }
+    }
 
     // =================== CUSTOMER NOTIFICATIONS ===================
 
@@ -151,12 +273,6 @@ public class EmailService {
         }
     }
 
-    // Méthode helper pour le formatage en euros
-    private String formatCurrencyEuro(java.math.BigDecimal amount) {
-        java.text.NumberFormat formatter = java.text.NumberFormat.getCurrencyInstance(java.util.Locale.FRANCE);
-        return formatter.format(amount);
-    }
-
     public void sendCancelledOrderNotificationToAdmin(OrderResponse order, String reason) {
         try {
             Context context = new Context();
@@ -177,7 +293,6 @@ public class EmailService {
         }
     }
 
-
     // =================== HELPER METHODS ===================
 
     private void sendHtmlEmail(String to, String subject, String htmlContent) {
@@ -196,8 +311,44 @@ public class EmailService {
         }
     }
 
+    private void sendTemplatedEmail(String toEmail, String subject, String templateName, Context context) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            // Process the specific template content
+            String emailContent = templateEngine.process(templateName, context);
+
+            // Set content in base template context
+            Context baseContext = new Context();
+            baseContext.setVariable("businessName", businessName);
+            baseContext.setVariable("emailTitle", subject);
+            baseContext.setVariable("emailContent", emailContent);
+
+            // Process the base template with content
+            String finalHtml = templateEngine.process("base-email", baseContext);
+
+            helper.setTo(toEmail);
+            helper.setFrom(fromEmail);
+            helper.setSubject(subject);
+            helper.setText(finalHtml, true);
+
+            mailSender.send(message);
+            log.info("Templated email sent to: {} with subject: {}", toEmail, subject);
+
+        } catch (MessagingException e) {
+            log.error("Failed to send templated email to: {}", toEmail, e);
+            throw new RuntimeException("Failed to send email");
+        }
+    }
+
     private String formatCurrency(java.math.BigDecimal amount) {
         NumberFormat formatter = NumberFormat.getCurrencyInstance(Locale.US);
+        return formatter.format(amount);
+    }
+
+    private String formatCurrencyEuro(java.math.BigDecimal amount) {
+        java.text.NumberFormat formatter = java.text.NumberFormat.getCurrencyInstance(java.util.Locale.FRANCE);
         return formatter.format(amount);
     }
 

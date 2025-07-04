@@ -1,15 +1,19 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Eye, EyeOff, Sparkles, Mail, Lock, User, Phone } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/UI/Button';
+import { authAPI } from '../../services/api';
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { register: registerUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [verificationMessage, setVerificationMessage] = useState(null);
+  const [resendStatus, setResendStatus] = useState(null);
 
   const {
     register,
@@ -20,6 +24,16 @@ const Register = () => {
   } = useForm();
 
   const password = watch('password');
+
+  // Vérification email via token dans l'URL
+  useEffect(() => {
+    const token = searchParams.get('verify');
+    if (token) {
+      authAPI.verifyEmail(token)
+        .then(res => setVerificationMessage(res.data.message))
+        .catch(() => setVerificationMessage("Erreur lors de la vérification de l'email."));
+    }
+  }, [searchParams]);
 
   const onSubmit = async (data) => {
     setIsLoading(true);
@@ -33,13 +47,11 @@ const Register = () => {
     });
     
     if (result.success) {
-      navigate('/login', {
-        state: { message: 'Inscription réussie ! Veuillez vous connecter.' },
-      });
+      setVerificationMessage('Inscription réussie ! Un email de vérification vous a été envoyé.');
     } else {
       setError('email', {
         type: 'manual',
-        message: result.message || 'Échec de l’inscription',
+        message: result.message || "Échec de l'inscription",
       });
     }
     setIsLoading(false);
@@ -51,8 +63,8 @@ const Register = () => {
       <div className="hidden lg:block relative w-0 flex-1">
         <img
           className="absolute inset-0 h-full w-full object-cover"
-          src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80"
-          alt="Beauty products"
+          src="https://client.ludovic-godard-photo.com/wp-content/uploads/picu/collections/4227/091024-09-03-13-dounia-asri-4509%C2%A9-ludovic-godard-bd.jpg"
+          alt="Dounia Asri"
         />
         <div className="absolute inset-0 bg-primary-600 opacity-75" />
         <div className="absolute inset-0 flex items-center justify-center">
@@ -61,7 +73,7 @@ const Register = () => {
               Rejoignez Succar Banat
             </h2>
             <p className="text-xl opacity-90">
-              Commencez votre parcours beauté avec nous dès aujourd’hui
+              Commencez votre parcours beauté avec nous dès aujourd'hui
             </p>
           </div>
         </div>
@@ -73,7 +85,7 @@ const Register = () => {
           <div>
             <Link to="/" className="flex items-center space-x-2 mb-8">
               <div className="bg-gradient-to-r from-primary-500 to-primary-600 p-2 rounded-lg">
-                <img src="logo-darkmode.png" alt="logo" className="h-6 w-6"/>
+                <img src="/logo-dark.png" alt="logo" className="h-6 w-6"/>
               </div>
               <span className="text-2xl font-serif font-bold text-gray-900">
                 Succar Banat Institut
@@ -165,7 +177,7 @@ const Register = () => {
                   }`}
                   placeholder="Entrez votre email"
                   {...register('email', {
-                    required: 'L’email est requis',
+                    required: 'L\'email est requis',
                     pattern: {
                       value: /^\S+@\S+$/i,
                       message: 'address email invalide',
@@ -300,6 +312,29 @@ const Register = () => {
               </span>
             </div>
           </form>
+
+          {/* Message de vérification email */}
+          {verificationMessage && (
+            <div className="mb-4 p-3 bg-green-100 text-green-800 rounded">
+              {verificationMessage}
+              <div className="mt-2">
+                <button
+                  type="button"
+                  className="underline text-primary-600"
+                  onClick={async () => {
+                    setResendStatus('Envoi...');
+                    try {
+                      const res = await authAPI.resendVerification(register('email').value);
+                      setResendStatus(res.data.message);
+                    } catch {
+                      setResendStatus("Erreur lors de l'envoi.");
+                    }
+                  }}
+                >Renvoyer l'email de vérification</button>
+                {resendStatus && <span className="block text-xs mt-1">{resendStatus}</span>}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

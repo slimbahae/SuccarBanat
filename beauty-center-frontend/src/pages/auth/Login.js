@@ -1,15 +1,25 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Eye, EyeOff, Sparkles, Mail, Lock } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/UI/Button';
+import { authAPI } from '../../services/api';
+import ReCAPTCHA from "react-google-recaptcha";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const [verificationMessage, setVerificationMessage] = useState(null);
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotStatus, setForgotStatus] = useState(null);
+  const [resendStatus, setResendStatus] = useState(null);
+  const [captchaChecked, setCaptchaChecked] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState(null);
 
   const from = location.state?.from?.pathname || '/dashboard';
 
@@ -20,14 +30,39 @@ const Login = () => {
     setError,
   } = useForm();
 
+  // Vérification email via token dans l'URL
+  useEffect(() => {
+    const token = searchParams.get('verify');
+    if (token) {
+      authAPI.verifyEmail(token)
+        .then(res => setVerificationMessage(res.data.message))
+        .catch(() => setVerificationMessage("Erreur lors de la vérification de l'email."));
+    }
+  }, [searchParams]);
+
   const onSubmit = async (data) => {
     const result = await login(data);
-    if (result.success) {
+    if (result.accessToken) {
       navigate(from, { replace: true });
     } else {
-      console.error('Échec de la connexion:', result);
       let errorMessage = result.message || 'Une erreur inattendue s\'est produite';
-      if (errorMessage.includes('User is disabled')) {
+      if (result && result.status === 401) {
+        // Non vérifié
+        errorMessage = (
+          <span>
+            Votre email n'est pas vérifié. <button type="button" className="underline text-primary-600" onClick={async () => {
+              setResendStatus('Envoi...');
+              try {
+                const res = await authAPI.resendVerification(register('email').value);
+                setResendStatus(res.data.message);
+              } catch {
+                setResendStatus("Erreur lors de l'envoi.");
+              }
+            }}>Renvoyer l'email de vérification</button>
+            {resendStatus && <span className="block text-xs mt-1">{resendStatus}</span>}
+          </span>
+        );
+      } else if (errorMessage.includes('User is disabled')) {
         errorMessage = 'Votre compte est désactivé. Veuillez contacter le support.';
       } else if (errorMessage.includes('Bad credentials')) {
         errorMessage = 'Email ou mot de passe invalide.';
@@ -144,12 +179,13 @@ const Login = () => {
               </div>
 
               <div className="text-sm">
-                <Link
-                  to="/forgot-password"
-                  className="font-medium text-primary-600 hover:text-primary-500"
+                <button
+                  type="button"
+                  className="font-medium text-primary-600 hover:text-primary-500 underline"
+                  onClick={() => setShowForgot(true)}
                 >
                   Mot de passe oublié ?
-                </Link>
+                </button>
               </div>
             </div>
 
@@ -209,6 +245,57 @@ const Login = () => {
           </div>
         </div>
       </div>
+
+      {/* Message de vérification email */}
+      {verificationMessage && (
+        <div className="mb-4 p-3 bg-green-100 text-green-800 rounded">
+          {verificationMessage}
+        </div>
+      )}
+
+      {/* Modal ou bloc pour mot de passe oublié */}
+      {showForgot && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full">
+            <h3 className="text-lg font-bold mb-2">Réinitialiser le mot de passe</h3>
+            <p className="text-sm text-gray-600 mb-2">Vous recevrez un email de réinitialisation si l'adresse existe dans notre base. Pensez à vérifier vos spams.</p>
+            <input
+              type="email"
+              className="border p-2 w-full mb-2"
+              placeholder="Votre email"
+              value={forgotEmail}
+              onChange={e => setForgotEmail(e.target.value)}
+            />
+            <ReCAPTCHA
+              sitekey="6LeqvHcrAAAAADdYhXarnVan112rBn34rTF6GZlM"
+              onChange={token => {
+                setRecaptchaToken(token);
+                setCaptchaChecked(!!token);
+              }}
+              className="mb-2"
+            />
+            <button
+              className="bg-primary-600 text-white px-4 py-2 rounded w-full"
+              onClick={async () => {
+                setForgotStatus('Envoi...');
+                try {
+                  const res = await authAPI.forgotPassword(forgotEmail, recaptchaToken);
+                  setForgotStatus(res.data.message);
+                } catch (err) {
+                  if (err.response && err.response.data && err.response.data.message) {
+                    setForgotStatus(err.response.data.message);
+                  } else {
+                    setForgotStatus("Erreur lors de l'envoi.");
+                  }
+                }
+              }}
+              disabled={!captchaChecked}
+            >Envoyer</button>
+            {forgotStatus && <div className="mt-2 text-sm text-gray-700">{forgotStatus}</div>}
+            <button className="mt-4 text-xs underline" onClick={() => { setShowForgot(false); setForgotStatus(null); }}>Annuler</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

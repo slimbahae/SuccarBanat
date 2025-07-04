@@ -1,10 +1,10 @@
-// src/main/java/com/slimbahael/beauty_center/service/AuthService.java
 package com.slimbahael.beauty_center.service;
 
 import com.slimbahael.beauty_center.dto.JwtAuthResponse;
 import com.slimbahael.beauty_center.dto.LoginRequest;
 import com.slimbahael.beauty_center.dto.RegisterRequest;
 import com.slimbahael.beauty_center.exception.ResourceAlreadyExistsException;
+import com.slimbahael.beauty_center.model.EmailVerificationToken;
 import com.slimbahael.beauty_center.model.User;
 import com.slimbahael.beauty_center.repository.UserRepository;
 import com.slimbahael.beauty_center.security.JwtTokenProvider;
@@ -21,10 +21,16 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -39,6 +45,13 @@ public class AuthService {
     private final TokenBlacklistService tokenBlacklistService;
     private final InputSanitizationService inputSanitizationService;
     private final PasswordValidationService passwordValidationService;
+    private final EmailService emailService;
+    private final EmailVerificationTokenService tokenService;
+
+    @Value("${recaptcha.secret.key}")
+    private String recaptchaSecretKey;
+
+    private final RestTemplate restTemplate = new RestTemplate();
 
     // Track failed login attempts per IP/email
     private final ConcurrentHashMap<String, FailedLoginAttempt> failedAttempts = new ConcurrentHashMap<>();
@@ -74,7 +87,7 @@ public class AuthService {
 
             // Verify user account status
             if (!user.isEnabled()) {
-                throw new DisabledException("Account is disabled");
+                throw new DisabledException("Account is disabled. Please verify your email address.");
             }
 
             // Clear failed attempts on successful login
@@ -151,10 +164,14 @@ public class AuthService {
                     .password(passwordEncoder.encode(password))
                     .phoneNumber(phoneNumber)
                     .role(role)
-                    .enabled(true)
+                    .enabled(false) // Set to false initially, will be enabled after email verification
                     .build();
 
             userRepository.save(user);
+
+            // Create verification token and send verification email
+            String verificationToken = tokenService.createEmailVerificationToken(email);
+            emailService.sendEmailVerification(email, verificationToken, firstName);
 
             log.info("New user registered successfully: {} with role: {}", email, role);
 
@@ -162,6 +179,116 @@ public class AuthService {
             log.error("Failed to register user: {}", email, e);
             throw new RuntimeException("Failed to register user. Please try again.");
         }
+    }
+
+    public boolean verifyEmail(String token) {
+        Optional<EmailVerificationToken> tokenOpt = tokenService.validateToken(token);
+
+        if (tokenOpt.isPresent()) {
+            EmailVerificationToken verificationToken = tokenOpt.get();
+
+            if ("EMAIL_VERIFICATION".equals(verificationToken.getTokenType())) {
+                // Find and activate the user
+                User user = userRepository.findByEmail(verificationToken.getEmail())
+                        .orElseThrow(() -> new RuntimeException("User not found"));
+
+                // Mark user as verified
+                user.setEnabled(true);
+                userRepository.save(user);
+
+                // Mark token as used
+                tokenService.markTokenAsUsed(token);
+
+                // Send welcome email
+                emailService.sendWelcomeEmail(user.getEmail(), user.getFirstName());
+
+                log.info("Email verified successfully for user: {}", user.getEmail());
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void resendVerificationEmail(String email) {
+        email = inputSanitizationService.sanitizeEmail(email);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.isEnabled()) {
+            throw new RuntimeException("Email is already verified");
+        }
+
+        // Delete any existing verification tokens for this email
+        tokenService.deleteTokensByEmail(email);
+
+        // Create new verification token
+        String token = tokenService.createEmailVerificationToken(email);
+
+        // Send verification email
+        emailService.sendEmailVerification(email, token, user.getFirstName());
+
+        log.info("Verification email resent to: {}", email);
+    }
+
+    public void initiatePasswordReset(String email, String recaptchaToken) {
+        // Verify reCAPTCHA
+        if (!verifyRecaptcha(recaptchaToken)) {
+            throw new RuntimeException("reCAPTCHA verification failed. Please try again.");
+        }
+        email = inputSanitizationService.sanitizeEmail(email);
+
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        // Don't reveal whether email exists (security best practice)
+        if (user != null && user.isEnabled()) {
+            // Delete any existing password reset tokens for this email
+            tokenService.deleteTokensByEmail(email);
+
+            // Create password reset token
+            String token = tokenService.createPasswordResetToken(email);
+
+            // Send password reset email
+            emailService.sendPasswordReset(email, token, user.getFirstName());
+
+            log.info("Password reset email sent to: {}", email);
+        } else {
+            log.warn("Password reset requested for non-existent or disabled email: {}", email);
+        }
+    }
+
+    public boolean resetPassword(String token, String newPassword) {
+        Optional<EmailVerificationToken> tokenOpt = tokenService.validateToken(token);
+
+        if (tokenOpt.isPresent()) {
+            EmailVerificationToken resetToken = tokenOpt.get();
+
+            if ("PASSWORD_RESET".equals(resetToken.getTokenType())) {
+                // Validate new password
+                PasswordValidationService.PasswordValidationResult passwordValidation =
+                        passwordValidationService.validatePassword(newPassword);
+
+                if (!passwordValidation.isValid()) {
+                    throw new IllegalArgumentException("Password validation failed: " + passwordValidation.getErrorMessage());
+                }
+
+                // Find user and update password
+                User user = userRepository.findByEmail(resetToken.getEmail())
+                        .orElseThrow(() -> new RuntimeException("User not found"));
+
+                user.setPassword(passwordEncoder.encode(newPassword));
+                userRepository.save(user);
+
+                // Mark token as used
+                tokenService.markTokenAsUsed(token);
+
+                log.info("Password reset successfully for user: {}", user.getEmail());
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void logout(String token) {
@@ -217,20 +344,8 @@ public class AuthService {
     }
 
     public void requestPasswordReset(String email) {
-        email = inputSanitizationService.sanitizeEmail(email);
-
-        User user = userRepository.findByEmail(email).orElse(null);
-
-        // Don't reveal whether email exists or not (security best practice)
-        log.info("Password reset requested for email: {}", email);
-
-        if (user != null && user.isEnabled()) {
-            // In a real implementation, you would:
-            // 1. Generate a secure reset token
-            // 2. Store it with expiration time
-            // 3. Send email with reset link
-            log.info("Password reset token would be sent to: {}", email);
-        }
+        // This method is deprecated - use initiatePasswordReset instead
+        initiatePasswordReset(email, null);
     }
 
     private boolean isAccountLocked(String attemptKey) {
@@ -272,6 +387,24 @@ public class AuthService {
         LocalDateTime cutoff = LocalDateTime.now().minusHours(1);
         failedAttempts.entrySet().removeIf(entry ->
                 entry.getValue().getLastAttempt().isBefore(cutoff));
+    }
+
+    private boolean verifyRecaptcha(String recaptchaToken) {
+        String url = "https://www.google.com/recaptcha/api/siteverify";
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/x-www-form-urlencoded");
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("secret", recaptchaSecretKey);
+        params.add("response", recaptchaToken);
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+            String body = response.getBody();
+            return body != null && body.contains("\"success\": true");
+        } catch (Exception e) {
+            log.error("Error verifying reCAPTCHA: {}", e.getMessage());
+            return false;
+        }
     }
 
     private static class FailedLoginAttempt {
