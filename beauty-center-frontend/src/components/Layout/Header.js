@@ -69,10 +69,8 @@ const Header = () => {
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <div className="bg-transparent p-2 rounded-lg">
-                <img src="/logo-dark.png" alt="logo" className="h-12 w-12"/>
-              </div>
-              <span className="text-xl font-serif font-bold text-gray-900">
+              <img src="/solid2.png" alt="Logo Succar Banat" className="h-8 w-auto" />
+              <span className="text-xl font-serif font-bold hidden md:block">
                 SUCCAR BANAT INSTITUT
               </span>
             </Link>

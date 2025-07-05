@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Eye, EyeOff, Sparkles, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, Sparkles, Mail, Lock, X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/UI/Button';
 import { authAPI } from '../../services/api';
@@ -256,18 +256,21 @@ const Login = () => {
       {/* Modal ou bloc pour mot de passe oublié */}
       {showForgot && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full">
+          <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full relative">
+            <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-700" onClick={() => { setShowForgot(false); setForgotStatus(null); }} aria-label="Fermer">
+              <X className="h-5 w-5" />
+            </button>
             <h3 className="text-lg font-bold mb-2">Réinitialiser le mot de passe</h3>
             <p className="text-sm text-gray-600 mb-2">Vous recevrez un email de réinitialisation si l'adresse existe dans notre base. Pensez à vérifier vos spams.</p>
             <input
               type="email"
               className="border p-2 w-full mb-2"
-              placeholder="Votre email"
+              placeholder="Votre adresse email"
               value={forgotEmail}
               onChange={e => setForgotEmail(e.target.value)}
             />
             <ReCAPTCHA
-              sitekey="6LeqvHcrAAAAADdYhXarnVan112rBn34rTF6GZlM"
+              sitekey="6Lcxv3crAAAAADA8p-G5jYhVJiT96sHczlPshhqJ"
               onChange={token => {
                 setRecaptchaToken(token);
                 setCaptchaChecked(!!token);
@@ -292,7 +295,6 @@ const Login = () => {
               disabled={!captchaChecked}
             >Envoyer</button>
             {forgotStatus && <div className="mt-2 text-sm text-gray-700">{forgotStatus}</div>}
-            <button className="mt-4 text-xs underline" onClick={() => { setShowForgot(false); setForgotStatus(null); }}>Annuler</button>
           </div>
         </div>
       )}

@@ -47,7 +47,8 @@ const Register = () => {
     });
     
     if (result.success) {
-      setVerificationMessage('Inscription réussie ! Un email de vérification vous a été envoyé.');
+      navigate('/verify-email', { state: { email: data.email } });
+      return;
     } else {
       setError('email', {
         type: 'manual',
@@ -162,7 +163,7 @@ const Register = () => {
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Address email
+                Adresse email
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -175,12 +176,12 @@ const Register = () => {
                   className={`block w-full pl-10 pr-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 ${
                     errors.email ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder="Entrez votre email"
+                  placeholder="Entrez votre adresse email"
                   {...register('email', {
                     required: 'L\'email est requis',
                     pattern: {
                       value: /^\S+@\S+$/i,
-                      message: 'address email invalide',
+                      message: 'Adresse email invalide',
                     },
                   })}
                 />
@@ -192,7 +193,7 @@ const Register = () => {
 
             <div>
               <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
-                Numéro de Téléphone
+                Numéro de téléphone
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -205,7 +206,7 @@ const Register = () => {
                   className={`block w-full pl-10 pr-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 ${
                     errors.phoneNumber ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder="Entrer votre numéro"
+                  placeholder="Entrez votre numéro"
                   {...register('phoneNumber', {
                     pattern: {
                       value: /^[\+]?[1-9][\d]{0,15}$/,
@@ -221,7 +222,7 @@ const Register = () => {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Most de passe
+                Mot de passe
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -275,7 +276,7 @@ const Register = () => {
                   className={`block w-full pl-10 pr-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 ${
                     errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder="Confirmer le mot de passe"
+                  placeholder="Confirmez le mot de passe"
                   {...register('confirmPassword', {
                     required: 'Veuillez confirmer le mot de passe',
                     validate: (value) =>

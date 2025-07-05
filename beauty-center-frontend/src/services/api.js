@@ -354,4 +354,11 @@ export const enhancedProductsAPI = {
   }
 };
 
+// Reviews API
+export const reviewsAPI = {
+  getReviews: (limit = 10) => api.get(`/reviews?limit=${limit}`),
+  getReviewsByRating: (minRating) => api.get(`/reviews/rating/${minRating}`),
+  getReviewStats: () => api.get('/reviews/stats'),
+};
+
 export default api;

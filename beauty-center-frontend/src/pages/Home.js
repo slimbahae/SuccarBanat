@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { Quote } from "lucide-react";
@@ -11,11 +11,14 @@ import {
   Award,
   ArrowRight,
   CheckCircle,
-  Flower
+  Flower,
+  UserCircle,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import Button from '../components/UI/Button';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
-import { productsAPI, servicesAPI } from '../services/api';
+import { productsAPI, servicesAPI, reviewsAPI } from '../services/api';
 import { useTranslation } from 'react-i18next';
 
 const euroFormatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
@@ -33,11 +36,16 @@ const Home = () => {
     servicesAPI.getFeatured
   );
 
+  const { data: reviewsData, isLoading: reviewsLoading } = useQuery(
+    'reviews',
+    () => reviewsAPI.getReviews(100).then(res => res.data.data)
+  );
+
   const stats = [
     { label: t('Clients Satisfaits'), value: '800+', icon: Users, color: 'from-[#DDCABC] to-[#B97230]', iconColor: 'text-[#3D2118]' },
     { label: t('Naturel'), value: '100%', icon: Flower, color: 'from-[#B97230] to-[#936342]', iconColor: 'text-[#3D2118]' },
     { label: t('Traditionnel'), value: '100%', icon: Sparkles, color: 'from-[#936342] to-[#904913]', iconColor: 'text-[#DDCABC]' },
-    { label: t('Années d\'Expérience'), value: '10+', icon: Star, color: 'from-[#904913] to-[#3D2118]', iconColor: 'text-[#DDCABC]' },
+    { label: t("Années d'Expérience"), value: '10+', icon: Star, color: 'from-[#904913] to-[#3D2118]', iconColor: 'text-[#DDCABC]' },
   ];
 
   const features = [
@@ -94,6 +102,49 @@ const Home = () => {
   
 ] 
 
+  const reviewsContainerRef = useRef(null);
+  const [reviews, setReviews] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const pageSize = 12;
+
+  useEffect(() => {
+    loadMoreReviews();
+    // eslint-disable-next-line
+  }, []);
+
+  const loadMoreReviews = async () => {
+    if (loading || !hasMore) return;
+    setLoading(true);
+    try {
+      const res = await reviewsAPI.getReviews(pageSize * page);
+      const newReviews = res.data.data;
+      setReviews(newReviews);
+      setHasMore(newReviews.length === pageSize * page);
+      setPage(page + 1);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const container = reviewsContainerRef.current;
+    if (!container) return;
+    const handleScroll = () => {
+      if (
+        container.scrollLeft + container.offsetWidth >= container.scrollWidth - 100 &&
+        hasMore &&
+        !loading
+      ) {
+        loadMoreReviews();
+      }
+    };
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+    // eslint-disable-next-line
+  }, [hasMore, loading, page]);
+
   // Inject Elfsight script for Google Reviews widget
   useEffect(() => {
     if (!document.querySelector('script[src="https://static.elfsight.com/platform/platform.js"]')) {
@@ -108,6 +159,27 @@ const Home = () => {
     <div className="space-y-0">
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary-50 to-primary-100 overflow-hidden ">
+        {/* Logos décoratifs en background */}
+        <div className="pointer-events-none select-none absolute inset-0 z-0">
+          <img
+            src="/logo-lightmode.png"
+            alt="Logo décoratif"
+            className="absolute top-10 left-10 w-40 opacity-10 rotate-12"
+            draggable="false"
+          />
+          <img
+            src="/logo-lightmode.png"
+            alt="Logo décoratif"
+            className="absolute bottom-20 right-20 w-56 opacity-10 -rotate-6"
+            draggable="false"
+          />
+          <img
+            src="/logo-lightmode.png"
+            alt="Logo décoratif"
+            className="absolute top-1/2 left-1/2 w-80 opacity-5 -translate-x-1/2 -translate-y-1/2"
+            draggable="false"
+          />
+        </div>
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-r from-primary-600/20 to-transparent" />
           <svg
@@ -136,30 +208,28 @@ const Home = () => {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services">
-                  <Button size="lg" className="w-full sm:w-auto">
-                    <Calendar className="mr-2 h-5 w-5" />
-                    {t('Prendre RDV')}
-                  </Button>
-                </Link>
-                <Link to="/products">
-                  <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                    <ShoppingBag className="mr-2 h-5 w-5" />
-                    {t('Explorer la boutique')}
-                  </Button>
-                </Link>
-                <Link to="/services">
-                  <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                    <Calendar className="mr-2 h-5 w-5" />
-                    {t('Explorer les services')}
-                  </Button>
-                </Link>
+                <Button 
+                  className="flex flex-row items-center justify-center gap-2 bg-gradient-to-r from-primary-600 to-primary-400 text-white font-bold shadow-lg border-2 border-primary-700 hover:from-primary-700 hover:to-primary-500 hover:scale-105 transition-all duration-200 text-lg px-8 py-3 rounded-full focus:ring-4 focus:ring-primary-300 w-full sm:w-auto"
+                  size="lg"
+                >
+                  <Calendar className="h-6 w-6 mr-2" />
+                  <span className="whitespace-nowrap">{t('Prendre RDV')}</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex flex-row items-center justify-center gap-2 border-2 border-primary-600 text-primary-700 font-bold bg-white hover:bg-primary-50 hover:text-primary-900 hover:border-primary-800 shadow focus:ring-4 focus:ring-primary-200 text-lg px-8 py-3 rounded-full transition-all duration-200 no-underline w-full sm:w-auto"
+                  size="lg"
+                >
+                  <ShoppingBag className="h-6 w-6 mr-2" />
+                  <span className="whitespace-nowrap">{t('Explorer la boutique')}</span>
+                </Button>
               </div>
 
               <div className="flex items-center space-x-2 text-sm text-gray-600">
                 <CheckCircle className="h-5 w-5 text-primary-600" />
                 <span>{t('Une équipe de professionnels certifiés')}</span>
               </div>
+
             </div>
 
             <div className="relative">
@@ -173,23 +243,7 @@ const Home = () => {
               <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-2xl shadow-xl">
                 <div className="flex items-center space-x-3">
                   <div className="flex -space-x-2">
-                    {['M', 'D', 'B'].map((letter, index) => (
-                      <div
-                        key={index}
-                        className="w-8 h-8 bg-primary-200 rounded-full border-2 border-white flex items-center justify-center text-white font-bold"
-                      >{letter}</div>
-                    ))}
-                  </div>
-                  <div>
-                    <div className="flex items-center space-x-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          className="h-4 w-4 fill-yellow-400 text-yellow-400"
-                        />
-                      ))}
-                    </div>
-                    <p className="text-sm text-gray-600">800+ {t('Clients Satisfaits')}</p>
+                  <div class="elfsight-app-0c8bc18b-f275-43cc-8a63-31d46bfc3804" data-elfsight-app-lazy></div>
                   </div>
                 </div>
               </div>
@@ -198,11 +252,19 @@ const Home = () => {
         </div>
       </section>
 
+
       {/* Meet Dounia Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center gap-12">
-          <div className="md:w-1/2 w-full flex justify-center">
-            <div className="rounded-3xl overflow-hidden shadow-2xl w-72 h-72 md:w-96 md:h-96 bg-gray-100 flex items-center justify-center">
+          <div className="md:w-1/2 w-full flex justify-center relative">
+            {/* Logo décoratif derrière la photo de Dounia */}
+            <img
+              src="/solid2.png"
+              alt="Logo décoratif"
+              className="absolute z-0 left-1/2 md:left-1/6 top-1/2 w-[28rem] md:w-[56rem] opacity-20 md:opacity-50 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none"
+              draggable="false"
+            />
+            <div className="rounded-3xl overflow-hidden shadow-2xl w-72 h-72 md:w-96 md:h-96 bg-gray-100 flex items-center justify-center relative z-10">
               <img
                 src="https://client.ludovic-godard-photo.com/wp-content/uploads/picu/collections/4227/091024-08-34-22-dounia-asri-4345%C2%A9-ludovic-godard-bd.jpg"
                 alt="Dounia Asri, fondatrice de Succar Banat"
@@ -330,55 +392,92 @@ const Home = () => {
           )}
 
           <div className="text-center">
-            <Link to="/products">
-              <Button variant="outline" size="lg">
-                {t('Explorer la boutique')}
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <Link to="/services">
-              <Button variant="outline" size="lg" className="ml-4">
-                {t('Explorer les services')}
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
+            <Button 
+              className="flex flex-row items-center justify-center gap-2 bg-gradient-to-r from-primary-600 to-primary-400 text-white font-bold shadow-lg border-2 border-primary-700 hover:from-primary-700 hover:to-primary-500 hover:scale-105 transition-all duration-200 text-lg px-8 py-3 rounded-full focus:ring-4 focus:ring-primary-300"
+              size="lg"
+            >
+              {t('Explorer la boutique')}
+              <ArrowRight className="h-6 w-6 ml-2" />
+            </Button>
+            <Button 
+              variant="outline" 
+              className="flex flex-row items-center justify-center gap-2 ml-4 border-2 border-primary-600 text-primary-700 font-bold bg-white hover:bg-primary-50 hover:text-primary-900 hover:border-primary-800 shadow focus:ring-4 focus:ring-primary-200 text-lg px-8 py-3 rounded-full transition-all duration-200 no-underline"
+              size="lg"
+            >
+              {t('Explorer les services')}
+              <ArrowRight className="h-6 w-6 ml-2" />
+            </Button>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-serif font-bold text-gray-900 mb-4">
-              {t('Bienvenue chez Succar Banat')}
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              <b>{t('Mon promesse :')}</b> {t('vous rendre belles et confiantes chaque matin, même durant les périodes les plus délicates du mois.')}
-            </p>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              <b>{t('Ma mission :')}</b> {t('transformer mes années d\'apprentissage et d\'expérience en prestations parfaites, répondant précisément à vos besoins, mêmes ceux qui restent silencieux.')}
-              {t('J\'ai appris à lire entre les lignes, à décoder vos souhaits, même s\'ils étaient timidement formulés.')}
-            </p>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              <b>{t('Mon souhait :')}</b> {t('vous libérer du maquillage et faire en sorte qu\'ils deviennent un choix, une manière de sublimer votre beauté naturelle et non une nécessité.')}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <div key={index} className="text-center">
-                <div className="mx-auto w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mb-6">
-                  <feature.icon className="h-10 w-10 text-primary-600" />
+      <section className="py-20 bg-gray-50 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center lg:items-center gap-12">
+          {/* Bloc texte à gauche */}
+          <div className="flex-1 lg:w-1/2">
+            <div className="text-left lg:text-left mb-16 space-y-6">
+              <h2 className="text-4xl font-serif font-extrabold text-primary-700 mb-4 flex items-center gap-2">
+                <Sparkles className="h-8 w-8 text-primary-400 animate-pulse" />
+                {t('Bienvenue chez Succar Banat')}
+              </h2>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <Flower className="h-6 w-6 text-primary-400 flex-shrink-0 mt-1" />
+                  <div>
+                    <span className="block text-base font-serif italic text-primary-800 mb-1">
+                      {t('Mon promesse :')}
+                    </span>
+                    <span className="text-base text-gray-700">
+                      {t('vous rendre belles et confiantes chaque matin, même durant les périodes les plus délicates du mois.')}
+                    </span>
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  {feature.description}
-                </p>
+                <div className="flex items-start gap-3">
+                  <Award className="h-6 w-6 text-primary-400 flex-shrink-0 mt-1" />
+                  <div>
+                    <span className="block text-base font-serif italic text-primary-800 mb-1">
+                      {t('Ma mission :')}
+                    </span>
+                    <span className="text-base text-gray-700">
+                      {t('transformer mes années d\'apprentissage et d\'expérience en prestations parfaites, répondant précisément à vos besoins, mêmes ceux qui restent silencieux.')}
+                      <br />
+                      {t('J\'ai appris à lire entre les lignes, à décoder vos souhaits, même s\'ils étaient timidement formulés.')}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Star className="h-6 w-6 text-primary-400 flex-shrink-0 mt-1" />
+                  <div>
+                    <span className="block text-base font-serif italic text-primary-800 mb-1">
+                      {t('Mon souhait :')}
+                    </span>
+                    <span className="text-base text-gray-700">
+                      {t('vous libérer du maquillage et faire en sorte qu\'ils deviennent un choix, une manière de sublimer votre beauté naturelle et non une nécessité.')}
+                    </span>
+                  </div>
+                </div>
               </div>
-            ))}
+            </div>
+          </div>
+          {/* Logo décoratif et photo à droite */}
+          <div className="flex-1 lg:w-1/2 relative flex justify-center items-center min-h-[300px]">
+            {/* Logo décoratif en arrière-plan */}
+            <img
+              src="/logo-lightmode.png"
+              alt="Logo décoratif"
+              className="absolute right-0 top-1/2 -translate-y-1/2 w-80 md:w-[32rem] opacity-10 pointer-events-none select-none"
+              draggable="false"
+            />
+            {/* Photo de Dounia au premier plan */}
+            <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl w-48 h-48 md:w-80 md:h-80 bg-gray-100 flex items-center justify-center">
+              <img
+                src="https://client.ludovic-godard-photo.com/wp-content/uploads/picu/collections/4227/091024-09-03-13-dounia-asri-4509%C2%A9-ludovic-godard-bd.jpg"
+                alt="Dounia Asri, fondatrice de Succar Banat"
+                className="object-cover w-full h-full"
+                loading="lazy"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -389,8 +488,71 @@ const Home = () => {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t('Leurs témoignages, notre fierté')}</h2>
           </div>
-          <div className="flex justify-center">
-            <div className="elfsight-app-1dd8ddb6-5652-4561-9794-80331816660b" data-elfsight-app-lazy></div>
+          <div className="relative">
+            <button
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-primary-100 border border-primary-200 rounded-full p-2 shadow transition disabled:opacity-30"
+              onClick={() => reviewsContainerRef.current.scrollBy({ left: -350, behavior: 'smooth' })}
+              aria-label="Scroll left"
+              style={{ display: reviews.length > 1 ? 'block' : 'none' }}
+            >
+              <ChevronLeft className="h-6 w-6 text-primary-700" />
+            </button>
+            <div
+              ref={reviewsContainerRef}
+              className="flex flex-row gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-primary-200 scrollbar-track-primary-50 scroll-smooth hide-scrollbar"
+              style={{ scrollBehavior: 'smooth', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {reviews.map((review) => (
+                <div key={review.reviewId} className="bg-white rounded-xl shadow-lg p-6 flex flex-col min-w-[320px] max-w-xs">
+                  <div className="flex items-center mb-2">
+                    <a
+                      href={review.userProfileImage}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mr-3"
+                    >
+                      <img
+                        src={review.userProfileImage}
+                        alt={review.userName}
+                        className="w-10 h-10 rounded-full border-2 border-primary-200 hover:border-primary-400 transition"
+                      />
+                    </a>
+                    <div>
+                      <div className="flex items-center gap-1 font-bold text-primary-700">
+                        {/* Logo Google */}
+                        <img src="https://www.gstatic.com/marketing-cms/assets/images/d5/dc/cfe9ce8b4425b410b49b7f2dd3f3/g.webp=s48-fcrop64=1,00000000ffffffff-rw" alt="Google" className="h-4 w-4 inline-block mr-1" />
+                        {review.userName}
+                        {review.userLocalGuideInfo === 'true' && (
+                          <CheckCircle className="h-4 w-4 text-blue-500 ml-1" title="Utilisateur vérifié" />
+                        )}
+                      </div>
+                      <div className="text-xs text-gray-500">{review.reviewDate ? new Date(review.reviewDate).toLocaleDateString() : ''}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center mb-2">
+                    {[...Array(review.rating)].map((_, i) => (
+                      <Star key={i} className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                    ))}
+                  </div>
+                  <div className="text-gray-700 text-sm mb-2" style={{ whiteSpace: 'pre-line' }}>
+                    {review.reviewText}
+                  </div>
+                </div>
+              ))}
+              {loading && (
+                <div className="flex items-center justify-center min-w-[320px] max-w-xs">
+                  <span>Chargement...</span>
+                </div>
+              )}
+            </div>
+            <button
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-primary-100 border border-primary-200 rounded-full p-2 shadow transition disabled:opacity-30"
+              onClick={() => reviewsContainerRef.current.scrollBy({ left: 350, behavior: 'smooth' })}
+              aria-label="Scroll right"
+              style={{ display: reviews.length > 1 ? 'block' : 'none' }}
+            >
+              <ChevronRight className="h-6 w-6 text-primary-700" />
+            </button>
           </div>
         </div>
       </section>
@@ -406,24 +568,20 @@ const Home = () => {
               {t('Offrez-vous un moment rien qu\'à vous — réservez dès maintenant et sentez la différence.')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="https://book.squareup.com/appointments/gemetyvfc7c4vj/location/LBNFGCA12NYB6/services">
-                <Button 
-                  size="lg" 
-                  className="bg-white !text-gray-900 border-2 border-gray-900 hover:bg-gray-900 hover:!text-white focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 w-full sm:w-auto transition-all duration-200"
-                >
-                  <Calendar className="mr-2 h-5 w-5" />
-                  {t('Prendre RDV')}
-                </Button>
-              </Link>
-              <Link to="/contact">
-                <Button 
-                  variant="outline" 
-                  size="lg" 
-                  className="border-white text-white hover:bg-white hover:text-primary-600 w-full sm:w-auto"
-                >
-                  {t('Contact')}
-                </Button>
-              </Link>
+              <Button 
+                className="flex flex-row items-center justify-center gap-2 bg-gradient-to-r from-primary-600 to-primary-400 text-white font-bold shadow-lg border-2 border-primary-700 hover:from-primary-700 hover:to-primary-500 hover:scale-105 transition-all duration-200 text-lg px-8 py-3 rounded-full focus:ring-4 focus:ring-primary-300 w-full sm:w-auto"
+                size="lg"
+              >
+                <Calendar className="h-6 w-6 mr-2" />
+                <span className="whitespace-nowrap">{t('Prendre RDV')}</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex flex-row items-center justify-center gap-2 border-2 border-primary-600 text-primary-700 font-bold bg-white hover:bg-primary-50 hover:text-primary-900 hover:border-primary-800 shadow focus:ring-4 focus:ring-primary-200 text-lg px-8 py-3 rounded-full transition-all duration-200 no-underline w-full sm:w-auto"
+                size="lg"
+              >
+                {t('Contact')}
+              </Button>
             </div>
           </div>
         </div>

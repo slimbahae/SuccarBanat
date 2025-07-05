@@ -17,6 +17,9 @@ import Services from './pages/Services';
 import Contact from './pages/Contact';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import ResetPassword from './pages/auth/ResetPassword';
+import VerifyEmailNotice from './pages/auth/VerifyEmailNotice';
+import EmailVerificationResult from './pages/auth/EmailVerificationResult';
 
 // Customer pages
 import CustomerDashboard from './pages/customer/Dashboard';
@@ -129,6 +132,22 @@ function AppContent() {
                 <Register />
               </PublicRoute>
             } 
+          />
+          <Route 
+            path="/reset-password" 
+            element={
+              <PublicRoute>
+                <ResetPassword />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/verify-email" 
+            element={<VerifyEmailNotice />} 
+          />
+          <Route 
+            path="/verify-email/result" 
+            element={<EmailVerificationResult />} 
           />
 
           {/* Dashboard Redirect */}

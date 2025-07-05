@@ -8,7 +8,8 @@ import {
   Facebook, 
   Instagram, 
   Twitter,
-  Linkedin
+  Linkedin,
+  Clock
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -38,16 +39,20 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-gray-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <footer className="bg-gray-900 text-white relative overflow-hidden">
+      <img
+        src="/logo-lightmode.png"
+        alt="Logo décoratif"
+        className="hidden md:block pointer-events-none select-none absolute bottom-0 right-0 w-64 opacity-10 rotate-12 z-0"
+        draggable="false"
+      />
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
           {/* Company Info */}
           <div className="space-y-4">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="bg-gradient-to-r from-primary-500 to-primary-600 p-2 rounded-lg">
-                <Sparkles className="h-6 w-6 text-white" />
-              </div>
-              <span className="text-xl font-serif font-bold ">
+            <Link to="/" className="flex items-center space-x-3">
+              <img src="/logo-lightmode.png" alt="Logo Succar Banat" className="h-10 w-auto" />
+              <span className="text-xl font-serif font-bold">
                 SUCCAR BANAT INSTITUT
               </span>
             </Link>
@@ -55,38 +60,6 @@ const Footer = () => {
             <p className="text-gray-300 text-sm">
               {t('footer.description')}
             </p>
-
-            {/* Contact Info */}
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2 text-sm text-gray-300">
-                <Phone className="h-4 w-4" />
-                <span>+33 6 03 28 67 03</span>
-              </div>
-              <div className="flex items-center space-x-2 text-sm text-gray-300">
-                <Mail className="h-4 w-4" />
-                <span>dounia.beaute.pro@gmail.com</span>
-              </div>
-              <div className="flex items-center space-x-2 text-sm text-gray-300">
-                <MapPin className="h-4 w-4" />
-                <span>110 Rue des Cras, 25000 Besançon, France</span>
-              </div>
-            </div>
-
-            {/* Social Links */}
-            <div className="flex space-x-4">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-white transition-colors"
-                  aria-label={social.label}
-                >
-                  <social.icon className="h-5 w-5" />
-                </a>
-              ))}
-            </div>
           </div>
 
           {/* Services */}
@@ -106,21 +79,57 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Company */}
+          {/* Horaires */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Entreprise</h3>
-            <ul className="space-y-2">
-              {footerLinks.company.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-gray-300 hover:text-white transition-colors text-sm"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
+            <h3 className="text-lg font-semibold mb-4 flex items-center"><Clock className="h-5 w-5 mr-2" />Horaires</h3>
+            <ul className="space-y-1 text-gray-300 text-sm">
+              <li>Lundi : fermé</li>
+              <li>Mardi : 10h-19h</li>
+              <li>Mercredi : 10h-19h</li>
+              <li>Jeudi : 10h-19h</li>
+              <li>Vendredi : 10h-19h</li>
+              <li>Samedi : 10h-15h</li>
+              <li>Dimanche : fermé</li>
             </ul>
+          </div>
+
+          {/* Contact & Réseaux */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold mb-4">Contact & Réseaux</h3>
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2 text-sm text-gray-300">
+                <Phone className="h-4 w-4" />
+                <span>+33 6 03 28 67 03</span>
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-gray-300">
+                <Phone className="h-4 w-4" />
+                <span>dounia.beaute.pro@gmail.com</span>
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-gray-300">
+                <MapPin className="h-4 w-4" />
+                <span>
+                  110 Rue des Cras,<br />
+                  25000 Besançon, France
+                </span>
+              </div>
+            </div>
+            <div>
+              <Link to="/contact" className="text-primary-400 hover:text-white underline text-sm">Contact</Link>
+            </div>
+            <div className="flex space-x-4 mt-2">
+              {socialLinks.map((social) => (
+                <a
+                  key={social.label}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-white transition-colors"
+                  aria-label={social.label}
+                >
+                  <social.icon className="h-5 w-5" />
+                </a>
+              ))}
+            </div>
           </div>
 
           {/* Support */}
@@ -131,7 +140,7 @@ const Footer = () => {
         <div className="border-t border-gray-800 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              © {currentYear} Beauty Center. All rights reserved.
+              © {currentYear} SuccarBanat. Tous droits réservés.
             </p>
             
             <div className="flex space-x-6 mt-4 md:mt-0">
