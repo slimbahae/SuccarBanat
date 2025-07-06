@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -42,4 +43,15 @@ public class User {
     private List<String> workDays;
     private String morningShift; // "YES", "NO"
     private String eveningShift; // "YES", "NO"
+
+    // NEW: Balance system fields
+    @Builder.Default
+    private BigDecimal balance = BigDecimal.ZERO;
+
+    @Builder.Default
+    private BigDecimal pendingBalance = BigDecimal.ZERO; // For pending transactions
+
+    private java.util.Date lastBalanceUpdate;
+
+
 }

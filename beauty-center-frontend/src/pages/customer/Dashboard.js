@@ -18,6 +18,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { cartAPI, ordersAPI } from '../../services/api';
 import Button from '../../components/UI/Button';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
+import BalanceDisplay from '../../components/BalanceDisplay';
 import { useTranslation } from 'react-i18next';
 
 const euroFormatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
@@ -85,6 +86,11 @@ const CustomerDashboard = () => {
           <p className="text-gray-600 mt-2">
             {t('welcomeDescription')}
           </p>
+        </div>
+
+        {/* Balance Display */}
+        <div className="mb-8">
+          <BalanceDisplay />
         </div>
 
         {/* Stats Cards */}

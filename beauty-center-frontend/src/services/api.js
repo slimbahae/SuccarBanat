@@ -1,4 +1,5 @@
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 // Create axios instance
 const api = axios.create({
@@ -58,10 +59,12 @@ api.interceptors.response.use(
     });
     
     if (error.response?.status === 401) {
-      console.log('Unauthorized access - clearing token');
+      toast.error("Votre session a expiré, veuillez vous reconnecter.");
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      // Don't redirect automatically, let the component handle it
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 2000);
     }
     return Promise.reject(error);
   }
@@ -163,6 +166,39 @@ export const paymentAPI = {
     console.log('Cancelling payment:', paymentIntentId);
     return api.post(`/payment/cancel-payment/${paymentIntentId}`);
   },
+};
+
+// Add these methods to your existing API file
+
+export const balanceAPI = {
+  getBalance: () => {
+    console.log('Fetching user balance...');
+    return api.get('/customer/balance');
+  },
+
+  getTransactions: () => {
+    console.log('Fetching balance transactions...');
+    return api.get('/customer/balance/transactions');
+  },
+
+  addFunds: (amount) => {
+    console.log('Adding funds to balance:', amount);
+    return api.post('/customer/balance/add', { amount });
+  },
+
+  // Admin methods
+  getUserBalance: (userId) => {
+    console.log('Admin fetching user balance:', userId);
+    return api.get(`/admin/users/${userId}/balance`);
+  },
+
+  adjustUserBalance: (userId, amount, description) => {
+    console.log('Admin adjusting user balance:', userId, amount);
+    return api.post(`/admin/users/${userId}/balance/adjust`, {
+      amount,
+      description
+    });
+  }
 };
 
 // Orders API

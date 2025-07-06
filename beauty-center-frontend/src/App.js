@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { BalanceProvider } from './contexts/BalanceContext';
 import { useTranslation } from 'react-i18next';
 
 // Layout components
@@ -24,6 +25,8 @@ import EmailVerificationResult from './pages/auth/EmailVerificationResult';
 // Customer pages
 import CustomerDashboard from './pages/customer/Dashboard';
 import OrderConfirmation from './pages/customer/OrderConfirmation';
+import BalanceHistory from './pages/customer/BalanceHistory';
+import AddFunds from './pages/customer/AddFunds';
 
 // Admin pages
 import AdminDashboard from './pages/admin/Dashboard';
@@ -209,6 +212,22 @@ function AppContent() {
               </ProtectedRoute>
             } 
           />
+          <Route 
+            path="/customer/balance/history" 
+            element={
+              <ProtectedRoute allowedRoles={['CUSTOMER']}>
+                <BalanceHistory />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/customer/balance/add-funds" 
+            element={
+              <ProtectedRoute allowedRoles={['CUSTOMER']}>
+                <AddFunds />
+              </ProtectedRoute>
+            } 
+          />
 
           {/* Admin Routes */}
           <Route 
@@ -258,23 +277,25 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <AppContent />
-        <Toaster 
-          position="top-right"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: '#363636',
-              color: '#fff',
-            },
-            success: {
-              duration: 3000,
-              theme: {
-                primary: '#4aed88',
+        <BalanceProvider>
+          <AppContent />
+          <Toaster 
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: '#363636',
+                color: '#fff',
               },
-            },
-          }}
-        />
+              success: {
+                duration: 3000,
+                theme: {
+                  primary: '#4aed88',
+                },
+              },
+            }}
+          />
+        </BalanceProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

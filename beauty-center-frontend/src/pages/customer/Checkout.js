@@ -9,12 +9,15 @@ import {
   CheckCircle,
   MapPin,
   User,
-  Lock
+  Lock,
+  Wallet
 } from "lucide-react";
 import { cartAPI, ordersAPI, paymentAPI } from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
+import { useBalance } from "../../contexts/BalanceContext";
 import Button from "../../components/UI/Button";
 import LoadingSpinner from "../../components/UI/LoadingSpinner";
+import BalancePaymentOption from "../../components/BalancePaymentOption";
 import toast from "react-hot-toast";
 import { loadStripe } from '@stripe/stripe-js';
 import {
@@ -132,7 +135,7 @@ const CheckoutForm = ({
       paymentMethod === "STRIPE"
     ) {
       createPaymentIntentMutation.mutate({
-        amount: Math.round(total * 100), // Convert to cents
+        amount: total, // Send in euros as backend expects
         currency: "eur",
         customerEmail: getValuesFromParentForm("email"),
         description: `Commande Succar Banat - ${getValuesFromParentForm("fullName")}`,
@@ -256,6 +259,7 @@ const StripeElementsWrapper = ({ children }) => {
 
 const Checkout = () => {
   const { user } = useAuth();
+  const { balance, formatBalance } = useBalance();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(1);
@@ -266,23 +270,23 @@ const Checkout = () => {
 
   const { data: cartData, isLoading: cartLoading } = useQuery("cart", cartAPI.get);
 
-  const { register, handleSubmit, formState: { errors }, watch, getValues, trigger } = useForm({
-    defaultValues: {
-      fullName: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
-      email: user?.email || "",
-      phoneNumber: user?.phoneNumber || "",
-      paymentMethod: "STRIPE",
-    },
-  });
-
-  const paymentMethod = watch("paymentMethod");
-
   const cart = cartData?.data;
   const items = cart?.items || [];
   const subtotal = cart?.subtotal || 0;
   const tax = subtotal * 0.1;
   const shipping = subtotal >= 50 ? 0 : 5;
   const total = subtotal + tax + shipping;
+
+  const { register, handleSubmit, formState: { errors }, watch, getValues, trigger, setValue } = useForm({
+    defaultValues: {
+      fullName: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
+      email: user?.email || "",
+      phoneNumber: user?.phoneNumber || "",
+      paymentMethod: balance >= total ? "BALANCE" : "STRIPE",
+    },
+  });
+
+  const paymentMethod = watch("paymentMethod");
 
   const createPaymentIntentMutation = useMutation(
     (paymentData) => paymentAPI.createPaymentIntent(paymentData),
@@ -302,9 +306,13 @@ const Checkout = () => {
   const checkoutMutation = useMutation(
     (checkoutData) => ordersAPI.checkout(checkoutData),
     {
-      onSuccess: (response) => {
+      onSuccess: (response, checkoutData) => {
         queryClient.invalidateQueries("cart");
         queryClient.invalidateQueries("customer-orders");
+        // Refresh balance after successful checkout
+        if (checkoutData.paymentMethod === "BALANCE") {
+          queryClient.invalidateQueries("balance");
+        }
         toast.success(t("order_success"));
         navigate(`/customer/order-confirmation/${response.data.id}`);
       },
@@ -330,11 +338,25 @@ const Checkout = () => {
         } else {
           toast.error(t("payment_system_not_ready"));
         }
+      } else if (paymentMethod === "BALANCE") {
+        if (balance < total) {
+          toast.error("Solde insuffisant pour effectuer cette commande");
+          return;
+        }
+        setCurrentStep(3);
       } else {
         setCurrentStep(3);
       }
     } else {
-      if (paymentMethod !== "STRIPE") {
+      if (paymentMethod === "BALANCE") {
+        setIsProcessing(true);
+        const checkoutData = {
+          ...data,
+          paymentMethod: "BALANCE",
+          balanceUsed: total,
+        };
+        checkoutMutation.mutate(checkoutData);
+      } else if (paymentMethod !== "STRIPE") {
         setIsProcessing(true);
         checkoutMutation.mutate(data);
       }
@@ -581,6 +603,59 @@ const Checkout = () => {
                       <CreditCard className="h-5 w-5 inline mr-2" />
                       {t("payment_method")}
                     </h2>
+                    
+                    <div className="space-y-6">
+                      {/* Hidden form field for payment method */}
+                      <input
+                        type="hidden"
+                        {...register("paymentMethod")}
+                      />
+                      
+                      {/* Balance Payment Option */}
+                      <BalancePaymentOption 
+                        total={total}
+                        selectedPayment={paymentMethod}
+                        onPaymentSelect={(method) => {
+                          setValue("paymentMethod", method);
+                        }}
+                      />
+                      
+                      {/* Stripe Payment Option */}
+                      <div
+                        className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                          paymentMethod === "STRIPE"
+                            ? "border-blue-500 bg-blue-50"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                        onClick={() => {
+                          setValue("paymentMethod", "STRIPE");
+                        }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
+                              <CreditCard className="h-6 w-6 text-blue-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900">Carte de crédit/débit</p>
+                              <p className="text-sm text-gray-600">Paiement sécurisé via Stripe</p>
+                            </div>
+                          </div>
+                          <input
+                            type="radio"
+                            name="paymentMethod"
+                            value="STRIPE"
+                            checked={paymentMethod === "STRIPE"}
+                            onChange={() => {
+                              setValue("paymentMethod", "STRIPE");
+                            }}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Stripe Form */}
                     <CheckoutForm 
                       clientSecret={clientSecret} 
                       isProcessing={isProcessing}
@@ -635,14 +710,28 @@ const Checkout = () => {
                     <div className="bg-white shadow-sm rounded-lg p-6">
                       <h3 className="text-lg font-medium text-gray-900 mb-4">{t("payment_method")}</h3>
                       <div className="flex items-center space-x-3">
-                        <div className="flex items-center justify-center w-10 h-10 bg-primary-100 rounded-lg">
-                          <CreditCard className="h-6 w-6 text-primary-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">
-                            {paymentMethod === "STRIPE" && t("credit_debit_card_stripe")}
-                          </p>
-                        </div>
+                        {paymentMethod === "BALANCE" ? (
+                          <>
+                            <div className="flex items-center justify-center w-10 h-10 bg-purple-100 rounded-lg">
+                              <Wallet className="h-6 w-6 text-purple-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900">Paiement par solde</p>
+                              <p className="text-sm text-gray-600">Solde utilisé: {formatBalance(total)}</p>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="flex items-center justify-center w-10 h-10 bg-primary-100 rounded-lg">
+                              <CreditCard className="h-6 w-6 text-primary-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900">
+                                {paymentMethod === "STRIPE" && t("credit_debit_card_stripe")}
+                              </p>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
 

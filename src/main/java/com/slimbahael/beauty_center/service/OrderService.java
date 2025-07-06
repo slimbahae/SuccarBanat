@@ -11,10 +11,8 @@ import com.slimbahael.beauty_center.model.Cart;
 import com.slimbahael.beauty_center.model.Order;
 import com.slimbahael.beauty_center.model.Product;
 import com.slimbahael.beauty_center.model.User;
-import com.slimbahael.beauty_center.repository.CartRepository;
-import com.slimbahael.beauty_center.repository.OrderRepository;
-import com.slimbahael.beauty_center.repository.ProductRepository;
-import com.slimbahael.beauty_center.repository.UserRepository;
+import com.slimbahael.beauty_center.model.BalanceTransaction;
+import com.slimbahael.beauty_center.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,12 +39,14 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final BalanceTransactionRepository balanceTransactionRepository;
     private final CartService cartService;
     private final SmsService smsService;
     private final EmailService emailService;
     private final StripeService stripeService;
+    private final BalanceService balanceService;
 
-    private static final BigDecimal TAX_RATE = new BigDecimal("0.10"); // 10% tax
+    private static final BigDecimal TAX_RATE = new BigDecimal("0.0"); // 10% tax
     private static final BigDecimal SHIPPING_COST = new BigDecimal("5.00"); // $5 shipping
     private static final BigDecimal FREE_SHIPPING_THRESHOLD = new BigDecimal("50.00"); // Free shipping over $50
 
@@ -202,6 +202,82 @@ public class OrderService {
         BigDecimal shippingCost = subtotal.compareTo(FREE_SHIPPING_THRESHOLD) >= 0 ? BigDecimal.ZERO : SHIPPING_COST;
         BigDecimal total = subtotal.add(tax).add(shippingCost);
 
+        // Check if using balance payment
+        if ("BALANCE".equals(request.getPaymentMethod())) {
+            return checkoutWithBalance(request, customer, cart, subtotal, tax, shippingCost, total);
+        }
+
+        // Continue with existing payment logic for other payment methods
+        return processRegularCheckout(request, customer, cart, subtotal, tax, shippingCost, total);
+    }
+
+    @Transactional
+    public OrderResponse checkoutWithBalance(CheckoutRequest request, User customer, Cart cart,
+                                             BigDecimal subtotal, BigDecimal tax, BigDecimal shippingCost, BigDecimal total) {
+        // Check if user has sufficient balance
+        if (balanceService.hasInsufficientBalance(customer.getId(), total)) {
+            throw new BadRequestException("Insufficient balance for this order. Available: €" +
+                    balanceService.getUserBalance(customer.getId()) + ", Required: €" + total);
+        }
+
+        // Process balance payment
+        BalanceTransaction transaction = balanceService.processBalancePayment(
+                customer.getId(),
+                total,
+                "Payment pour une commande",
+                null // Will be updated with order ID after creation
+        );
+
+        // Create order with balance payment
+        Order order = createOrderFromCart(cart, request, customer, subtotal, tax, shippingCost, total, "PAID");
+        order.setPaymentMethod("BALANCE");
+        order.setStripePaymentIntentId(transaction.getId()); // Store transaction ID
+
+        Order savedOrder = orderRepository.save(order);
+
+        // Update transaction with order ID
+        transaction.setOrderId(savedOrder.getId());
+        balanceTransactionRepository.save(transaction);
+
+        // Clear cart after successful order
+        cartService.clearCart();
+
+        // Send order confirmation SMS
+        if (customer.getPhoneNumber() != null && !customer.getPhoneNumber().isEmpty()) {
+            String message = String.format(
+                    "Your order #%s has been placed and paid with balance. Total: €%.2f. Thank you for shopping with Beauty Center!",
+                    savedOrder.getId(),
+                    total
+            );
+            smsService.sendSms(customer.getPhoneNumber(), message);
+        }
+
+        // Prepare OrderResponse for email and return
+        OrderResponse orderResponse = mapOrderToResponse(savedOrder);
+
+        // Send order confirmation email
+        try {
+            emailService.sendOrderConfirmationEmail(
+                    customer.getEmail(),
+                    orderResponse
+            );
+        } catch (Exception e) {
+            log.error("Failed to send order confirmation email for order {}: {}", savedOrder.getId(), e.getMessage());
+        }
+
+        try {
+            emailService.sendNewOrderNotificationToAdmin(orderResponse);
+        } catch (Exception e) {
+            log.error("Failed to send admin notification for order {}: {}", savedOrder.getId(), e.getMessage());
+        }
+
+        log.info("Order {} completed with balance payment for customer {}", savedOrder.getId(), customer.getId());
+        return orderResponse;
+    }
+
+    @Transactional
+    protected OrderResponse processRegularCheckout(CheckoutRequest request, User customer, Cart cart,
+                                                   BigDecimal subtotal, BigDecimal tax, BigDecimal shippingCost, BigDecimal total) {
         // Verify payment with Stripe if payment method is card
         String paymentStatus = "PENDING";
         if ("STRIPE".equals(request.getPaymentMethod()) || "CREDIT_CARD".equals(request.getPaymentMethod())) {
@@ -222,6 +298,52 @@ public class OrderService {
             paymentStatus = "PENDING";
         }
 
+        // Create order with regular payment
+        Order order = createOrderFromCart(cart, request, customer, subtotal, tax, shippingCost, total, paymentStatus);
+        order.setPaymentMethod(request.getPaymentMethod());
+        order.setStripePaymentIntentId(request.getPaymentIntentId());
+        order.setStripePaymentMethodId(request.getPaymentMethodId());
+
+        Order savedOrder = orderRepository.save(order);
+
+        // Clear cart after successful order
+        cartService.clearCart();
+
+        // Send order confirmation SMS
+        if (customer.getPhoneNumber() != null && !customer.getPhoneNumber().isEmpty()) {
+            String message = String.format(
+                    "Your order #%s has been placed and is being processed. Total: €%.2f. Thank you for shopping with Beauty Center!",
+                    savedOrder.getId(),
+                    total
+            );
+            smsService.sendSms(customer.getPhoneNumber(), message);
+        }
+
+        // Prepare OrderResponse for email and return
+        OrderResponse orderResponse = mapOrderToResponse(savedOrder);
+
+        // Send order confirmation email
+        try {
+            emailService.sendOrderConfirmationEmail(
+                    customer.getEmail(),
+                    orderResponse
+            );
+        } catch (Exception e) {
+            log.error("Failed to send order confirmation email for order {}: {}", savedOrder.getId(), e.getMessage());
+        }
+
+        try {
+            emailService.sendNewOrderNotificationToAdmin(orderResponse);
+        } catch (Exception e) {
+            log.error("Failed to send admin notification for order {}: {}", savedOrder.getId(), e.getMessage());
+        }
+
+        return orderResponse;
+    }
+
+    private Order createOrderFromCart(Cart cart, CheckoutRequest request, User customer,
+                                      BigDecimal subtotal, BigDecimal tax, BigDecimal shippingCost,
+                                      BigDecimal total, String paymentStatus) {
         // Create order items and update product stock
         List<Order.OrderItem> orderItems = new ArrayList<>();
         for (Cart.CartItem cartItem : cart.getItems()) {
@@ -262,7 +384,7 @@ public class OrderService {
                 .build();
 
         // Create order
-        Order order = Order.builder()
+        return Order.builder()
                 .customerId(customer.getId())
                 .items(orderItems)
                 .shippingAddress(shippingAddress)
@@ -270,51 +392,11 @@ public class OrderService {
                 .tax(tax)
                 .shippingCost(shippingCost)
                 .total(total)
-                .paymentMethod(request.getPaymentMethod())
                 .paymentStatus(paymentStatus)
                 .orderStatus("PROCESSING")
-                .stripePaymentIntentId(request.getPaymentIntentId())
-                .stripePaymentMethodId(request.getPaymentMethodId())
                 .createdAt(new Date())
                 .updatedAt(new Date())
                 .build();
-
-        Order savedOrder = orderRepository.save(order);
-
-        // Clear cart after successful order
-        cartService.clearCart();
-
-        // Send order confirmation SMS
-        if (customer.getPhoneNumber() != null && !customer.getPhoneNumber().isEmpty()) {
-            String message = String.format(
-                    "Your order #%s has been placed and is being processed. Total: $%.2f. Thank you for shopping with Beauty Center!",
-                    savedOrder.getId(),
-                    total
-            );
-            smsService.sendSms(customer.getPhoneNumber(), message);
-        }
-
-        // Prepare OrderResponse for email and return
-        OrderResponse orderResponse = mapOrderToResponse(savedOrder);
-
-        // Send order confirmation email
-        try {
-            emailService.sendOrderConfirmationEmail(
-                    customer.getEmail(),
-                    orderResponse
-            );
-        } catch (Exception e) {
-            // Log the error but don't affect the order processing
-            log.error("Failed to send order confirmation email for order {}: {}", savedOrder.getId(), e.getMessage());
-        }
-
-        try {
-            emailService.sendNewOrderNotificationToAdmin(orderResponse);
-        } catch (Exception e) {
-            log.error("Failed to send admin notification for order {}: {}", savedOrder.getId(), e.getMessage());
-        }
-
-        return orderResponse;
     }
 
     @Transactional
@@ -369,7 +451,7 @@ public class OrderService {
         Order updatedOrder = orderRepository.save(order);
         OrderResponse orderResponse = mapOrderToResponse(updatedOrder);
 
-        // 🔥 NEW: Send cancelled order notification to admin
+        // Send cancelled order notification to admin
         if (status.equals("CANCELLED")) {
             try {
                 emailService.sendCancelledOrderNotificationToAdmin(orderResponse, "Commande annulée par l'administrateur");
