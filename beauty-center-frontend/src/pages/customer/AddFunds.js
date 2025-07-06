@@ -14,6 +14,7 @@ import {
   useStripe,
   useElements
 } from '@stripe/react-stripe-js';
+import api from '../../services/api';
 
 // Initialize Stripe promise outside component to prevent re-creation
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
@@ -36,23 +37,6 @@ const AddFundsForm = ({ amount, onAmountChange, onSuccess }) => {
       onError: (error) => {
         console.error("Erreur d'intention de paiement :", error);
         toast.error("Erreur d'initialisation du paiement");
-        setIsProcessing(false);
-      },
-    }
-  );
-
-  const addFundsMutation = useMutation(
-    (amount) => balanceAPI.addFunds(amount),
-    {
-      onSuccess: (response) => {
-        toast.success(`Fonds ajoutés avec succès! +${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount)}`);
-        refreshBalance();
-        queryClient.invalidateQueries('balance');
-        onSuccess();
-      },
-      onError: (error) => {
-        console.error('Erreur lors de l\'ajout de fonds:', error);
-        toast.error(error.response?.data?.message || 'Erreur lors de l\'ajout de fonds');
         setIsProcessing(false);
       },
     }
@@ -98,12 +82,14 @@ const AddFundsForm = ({ amount, onAmountChange, onSuccess }) => {
       }
 
       if (paymentIntent && paymentIntent.status === "succeeded") {
-        // Now add funds to balance - send just the amount as expected by backend
-        console.log('Payment succeeded, adding funds to balance:', {
-          amountInEuros: parseFloat(amount),
-          paymentIntentId: paymentIntent.id
+        // Now call the new top-up endpoint with paymentIntentId only
+        await api.post('/customer/balance/top-up', {
+          paymentIntentId: paymentIntent.id,
         });
-        addFundsMutation.mutate(parseFloat(amount));
+        toast.success("Fonds ajoutés avec succès !");
+        refreshBalance();
+        queryClient.invalidateQueries('balance');
+        onSuccess();
       } else {
         toast.error("Paiement non réussi");
         setIsProcessing(false);
@@ -113,7 +99,7 @@ const AddFundsForm = ({ amount, onAmountChange, onSuccess }) => {
       toast.error("Erreur inattendue");
       setIsProcessing(false);
     }
-  }, [stripe, elements, clientSecret, amount, addFundsMutation]);
+  }, [stripe, elements, clientSecret, amount, refreshBalance, queryClient, onSuccess]);
 
   useEffect(() => {
     if (amount && amount >= 5 && !clientSecret && !createPaymentIntentMutation.isLoading) {

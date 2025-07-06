@@ -21,4 +21,5 @@ public class PaymentIntentRequest {
     private String orderId;
     private String customerEmail;
     private String description;
+    private String userId;
 }

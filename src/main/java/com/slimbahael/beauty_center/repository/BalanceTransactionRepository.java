@@ -23,4 +23,6 @@ public interface BalanceTransactionRepository extends MongoRepository<BalanceTra
     List<BalanceTransaction> findByUserIdAndTypeAndStatus(String userId, String transactionType, String status);
 
     List<BalanceTransaction> findByOrderId(String orderId);
+
+    boolean existsByOrderId(String paymentIntentId);
 }

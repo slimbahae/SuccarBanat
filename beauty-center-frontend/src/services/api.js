@@ -397,4 +397,39 @@ export const reviewsAPI = {
   getReviewStats: () => api.get('/reviews/stats'),
 };
 
+// Gift Cards API
+export const giftCardsAPI = {
+  // Customer endpoints
+  purchase: (data) => {
+    console.log('Purchasing gift card:', data);
+    return api.post('/customer/gift-cards/purchase', data);
+  },
+  redeem: (data) => {
+    console.log('Redeeming gift card:', data);
+    return api.post('/customer/gift-cards/redeem', data);
+  },
+  getPurchased: () => {
+    console.log('Fetching purchased gift cards...');
+    return api.get('/customer/gift-cards/purchased');
+  },
+  getReceived: () => {
+    console.log('Fetching received gift cards...');
+    return api.get('/customer/gift-cards/received');
+  },
+
+  // Admin endpoints
+  adminVerify: (token) => {
+    console.log('Admin verifying gift card with token:', token);
+    return api.get(`/admin/gift-cards/verify?token=${encodeURIComponent(token)}`);
+  },
+  adminMarkUsed: (giftCardId) => {
+    console.log('Admin marking gift card as used:', giftCardId);
+    return api.post(`/admin/gift-cards/${giftCardId}/mark-used`);
+  },
+  adminExpire: () => {
+    console.log('Admin expiring gift cards...');
+    return api.post('/admin/gift-cards/expire');
+  }
+};
+
 export default api;

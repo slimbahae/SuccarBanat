@@ -1,11 +1,15 @@
 package com.slimbahael.beauty_center.controller;
 
+import com.slimbahael.beauty_center.dto.PaymentIntentRequest;
+import com.slimbahael.beauty_center.dto.PaymentIntentResponse;
+import com.slimbahael.beauty_center.exception.BadRequestException;
 import com.slimbahael.beauty_center.model.BalanceTransaction;
 import com.slimbahael.beauty_center.model.User;
 import com.slimbahael.beauty_center.service.BalanceService;
 import com.slimbahael.beauty_center.repository.UserRepository;
 import com.slimbahael.beauty_center.dto.BalanceAdjustmentRequest;
 import com.slimbahael.beauty_center.exception.ResourceNotFoundException;
+import com.slimbahael.beauty_center.service.StripeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +30,7 @@ public class BalanceController {
 
     private final BalanceService balanceService;
     private final UserRepository userRepository;
+    private final StripeService stripeService;
 
     @GetMapping("/customer/balance")
     @PreAuthorize("hasRole('CUSTOMER')")
@@ -48,6 +54,24 @@ public class BalanceController {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         List<BalanceTransaction> transactions = balanceService.getUserTransactionHistory(user.getId());
         return ResponseEntity.ok(transactions);
+    }
+
+    @PostMapping("/customer/balance/create-payment-intent")
+    public PaymentIntentResponse createBalancePaymentIntent(
+            @RequestBody PaymentIntentRequest request,
+            Principal principal
+    ) {
+        // 1) Look up the user
+        String email = principal.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+
+        // 2) **Populate the metadata fields** before handing off to StripeService
+        request.setUserId(user.getId());
+        request.setCustomerEmail(user.getEmail());
+
+        // 3) Now the metadata map in StripeService.createPaymentIntent() will contain them
+        return stripeService.createPaymentIntent(request);
     }
 
     @GetMapping("/admin/users/{userId}/balance")
@@ -88,32 +112,27 @@ public class BalanceController {
         return ResponseEntity.ok(transaction);
     }
 
-    @PostMapping("/customer/balance/add")
+    @PostMapping("/customer/balance/top-up")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<Map<String, String>> addFundsToBalance(
-            @Valid @RequestBody Map<String, BigDecimal> request,
+    public ResponseEntity<BalanceTransaction> topUpBalance(
+            @Valid @RequestBody Map<String, String> request,
             Authentication authentication) {
 
-        User user = userRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        BigDecimal amount = request.get("amount");
-
-        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Montant invalide"));
+        // 1) pull the PaymentIntent ID from the JSON body
+        String paymentIntentId = request.get("paymentIntentId");
+        if (paymentIntentId == null || paymentIntentId.isBlank()) {
+            throw new BadRequestException("paymentIntentId is required");
         }
 
-        // Ajoute le montant au solde
-        user.setBalance(user.getBalance().add(amount));
-        userRepository.save(user);
+        // 2) resolve current user
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        // (Optionnel) Ajoute une transaction dans l'historique
-        balanceService.addTransaction(user, amount, "CREDIT", "Recharge de solde");
+        // 3) delegate to your service (which does fetch + verify + idempotency + credit)
+        BalanceTransaction tx = balanceService.creditBalanceFromIntent(user.getId(), paymentIntentId);
 
-        return ResponseEntity.ok(Map.of(
-                "message", "Solde rechargé avec succès",
-                "amount", amount.toString(),
-                "userId", user.getId()
-        ));
+        // 4) return the recorded transaction
+        return ResponseEntity.ok(tx);
     }
 
     @GetMapping("/admin/users/{userId}/balance/transactions")
@@ -122,4 +141,7 @@ public class BalanceController {
         List<BalanceTransaction> transactions = balanceService.getUserTransactionHistory(userId);
         return ResponseEntity.ok(transactions);
     }
+
+
+
 }

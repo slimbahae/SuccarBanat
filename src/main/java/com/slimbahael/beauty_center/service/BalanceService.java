@@ -6,6 +6,7 @@ import com.slimbahael.beauty_center.repository.BalanceTransactionRepository;
 import com.slimbahael.beauty_center.repository.UserRepository;
 import com.slimbahael.beauty_center.exception.ResourceNotFoundException;
 import com.slimbahael.beauty_center.exception.BadRequestException;
+import com.stripe.model.PaymentIntent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +24,7 @@ public class BalanceService {
 
     private final UserRepository userRepository;
     private final BalanceTransactionRepository balanceTransactionRepository;
+    private final StripeService stripeService;
 
 
 
@@ -34,6 +37,53 @@ public class BalanceService {
     public List<BalanceTransaction> getUserTransactionHistory(String userId) {
         return balanceTransactionRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
+
+    @Transactional
+    public BalanceTransaction creditBalanceFromIntent(String userId, String paymentIntentId) {
+        // 1) fetch the intent
+        PaymentIntent intent = stripeService.getPaymentIntent(paymentIntentId);
+
+        // ── Insert your debug log here ──
+        Map<String,String> md = intent.getMetadata();
+        log.info ("Stripe metadata for intent {}: {}", paymentIntentId, intent.getMetadata());
+        // ────────────────────────────────
+
+        // 2) verify it actually succeeded
+        if (!"succeeded".equals(intent.getStatus())) {
+            throw new BadRequestException(
+                    "PaymentIntent " + paymentIntentId + " not succeeded (status=" + intent.getStatus() + ")");
+        }
+
+        // 3) verify metadata.user_id matches
+        String metaUserId = intent.getMetadata().get("user_id");
+        if (metaUserId == null) {
+            log.warn("PaymentIntent {} has no user_id metadata. This might be an old PaymentIntent created before the metadata fix.", paymentIntentId);
+            // For backward compatibility, we'll allow this if the payment succeeded
+            // but log a warning for monitoring
+        } else if (!metaUserId.equals(userId)) {
+            throw new BadRequestException("This PaymentIntent doesn't belong to user " + userId);
+        }
+
+        // 4) idempotency: make sure we haven't already applied this intent
+        if (balanceTransactionRepository.existsByOrderId(paymentIntentId)) {
+            throw new BadRequestException("PaymentIntent " + paymentIntentId + " has already been applied");
+        }
+
+        // 5) compute the amount in euros
+        BigDecimal amount =
+                BigDecimal.valueOf(intent.getAmountReceived())
+                        .movePointLeft(2);  // cents → euros
+
+        // 6) finally credit the user
+        return creditBalance(
+                userId,
+                amount,
+                "Top-up via Stripe",
+                "CREDIT",
+                paymentIntentId
+        );
+    }
+
 
     @Transactional
     public BalanceTransaction creditBalance(String userId, BigDecimal amount, String description,
@@ -160,4 +210,7 @@ public class BalanceService {
 
         return balanceTransactionRepository.save(tx);
     }
+
+
+
 }

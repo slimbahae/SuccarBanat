@@ -316,7 +316,7 @@ public class EmailService {
             context.setVariable("expirationDate", dateFormat.format(giftCard.getExpirationDate()));
             context.setVariable("amount", String.format("%.2f€", giftCard.getAmount()));
 
-            String htmlContent = templateEngine.process("emails/gift-card-purchase-confirmation", context);
+            String htmlContent = templateEngine.process("gift-card-purchase-confirmation", context);
             String subject = "Confirmation d'achat - Carte cadeau " + businessName;
 
             sendHtmlEmail(recipientEmail, subject, htmlContent);
@@ -339,7 +339,7 @@ public class EmailService {
             context.setVariable("isBalanceType", "BALANCE".equals(giftCard.getType()));
             context.setVariable("isServiceType", "SERVICE".equals(giftCard.getType()));
 
-            String htmlContent = templateEngine.process("emails/gift-card-received", context);
+            String htmlContent = templateEngine.process("gift-card-received", context);
             String subject = "🎁 Vous avez reçu une carte cadeau " + businessName;
 
             sendHtmlEmail(recipientEmail, subject, htmlContent);
@@ -358,7 +358,7 @@ public class EmailService {
             context.setVariable("amount", String.format("%.2f€", giftCard.getAmount()));
             context.setVariable("redemptionDate", dateFormat.format(giftCard.getRedeemedAt()));
 
-            String htmlContent = templateEngine.process("emails/gift-card-redemption-confirmation", context);
+            String htmlContent = templateEngine.process("gift-card-redemption-confirmation", context);
             String subject = "Carte cadeau utilisée avec succès - " + businessName;
 
             sendHtmlEmail(recipientEmail, subject, htmlContent);
@@ -377,7 +377,7 @@ public class EmailService {
             context.setVariable("amount", String.format("%.2f€", giftCard.getAmount()));
             context.setVariable("redemptionDate", dateFormat.format(giftCard.getRedeemedAt()));
 
-            String htmlContent = templateEngine.process("emails/gift-card-redeemed-notification", context);
+            String htmlContent = templateEngine.process("gift-card-redeemed-notification", context);
             String subject = "Votre carte cadeau a été utilisée - " + businessName;
 
             sendHtmlEmail(purchaserEmail, subject, htmlContent);
@@ -396,7 +396,7 @@ public class EmailService {
             context.setVariable("amount", String.format("%.2f€", giftCard.getAmount()));
             context.setVariable("usedDate", dateFormat.format(giftCard.getRedeemedAt()));
 
-            String htmlContent = templateEngine.process("emails/service-gift-card-used-confirmation", context);
+            String htmlContent = templateEngine.process("service-gift-card-used-confirmation", context);
             String subject = "Service utilisé avec votre carte cadeau - " + businessName;
 
             sendHtmlEmail(recipientEmail, subject, htmlContent);
@@ -415,7 +415,7 @@ public class EmailService {
             context.setVariable("amount", String.format("%.2f€", giftCard.getAmount()));
             context.setVariable("usedDate", dateFormat.format(giftCard.getRedeemedAt()));
 
-            String htmlContent = templateEngine.process("emails/service-gift-card-used-notification", context);
+            String htmlContent = templateEngine.process("service-gift-card-used-notification", context);
             String subject = "Carte cadeau service utilisée - " + businessName;
 
             sendHtmlEmail(purchaserEmail, subject, htmlContent);
@@ -434,7 +434,7 @@ public class EmailService {
             context.setVariable("amount", String.format("%.2f€", giftCard.getAmount()));
             context.setVariable("expirationDate", dateFormat.format(giftCard.getExpirationDate()));
 
-            String htmlContent = templateEngine.process("emails/gift-card-expired-notification", context);
+            String htmlContent = templateEngine.process("gift-card-expired-notification", context);
             String subject = "Carte cadeau expirée - " + businessName;
 
             sendHtmlEmail(email, subject, htmlContent);
@@ -455,7 +455,7 @@ public class EmailService {
             context.setVariable("expirationDate", dateFormat.format(giftCard.getExpirationDate()));
             context.setVariable("verificationToken", giftCard.getVerificationToken());
 
-            String htmlContent = templateEngine.process("emails/admin-service-gift-card-notification", context);
+            String htmlContent = templateEngine.process("admin-service-gift-card-notification", context);
             String subject = "🎁 Nouvelle carte cadeau service - " + businessName;
 
             sendHtmlEmail(adminEmail, subject, htmlContent);

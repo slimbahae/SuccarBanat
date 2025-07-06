@@ -9,7 +9,9 @@ import {
   Instagram, 
   Twitter,
   Linkedin,
-  Clock
+  Clock,
+  CreditCard,
+  Gift
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -134,6 +136,29 @@ const Footer = () => {
 
           {/* Support */}
           {/* Support : désactivé car pas de liens fonctionnels */}
+        </div>
+
+        {/* Gift Card Footer Section */}
+        <div className="w-full bg-[#232A34] rounded-lg shadow mb-6 p-3 flex flex-col md:flex-row items-center justify-between gap-4 border border-[#2C3748] mt-8">
+          <div className="flex items-center gap-2 mb-2 md:mb-0">
+            <Gift className="h-6 w-6 text-[#B3C2D1]" />
+            <div>
+              <h3 className="text-base font-bold text-white mb-0.5">Cartes Cadeaux</h3>
+              <p className="text-[#B3C2D1] text-xs">Offrez ou utilisez une carte cadeau Succar Banat pour faire plaisir ou vous faire plaisir.</p>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Link to="/customer/giftcard-purchase">
+              <button className="flex items-center gap-1 bg-[#2C3748] hover:bg-[#3D4A5C] text-white font-bold px-3 py-1.5 rounded-full shadow border border-[#3D4A5C] text-xs">
+                <CreditCard className="h-3 w-3 mr-1" />Acheter
+              </button>
+            </Link>
+            <Link to="/customer/giftcard-redeem">
+              <button className="flex items-center gap-1 border-2 border-[#B3C2D1] text-[#B3C2D1] font-bold bg-[#232A34] hover:bg-[#2C3748] hover:text-white hover:border-white shadow px-3 py-1.5 rounded-full text-xs">
+                <Gift className="h-3 w-3 mr-1" />Utiliser
+              </button>
+            </Link>
+          </div>
         </div>
 
         {/* Bottom Section */}

@@ -27,6 +27,10 @@ import CustomerDashboard from './pages/customer/Dashboard';
 import OrderConfirmation from './pages/customer/OrderConfirmation';
 import BalanceHistory from './pages/customer/BalanceHistory';
 import AddFunds from './pages/customer/AddFunds';
+import GiftCardPurchase from './pages/customer/GiftCardPurchase';
+import GiftCardRedeem from './pages/customer/GiftCardRedeem';
+import GiftCardsPurchased from './pages/customer/GiftCardsPurchased';
+import GiftCardsReceived from './pages/customer/GiftCardsReceived';
 
 // Admin pages
 import AdminDashboard from './pages/admin/Dashboard';
@@ -225,6 +229,38 @@ function AppContent() {
             element={
               <ProtectedRoute allowedRoles={['CUSTOMER']}>
                 <AddFunds />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/customer/giftcard-purchase" 
+            element={
+              <ProtectedRoute allowedRoles={['CUSTOMER']}>
+                <GiftCardPurchase />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/customer/giftcard-redeem" 
+            element={
+              <ProtectedRoute allowedRoles={['CUSTOMER']}>
+                <GiftCardRedeem />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/customer/giftcards-purchased" 
+            element={
+              <ProtectedRoute allowedRoles={['CUSTOMER']}>
+                <GiftCardsPurchased />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/customer/giftcards-received" 
+            element={
+              <ProtectedRoute allowedRoles={['CUSTOMER']}>
+                <GiftCardsReceived />
               </ProtectedRoute>
             } 
           />

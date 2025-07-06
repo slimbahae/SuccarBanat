@@ -72,6 +72,35 @@ const CustomerDashboard = () => {
       icon: User,
       link: '/customer/profile',
       color: 'bg-gray-500'
+    },
+    // Gift card actions
+    {
+      title: 'Acheter une carte cadeau',
+      description: 'Offrir une carte à un proche',
+      icon: CreditCard,
+      link: '/customer/giftcard-purchase',
+      color: 'bg-green-500'
+    },
+    {
+      title: 'Utiliser une carte cadeau',
+      description: 'Ajouter le montant à votre solde',
+      icon: TrendingUp,
+      link: '/customer/giftcard-redeem',
+      color: 'bg-yellow-500'
+    },
+    {
+      title: 'Cartes cadeaux achetées',
+      description: 'Voir vos achats de cartes cadeaux',
+      icon: Heart,
+      link: '/customer/giftcards-purchased',
+      color: 'bg-purple-500'
+    },
+    {
+      title: 'Cartes cadeaux reçues',
+      description: 'Voir les cartes reçues',
+      icon: Star,
+      link: '/customer/giftcards-received',
+      color: 'bg-orange-500'
     }
   ];
 

@@ -34,6 +34,7 @@ public class GiftCardService {
     private final UserRepository userRepository;
     private final BalanceService balanceService;
     private final EmailService emailService;
+    private final StripeService stripeService;
     private final PasswordEncoder passwordEncoder;
     private final SecureRandom secureRandom = new SecureRandom();
 
@@ -44,18 +45,49 @@ public class GiftCardService {
 
     @Transactional
     public GiftCard createGiftCard(GiftCardPurchaseRequest request) {
-        // Generate secure code
+        // 1. Validate payment was successful
+        if (request.getPaymentIntentId() == null || request.getPaymentIntentId().trim().isEmpty()) {
+            throw new BadRequestException("Payment intent ID is required");
+        }
+
+        if (!stripeService.isPaymentSucceeded(request.getPaymentIntentId())) {
+            String paymentStatus = stripeService.getPaymentStatus(request.getPaymentIntentId());
+            throw new BadRequestException("Payment not confirmed. Current status: " + paymentStatus + ". Please complete payment first.");
+        }
+
+        // 2. Check if gift card was already created for this payment
+        List<GiftCard> existingCards = giftCardRepository.findByPaymentIntentId(request.getPaymentIntentId());
+        if (!existingCards.isEmpty()) {
+            log.warn("Attempt to create duplicate gift card for payment intent: {}", request.getPaymentIntentId());
+            throw new BadRequestException("Gift card already created for this payment");
+        }
+
+        // 3. Validate payment amount matches request amount
+        try {
+            com.stripe.model.PaymentIntent paymentIntent = stripeService.getPaymentIntent(request.getPaymentIntentId());
+            BigDecimal paidAmount = BigDecimal.valueOf(paymentIntent.getAmount()).divide(BigDecimal.valueOf(100)); // Convert from cents
+
+            if (paidAmount.compareTo(request.getAmount()) != 0) {
+                throw new BadRequestException("Payment amount (" + paidAmount + "€) does not match gift card amount (" + request.getAmount() + "€)");
+            }
+        } catch (Exception e) {
+            log.error("Error validating payment amount for payment intent: {}", request.getPaymentIntentId(), e);
+            throw new BadRequestException("Unable to validate payment amount");
+        }
+
+        // 4. Generate secure code
         String rawCode = generateSecureCode();
         String codeHash = passwordEncoder.encode(rawCode);
 
-        // Generate verification token for admin use
+        // 5. Generate verification token for admin use
         String verificationToken = generateVerificationToken();
 
-        // Calculate expiration date (6 months from now)
+        // 6. Calculate expiration date (6 months from now)
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MONTH, EXPIRATION_MONTHS);
         Date expirationDate = calendar.getTime();
 
+        // 7. Create gift card
         GiftCard giftCard = GiftCard.builder()
                 .codeHash(codeHash)
                 .type(request.getType())
@@ -73,14 +105,20 @@ public class GiftCardService {
 
         GiftCard savedGiftCard = giftCardRepository.save(giftCard);
 
-        // Record purchase transaction if purchaser is a user
+        // 8. Record purchase transaction if purchaser is a user
         recordPurchaseTransaction(request, savedGiftCard.getId());
 
-        // Send emails
-        emailService.sendGiftCardPurchaseConfirmation(request.getPurchaserEmail(), savedGiftCard, rawCode);
-        emailService.sendGiftCardReceived(request.getRecipientEmail(), savedGiftCard, rawCode);
+        // 9. Send emails
+        try {
+            emailService.sendGiftCardPurchaseConfirmation(request.getPurchaserEmail(), savedGiftCard, rawCode);
+            emailService.sendGiftCardReceived(request.getRecipientEmail(), savedGiftCard, rawCode);
+        } catch (Exception e) {
+            log.error("Failed to send gift card emails for: {}", savedGiftCard.getId(), e);
+            // Don't fail the transaction for email issues
+        }
 
-        log.info("Gift card created: {} for recipient: {}", savedGiftCard.getId(), request.getRecipientEmail());
+        log.info("Gift card created successfully: {} for recipient: {} with payment intent: {}",
+                savedGiftCard.getId(), request.getRecipientEmail(), request.getPaymentIntentId());
 
         return savedGiftCard;
     }
@@ -126,8 +164,12 @@ public class GiftCardService {
         );
 
         // Send confirmation emails
-        emailService.sendGiftCardRedemptionConfirmation(user.getEmail(), giftCard);
-        emailService.sendGiftCardRedeemedNotification(giftCard.getPurchaserEmail(), giftCard);
+        try {
+            emailService.sendGiftCardRedemptionConfirmation(user.getEmail(), giftCard);
+            emailService.sendGiftCardRedeemedNotification(giftCard.getPurchaserEmail(), giftCard);
+        } catch (Exception e) {
+            log.error("Failed to send redemption emails for gift card: {}", giftCard.getId(), e);
+        }
 
         log.info("Gift card redeemed: {} by user: {}", giftCard.getId(), userId);
 
@@ -173,8 +215,12 @@ public class GiftCardService {
         giftCardRepository.save(giftCard);
 
         // Send confirmation emails
-        emailService.sendServiceGiftCardUsedConfirmation(giftCard.getRecipientEmail(), giftCard);
-        emailService.sendServiceGiftCardUsedNotification(giftCard.getPurchaserEmail(), giftCard);
+        try {
+            emailService.sendServiceGiftCardUsedConfirmation(giftCard.getRecipientEmail(), giftCard);
+            emailService.sendServiceGiftCardUsedNotification(giftCard.getPurchaserEmail(), giftCard);
+        } catch (Exception e) {
+            log.error("Failed to send service gift card used emails: {}", giftCardId, e);
+        }
 
         log.info("Service gift card marked as used: {} by admin: {}", giftCardId, adminId);
     }
@@ -187,6 +233,29 @@ public class GiftCardService {
         return giftCardRepository.findByRecipientEmailOrderByCreatedAtDesc(email);
     }
 
+    public GiftCard getGiftCardByPaymentIntent(String paymentIntentId) {
+        List<GiftCard> giftCards = giftCardRepository.findByPaymentIntentId(paymentIntentId);
+        if (giftCards.isEmpty()) {
+            throw new ResourceNotFoundException("No gift card found for payment intent: " + paymentIntentId);
+        }
+        return giftCards.get(0); // Should only be one per payment intent
+    }
+
+    @Transactional
+    public void cancelGiftCardForFailedPayment(String paymentIntentId) {
+        List<GiftCard> giftCards = giftCardRepository.findByPaymentIntentId(paymentIntentId);
+        for (GiftCard giftCard : giftCards) {
+            if ("ACTIVE".equals(giftCard.getStatus())) {
+                giftCard.setStatus("CANCELLED");
+                giftCard.setLockedReason("Payment failed or cancelled");
+                giftCard.setIsLocked(true);
+                giftCard.setLockedAt(new Date());
+                giftCardRepository.save(giftCard);
+                log.info("Gift card cancelled due to payment failure: {}", giftCard.getId());
+            }
+        }
+    }
+
     @Transactional
     public void expireGiftCards() {
         List<GiftCard> expiredCards = giftCardRepository.findExpiredActiveGiftCards(new Date());
@@ -196,8 +265,12 @@ public class GiftCardService {
             giftCardRepository.save(card);
 
             // Send expiration notification
-            emailService.sendGiftCardExpiredNotification(card.getRecipientEmail(), card);
-            emailService.sendGiftCardExpiredNotification(card.getPurchaserEmail(), card);
+            try {
+                emailService.sendGiftCardExpiredNotification(card.getRecipientEmail(), card);
+                emailService.sendGiftCardExpiredNotification(card.getPurchaserEmail(), card);
+            } catch (Exception e) {
+                log.error("Failed to send expiration emails for gift card: {}", card.getId(), e);
+            }
         }
 
         log.info("Expired {} gift cards", expiredCards.size());
@@ -276,8 +349,4 @@ public class GiftCardService {
             log.warn("Failed to record purchase transaction for gift card: {}", giftCardId, e);
         }
     }
-
-
-
-
 }

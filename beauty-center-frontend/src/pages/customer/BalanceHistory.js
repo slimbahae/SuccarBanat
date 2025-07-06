@@ -49,6 +49,13 @@ const BalanceHistory = () => {
         <div className="max-w-4xl mx-auto p-6 space-y-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold text-gray-900">Historique du Solde</h1>
+                <Link
+                    to="/customer/giftcard-redeem"
+                    className="inline-flex items-center px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors font-medium shadow"
+                >
+                    <Gift className="h-5 w-5 mr-2" />
+                    Utiliser une carte cadeau
+                </Link>
             </div>
 
             <BalanceDisplay />

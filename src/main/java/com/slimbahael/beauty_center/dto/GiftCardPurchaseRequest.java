@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class GiftCardPurchaseRequest {
 
-    @NotNull
+    @NotNull(message = "Le montant est requis")
     @DecimalMin(value = "1.00", message = "Le montant minimum est de 1€")
     private BigDecimal amount;
 
@@ -45,5 +45,5 @@ public class GiftCardPurchaseRequest {
     @Size(max = 500, message = "Message trop long")
     private String message;
 
-    private String paymentIntentId; // For Stripe integration
+    private String paymentIntentId; // Now required for security
 }

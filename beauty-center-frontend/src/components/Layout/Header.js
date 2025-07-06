@@ -10,7 +10,8 @@ import {
   Package, 
   Settings, 
   LogOut,
-  Sparkles
+  Sparkles,
+  CreditCard
 } from 'lucide-react';
 import Button from '../UI/Button';
 import { useQuery } from 'react-query';
@@ -54,6 +55,7 @@ const Header = () => {
       { name: 'Dashboard', href: '/customer/dashboard', icon: User },
       { name: 'My Orders', href: '/customer/orders', icon: Package },
       { name: 'Cart', href: '/customer/cart', icon: ShoppingCart },
+      { name: 'Cartes cadeaux', href: '/customer/giftcards-purchased', icon: CreditCard },
     ],
     ADMIN: [
       { name: 'Admin Dashboard', href: '/admin/dashboard', icon: Settings },

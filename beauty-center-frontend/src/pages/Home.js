@@ -14,7 +14,9 @@ import {
   Flower,
   UserCircle,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  CreditCard,
+  Gift
 } from 'lucide-react';
 import Button from '../components/UI/Button';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
@@ -553,6 +555,37 @@ const Home = () => {
             >
               <ChevronRight className="h-6 w-6 text-primary-700" />
             </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Gift Card Section */}
+      <section className="py-24 bg-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="rounded-2xl shadow-2xl p-12 flex flex-col md:flex-row items-center justify-between gap-12 bg-white">
+            <div className="flex items-center gap-10 mb-10 md:mb-0">
+              <Gift className="h-24 w-24 text-[#B97230] flex-shrink-0" />
+              <div className="text-left">
+                <h2 className="text-4xl lg:text-5xl font-serif font-bold text-[#3D2118] mb-4">Offrez le cadeau du bien-être !</h2>
+                <p className="text-xl text-[#3D2118] max-w-xl">
+                  Faites plaisir à vos proches avec une carte cadeau Succar Banat, valable sur tous nos soins et produits. Simple à offrir, facile à utiliser, et 100% bien-être !
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-4 w-full max-w-xs mx-auto justify-center items-center">
+              <Link to="/customer/giftcard-purchase" className="w-full">
+                <Button className="flex items-center gap-3 bg-[#B97230] hover:bg-[#936342] text-white font-bold px-10 py-8 rounded-full shadow-xl text-lg w-full justify-center">
+                  <CreditCard className="h-7 w-7 mr-3" />
+                  Acheter une carte cadeau
+                </Button>
+              </Link>
+              <Link to="/customer/giftcard-redeem" className="w-full">
+                <Button variant="outline" className="flex items-center gap-3 border-2 border-[#B97230] text-[#B97230] font-bold bg-white hover:bg-[#DDCABC] hover:text-[#3D2118] hover:border-[#936342] shadow px-10 py-8 rounded-full text-lg w-full justify-center">
+                  <Gift className="h-7 w-7 mr-3" />
+                  Utiliser une carte cadeau
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>

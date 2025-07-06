@@ -23,12 +23,11 @@ public class StripeService {
     /**
      * Create a payment intent for the given amount in EUR
      */
+
     public PaymentIntentResponse createPaymentIntent(PaymentIntentRequest request) {
         try {
-            // Convert amount to cents (Stripe expects amounts in smallest currency unit)
-            long amountInCents = request.getAmount().multiply(BigDecimal.valueOf(100)).longValue(); // if amount is in euros
+            long amountInCents = request.getAmount().multiply(BigDecimal.valueOf(100)).longValue();
 
-            // Create metadata
             Map<String, String> metadata = new HashMap<>();
             if (request.getOrderId() != null) {
                 metadata.put("order_id", request.getOrderId());
@@ -36,11 +35,16 @@ public class StripeService {
             if (request.getCustomerEmail() != null) {
                 metadata.put("customer_email", request.getCustomerEmail());
             }
+            if (request.getUserId() != null) {
+                // use snake_case to match what you read back later
+                metadata.put("user_id", request.getUserId());
+            }
 
-            // Build payment intent parameters
+            log.info("Building Stripe PaymentIntent with metadata → {}", metadata);
+
             PaymentIntentCreateParams.Builder paramsBuilder = PaymentIntentCreateParams.builder()
                     .setAmount(amountInCents)
-                    .setCurrency("eur") // Force EUR
+                    .setCurrency("eur")
                     .setAutomaticPaymentMethods(
                             PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
                                     .setEnabled(true)
@@ -53,12 +57,9 @@ public class StripeService {
             }
 
             PaymentIntentCreateParams params = paramsBuilder.build();
-
-            // Create the payment intent
             PaymentIntent paymentIntent = PaymentIntent.create(params);
 
-            log.info("Created payment intent: {} for amount: €{}",
-                    paymentIntent.getId(), request.getAmount());
+            log.info("Created payment intent: {} for amount: €{}", paymentIntent.getId(), request.getAmount());
 
             return PaymentIntentResponse.builder()
                     .clientSecret(paymentIntent.getClientSecret())
@@ -73,6 +74,7 @@ public class StripeService {
             throw new BadRequestException("Failed to create payment intent: " + e.getMessage());
         }
     }
+
 
     /**
      * Retrieve a payment intent by ID
