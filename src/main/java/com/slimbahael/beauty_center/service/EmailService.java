@@ -4,6 +4,7 @@ import com.slimbahael.beauty_center.dto.OrderResponse;
 import com.slimbahael.beauty_center.dto.ProductResponse;
 import com.slimbahael.beauty_center.dto.ReservationResponse;
 import com.slimbahael.beauty_center.dto.UserResponse;
+import com.slimbahael.beauty_center.model.GiftCard;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.io.UnsupportedEncodingException;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -39,11 +41,20 @@ public class EmailService {
     @Value("${app.business.email:noreply@beautycenter.com}")
     private String businessEmail;
 
+    @Value("${app.frontend.url:http://localhost:3000}")
+    private String frontendUrl;
+
+    // Date formatters
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy à HH:mm", Locale.FRANCE);
+    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMMM dd, yyyy 'at' HH:mm");
+
+    // =================== EXISTING EMAIL METHODS ===================
+
     public void sendEmailVerification(String toEmail, String verificationToken, String firstName) {
         try {
             Context context = new Context();
             context.setVariable("firstName", firstName);
-            context.setVariable("verificationUrl", "http://localhost:3000/verify-email?token=" + verificationToken);
+            context.setVariable("verificationUrl", frontendUrl + "/verify-email?token=" + verificationToken);
             context.setVariable("businessName", businessName);
 
             sendTemplatedEmail(toEmail, "Verify Your Email - " + businessName, "email-verification", context);
@@ -59,7 +70,7 @@ public class EmailService {
         try {
             Context context = new Context();
             context.setVariable("firstName", firstName);
-            context.setVariable("resetUrl", "http://localhost:3000/reset-password?token=" + resetToken);
+            context.setVariable("resetUrl", frontendUrl + "/reset-password?token=" + resetToken);
             context.setVariable("businessName", businessName);
 
             sendTemplatedEmail(toEmail, "Password Reset - " + businessName, "password-reset", context);
@@ -109,7 +120,7 @@ public class EmailService {
             context.setVariable("reservation", reservation);
             context.setVariable("businessName", businessName);
             context.setVariable("reservationDateFormatted",
-                    new SimpleDateFormat("MMMM dd, yyyy 'at' HH:mm").format(reservation.getReservationDate()));
+                    simpleDateFormat.format(reservation.getReservationDate()));
 
             String emailContent = templateEngine.process("reservation-reminder", context);
             sendHtmlEmail(toEmail, "Appointment Reminder - " + businessName, emailContent);
@@ -293,6 +304,168 @@ public class EmailService {
         }
     }
 
+    // =================== GIFT CARD EMAIL METHODS ===================
+
+    public void sendGiftCardPurchaseConfirmation(String recipientEmail, GiftCard giftCard, String code) {
+        try {
+            Context context = new Context(Locale.FRANCE);
+            context.setVariable("giftCard", giftCard);
+            context.setVariable("code", code);
+            context.setVariable("businessName", businessName);
+            context.setVariable("frontendUrl", frontendUrl);
+            context.setVariable("expirationDate", dateFormat.format(giftCard.getExpirationDate()));
+            context.setVariable("amount", String.format("%.2f€", giftCard.getAmount()));
+
+            String htmlContent = templateEngine.process("emails/gift-card-purchase-confirmation", context);
+            String subject = "Confirmation d'achat - Carte cadeau " + businessName;
+
+            sendHtmlEmail(recipientEmail, subject, htmlContent);
+            log.info("Gift card purchase confirmation sent to: {}", recipientEmail);
+
+        } catch (Exception e) {
+            log.error("Failed to send gift card purchase confirmation to: {}", recipientEmail, e);
+        }
+    }
+
+    public void sendGiftCardReceived(String recipientEmail, GiftCard giftCard, String code) {
+        try {
+            Context context = new Context(Locale.FRANCE);
+            context.setVariable("giftCard", giftCard);
+            context.setVariable("code", code);
+            context.setVariable("businessName", businessName);
+            context.setVariable("frontendUrl", frontendUrl);
+            context.setVariable("expirationDate", dateFormat.format(giftCard.getExpirationDate()));
+            context.setVariable("amount", String.format("%.2f€", giftCard.getAmount()));
+            context.setVariable("isBalanceType", "BALANCE".equals(giftCard.getType()));
+            context.setVariable("isServiceType", "SERVICE".equals(giftCard.getType()));
+
+            String htmlContent = templateEngine.process("emails/gift-card-received", context);
+            String subject = "🎁 Vous avez reçu une carte cadeau " + businessName;
+
+            sendHtmlEmail(recipientEmail, subject, htmlContent);
+            log.info("Gift card received notification sent to: {}", recipientEmail);
+
+        } catch (Exception e) {
+            log.error("Failed to send gift card received notification to: {}", recipientEmail, e);
+        }
+    }
+
+    public void sendGiftCardRedemptionConfirmation(String recipientEmail, GiftCard giftCard) {
+        try {
+            Context context = new Context(Locale.FRANCE);
+            context.setVariable("giftCard", giftCard);
+            context.setVariable("businessName", businessName);
+            context.setVariable("amount", String.format("%.2f€", giftCard.getAmount()));
+            context.setVariable("redemptionDate", dateFormat.format(giftCard.getRedeemedAt()));
+
+            String htmlContent = templateEngine.process("emails/gift-card-redemption-confirmation", context);
+            String subject = "Carte cadeau utilisée avec succès - " + businessName;
+
+            sendHtmlEmail(recipientEmail, subject, htmlContent);
+            log.info("Gift card redemption confirmation sent to: {}", recipientEmail);
+
+        } catch (Exception e) {
+            log.error("Failed to send gift card redemption confirmation to: {}", recipientEmail, e);
+        }
+    }
+
+    public void sendGiftCardRedeemedNotification(String purchaserEmail, GiftCard giftCard) {
+        try {
+            Context context = new Context(Locale.FRANCE);
+            context.setVariable("giftCard", giftCard);
+            context.setVariable("businessName", businessName);
+            context.setVariable("amount", String.format("%.2f€", giftCard.getAmount()));
+            context.setVariable("redemptionDate", dateFormat.format(giftCard.getRedeemedAt()));
+
+            String htmlContent = templateEngine.process("emails/gift-card-redeemed-notification", context);
+            String subject = "Votre carte cadeau a été utilisée - " + businessName;
+
+            sendHtmlEmail(purchaserEmail, subject, htmlContent);
+            log.info("Gift card redeemed notification sent to purchaser: {}", purchaserEmail);
+
+        } catch (Exception e) {
+            log.error("Failed to send gift card redeemed notification to: {}", purchaserEmail, e);
+        }
+    }
+
+    public void sendServiceGiftCardUsedConfirmation(String recipientEmail, GiftCard giftCard) {
+        try {
+            Context context = new Context(Locale.FRANCE);
+            context.setVariable("giftCard", giftCard);
+            context.setVariable("businessName", businessName);
+            context.setVariable("amount", String.format("%.2f€", giftCard.getAmount()));
+            context.setVariable("usedDate", dateFormat.format(giftCard.getRedeemedAt()));
+
+            String htmlContent = templateEngine.process("emails/service-gift-card-used-confirmation", context);
+            String subject = "Service utilisé avec votre carte cadeau - " + businessName;
+
+            sendHtmlEmail(recipientEmail, subject, htmlContent);
+            log.info("Service gift card used confirmation sent to: {}", recipientEmail);
+
+        } catch (Exception e) {
+            log.error("Failed to send service gift card used confirmation to: {}", recipientEmail, e);
+        }
+    }
+
+    public void sendServiceGiftCardUsedNotification(String purchaserEmail, GiftCard giftCard) {
+        try {
+            Context context = new Context(Locale.FRANCE);
+            context.setVariable("giftCard", giftCard);
+            context.setVariable("businessName", businessName);
+            context.setVariable("amount", String.format("%.2f€", giftCard.getAmount()));
+            context.setVariable("usedDate", dateFormat.format(giftCard.getRedeemedAt()));
+
+            String htmlContent = templateEngine.process("emails/service-gift-card-used-notification", context);
+            String subject = "Carte cadeau service utilisée - " + businessName;
+
+            sendHtmlEmail(purchaserEmail, subject, htmlContent);
+            log.info("Service gift card used notification sent to purchaser: {}", purchaserEmail);
+
+        } catch (Exception e) {
+            log.error("Failed to send service gift card used notification to: {}", purchaserEmail, e);
+        }
+    }
+
+    public void sendGiftCardExpiredNotification(String email, GiftCard giftCard) {
+        try {
+            Context context = new Context(Locale.FRANCE);
+            context.setVariable("giftCard", giftCard);
+            context.setVariable("businessName", businessName);
+            context.setVariable("amount", String.format("%.2f€", giftCard.getAmount()));
+            context.setVariable("expirationDate", dateFormat.format(giftCard.getExpirationDate()));
+
+            String htmlContent = templateEngine.process("emails/gift-card-expired-notification", context);
+            String subject = "Carte cadeau expirée - " + businessName;
+
+            sendHtmlEmail(email, subject, htmlContent);
+            log.info("Gift card expired notification sent to: {}", email);
+
+        } catch (Exception e) {
+            log.error("Failed to send gift card expired notification to: {}", email, e);
+        }
+    }
+
+    public void sendAdminServiceGiftCardNotification(GiftCard giftCard) {
+        try {
+            Context context = new Context(Locale.FRANCE);
+            context.setVariable("giftCard", giftCard);
+            context.setVariable("businessName", businessName);
+            context.setVariable("amount", String.format("%.2f€", giftCard.getAmount()));
+            context.setVariable("purchaseDate", dateFormat.format(giftCard.getCreatedAt()));
+            context.setVariable("expirationDate", dateFormat.format(giftCard.getExpirationDate()));
+            context.setVariable("verificationToken", giftCard.getVerificationToken());
+
+            String htmlContent = templateEngine.process("emails/admin-service-gift-card-notification", context);
+            String subject = "🎁 Nouvelle carte cadeau service - " + businessName;
+
+            sendHtmlEmail(adminEmail, subject, htmlContent);
+            log.info("Admin service gift card notification sent");
+
+        } catch (Exception e) {
+            log.error("Failed to send admin service gift card notification", e);
+        }
+    }
+
     // =================== HELPER METHODS ===================
 
     private void sendHtmlEmail(String to, String subject, String htmlContent) {
@@ -300,7 +473,7 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom(businessEmail);
+            helper.setFrom(businessEmail, businessName);
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
@@ -308,6 +481,8 @@ public class EmailService {
             mailSender.send(message);
         } catch (MessagingException e) {
             throw new RuntimeException("Failed to send email", e);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
         }
     }
 

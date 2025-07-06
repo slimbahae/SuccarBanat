@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowUpRight, ArrowDownLeft, Gift, CreditCard } from 'lucide-react';
 import { useBalance } from '../../contexts/BalanceContext';
 import BalanceDisplay from '../../components/BalanceDisplay';
+import { Link } from 'react-router-dom';
 
 const BalanceHistory = () => {
     const { transactions, formatBalance } = useBalance();
@@ -46,9 +47,9 @@ const BalanceHistory = () => {
 
     return (
         <div className="max-w-4xl mx-auto p-6 space-y-6">
-                    <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900">Historique du Solde</h1>
-        </div>
+            <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold text-gray-900">Historique du Solde</h1>
+            </div>
 
             <BalanceDisplay />
 
@@ -64,7 +65,7 @@ const BalanceHistory = () => {
                         </div>
                     ) : (
                         transactions.map((transaction) => (
-                            <div key={transaction.id} className="p-6 hover:bg-gray-50">
+                            <div key={transaction.id || transaction._id} className="p-6 hover:bg-gray-50">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center space-x-4">
                                         {getTransactionIcon(transaction.transactionType)}
@@ -72,6 +73,13 @@ const BalanceHistory = () => {
                                             <p className="font-medium text-gray-900">
                                                 {transaction.description}
                                             </p>
+                                            {transaction.transactionType === 'DEBIT' && transaction.orderId && (
+                                                <p className="text-xs text-blue-700 mt-1">
+                                                    <Link to={`/customer/orders/${transaction.orderId}`} className="underline hover:text-blue-900">
+                                                        Commande n°: {transaction.orderId}
+                                                    </Link>
+                                                </p>
+                                            )}
                                             <p className="text-sm text-gray-500">
                                                 {formatDate(transaction.createdAt)}
                                             </p>
