@@ -27,10 +27,24 @@ const EmailVerificationResult = () => {
         if (err.response && err.response.data && err.response.data.message) {
           msg = err.response.data.message;
         }
+        // Translate specific error message
+        if (msg === 'Invalid or expired verification token') {
+          msg = 'Lien de vérification invalide ou expiré.';
+        }
         setStatus('error');
         setMessage(msg);
       });
   }, [token]);
+
+  // Redirect to login after success
+  useEffect(() => {
+    if (status === 'success') {
+      const timer = setTimeout(() => {
+        navigate('/login');
+      }, 2000); // 2 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [status, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">

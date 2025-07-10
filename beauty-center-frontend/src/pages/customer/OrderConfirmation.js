@@ -228,10 +228,10 @@ const OrderConfirmation = () => {
                 <div className="flex-1">
                   <h3 className="font-medium text-gray-900">{item.productName}</h3>
                   <p className="text-sm text-gray-600">Quantité: {item.quantity}</p>
-                  <p className="text-sm text-gray-600">${item.unitPrice.toFixed(2)} par unité</p>
+                  <p className="text-sm text-gray-600">{euroFormatter.format(item.unitPrice)} par unité</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-gray-900">${item.totalPrice.toFixed(2)}</p>
+                  <p className="font-semibold text-gray-900">{euroFormatter.format(item.totalPrice)}</p>
                 </div>
               </div>
             ))}

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { Quote } from "lucide-react";
 import { 
@@ -27,6 +27,7 @@ const euroFormatter = new Intl.NumberFormat('fr-FR', { style: 'currency', curren
 
 const Home = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   // Fetch featured products and services
   const { data: featuredProducts, isLoading: productsLoading } = useQuery(
     'featured-products',
@@ -202,7 +203,7 @@ const Home = () => {
               <div className="space-y-4">
                 <h1 className="text-4xl lg:text-6xl font-serif font-bold text-gray-900 leading-tight">
                   {t('Institut de beauté')}
-                  <span className="block text-primary-600">𝑵𝒂𝒖𝒓𝒆 & 𝑶𝒓𝒊𝒆𝒏𝒕𝒂𝒍</span>
+                  <span className="block text-primary-600">𝑵𝒂𝒕𝒖𝒓𝒆 & 𝑶𝒓𝒊𝒆𝒏𝒕𝒂𝒍</span>
                 </h1>
                 <p className="text-xl text-gray-600 leading-relaxed">
                   {t('Retrouvez chez SUCCAR BANAT un univers où le 100% naturel prône. Vous découvrirez ainsi l\'étendue des secrets d\'Orient et leurs bienfaits')}
@@ -210,21 +211,25 @@ const Home = () => {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
-                  className="flex flex-row items-center justify-center gap-2 bg-gradient-to-r from-primary-600 to-primary-400 text-white font-bold shadow-lg border-2 border-primary-700 hover:from-primary-700 hover:to-primary-500 hover:scale-105 transition-all duration-200 text-lg px-8 py-3 rounded-full focus:ring-4 focus:ring-primary-300 w-full sm:w-auto"
-                  size="lg"
-                >
-                  <Calendar className="h-6 w-6 mr-2" />
-                  <span className="whitespace-nowrap">{t('Prendre RDV')}</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="flex flex-row items-center justify-center gap-2 border-2 border-primary-600 text-primary-700 font-bold bg-white hover:bg-primary-50 hover:text-primary-900 hover:border-primary-800 shadow focus:ring-4 focus:ring-primary-200 text-lg px-8 py-3 rounded-full transition-all duration-200 no-underline w-full sm:w-auto"
-                  size="lg"
-                >
-                  <ShoppingBag className="h-6 w-6 mr-2" />
-                  <span className="whitespace-nowrap">{t('Explorer la boutique')}</span>
-                </Button>
+                <Link to="/customer/services" className="w-full sm:w-auto">
+                  <Button 
+                    className="flex flex-row items-center justify-center gap-2 bg-gradient-to-r from-primary-600 to-primary-400 text-white font-bold shadow-lg border-2 border-primary-700 hover:from-primary-700 hover:to-primary-500 hover:scale-105 transition-all duration-200 text-lg px-8 py-3 rounded-full focus:ring-4 focus:ring-primary-300 w-full sm:w-auto"
+                    size="lg"
+                  >
+                    <Calendar className="h-6 w-6 mr-2" />
+                    <span className="whitespace-nowrap">{t('Prendre RDV')}</span>
+                  </Button>
+                </Link>
+                <Link to="/products" className="w-full sm:w-auto">
+                  <Button 
+                    variant="outline" 
+                    className="flex flex-row items-center justify-center gap-2 border-2 border-primary-600 text-primary-700 font-bold bg-white hover:bg-primary-50 hover:text-primary-900 hover:border-primary-800 shadow focus:ring-4 focus:ring-primary-200 text-lg px-8 py-3 rounded-full transition-all duration-200 no-underline w-full sm:w-auto"
+                    size="lg"
+                  >
+                    <ShoppingBag className="h-6 w-6 mr-2" />
+                    <span className="whitespace-nowrap">{t('Explorer la boutique')}</span>
+                  </Button>
+                </Link>
               </div>
 
               <div className="flex items-center space-x-2 text-sm text-gray-600">
@@ -394,21 +399,25 @@ const Home = () => {
           )}
 
           <div className="text-center">
-            <Button 
-              className="flex flex-row items-center justify-center gap-2 bg-gradient-to-r from-primary-600 to-primary-400 text-white font-bold shadow-lg border-2 border-primary-700 hover:from-primary-700 hover:to-primary-500 hover:scale-105 transition-all duration-200 text-lg px-8 py-3 rounded-full focus:ring-4 focus:ring-primary-300"
-              size="lg"
-            >
-              {t('Explorer la boutique')}
-              <ArrowRight className="h-6 w-6 ml-2" />
-            </Button>
-            <Button 
-              variant="outline" 
-              className="flex flex-row items-center justify-center gap-2 ml-4 border-2 border-primary-600 text-primary-700 font-bold bg-white hover:bg-primary-50 hover:text-primary-900 hover:border-primary-800 shadow focus:ring-4 focus:ring-primary-200 text-lg px-8 py-3 rounded-full transition-all duration-200 no-underline"
-              size="lg"
-            >
-              {t('Explorer les services')}
-              <ArrowRight className="h-6 w-6 ml-2" />
-            </Button>
+            <Link to="/products">
+              <Button 
+                className="flex flex-row items-center justify-center gap-2 bg-gradient-to-r from-primary-600 to-primary-400 text-white font-bold shadow-lg border-2 border-primary-700 hover:from-primary-700 hover:to-primary-500 hover:scale-105 transition-all duration-200 text-lg px-8 py-3 rounded-full focus:ring-4 focus:ring-primary-300"
+                size="lg"
+              >
+                {t('Explorer la boutique')}
+                <ArrowRight className="h-6 w-6 ml-2" />
+              </Button>
+            </Link>
+            <Link to="/services">
+              <Button 
+                variant="outline" 
+                className="flex flex-row items-center justify-center gap-2 ml-4 border-2 border-primary-600 text-primary-700 font-bold bg-white hover:bg-primary-50 hover:text-primary-900 hover:border-primary-800 shadow focus:ring-4 focus:ring-primary-200 text-lg px-8 py-3 rounded-full transition-all duration-200 no-underline"
+                size="lg"
+              >
+                {t('Explorer les services')}
+                <ArrowRight className="h-6 w-6 ml-2" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -601,20 +610,24 @@ const Home = () => {
               {t('Offrez-vous un moment rien qu\'à vous — réservez dès maintenant et sentez la différence.')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                className="flex flex-row items-center justify-center gap-2 bg-gradient-to-r from-primary-600 to-primary-400 text-white font-bold shadow-lg border-2 border-primary-700 hover:from-primary-700 hover:to-primary-500 hover:scale-105 transition-all duration-200 text-lg px-8 py-3 rounded-full focus:ring-4 focus:ring-primary-300 w-full sm:w-auto"
-                size="lg"
-              >
-                <Calendar className="h-6 w-6 mr-2" />
-                <span className="whitespace-nowrap">{t('Prendre RDV')}</span>
-              </Button>
-              <Button 
-                variant="outline" 
-                className="flex flex-row items-center justify-center gap-2 border-2 border-primary-600 text-primary-700 font-bold bg-white hover:bg-primary-50 hover:text-primary-900 hover:border-primary-800 shadow focus:ring-4 focus:ring-primary-200 text-lg px-8 py-3 rounded-full transition-all duration-200 no-underline w-full sm:w-auto"
-                size="lg"
-              >
-                {t('Contact')}
-              </Button>
+              <Link to="/customer/book-service" className="w-full sm:w-auto">
+                <Button 
+                  className="flex flex-row items-center justify-center gap-2 bg-gradient-to-r from-primary-600 to-primary-400 text-white font-bold shadow-lg border-2 border-primary-700 hover:from-primary-700 hover:to-primary-500 hover:scale-105 transition-all duration-200 text-lg px-8 py-3 rounded-full focus:ring-4 focus:ring-primary-300 w-full sm:w-auto"
+                  size="lg"
+                >
+                  <Calendar className="h-6 w-6 mr-2" />
+                  <span className="whitespace-nowrap">{t('Prendre RDV')}</span>
+                </Button>
+              </Link>
+              <Link to="/contact" className="w-full sm:w-auto">
+                <Button 
+                  variant="outline" 
+                  className="flex flex-row items-center justify-center gap-2 border-2 border-primary-600 text-primary-700 font-bold bg-white hover:bg-primary-50 hover:text-primary-900 hover:border-primary-800 shadow focus:ring-4 focus:ring-primary-200 text-lg px-8 py-3 rounded-full transition-all duration-200 no-underline w-full sm:w-auto"
+                  size="lg"
+                >
+                  {t('Contact')}
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

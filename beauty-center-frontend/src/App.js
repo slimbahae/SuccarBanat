@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { BalanceProvider } from './contexts/BalanceContext';
 import { useTranslation } from 'react-i18next';
+import ScrollToTop from './ScrollToTop';
 
 // Layout components
 import Layout from './components/Layout/Layout';
@@ -39,6 +40,11 @@ import AdminServices from './pages/admin/Services';
 import AdminUsers from './pages/admin/Users';
 import AdminOrders from './pages/admin/Orders';
 import AdminReservations from './pages/admin/Reservations';
+// Gift card admin pages
+import VerifierCarteCadeau from './pages/admin/giftcards/VerifierCarteCadeau';
+import MarquerCarteServiceUtilisee from './pages/admin/giftcards/MarquerCarteServiceUtilisee';
+import ExpirerCartesCadeaux from './pages/admin/giftcards/ExpirerCartesCadeaux';
+import TrouverParPaymentIntent from './pages/admin/giftcards/TrouverParPaymentIntent';
 
 //Staff pages
 
@@ -114,6 +120,7 @@ function AppContent() {
   const { t } = useTranslation();
   return (
     <Router>
+      <ScrollToTop />
       <Layout>
         <Routes>
           {/* Public Routes */}
@@ -283,6 +290,14 @@ function AppContent() {
             } 
           />
           <Route 
+            path="/admin/services" 
+            element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <AdminServices />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/admin/users" 
             element={
               <ProtectedRoute allowedRoles={['ADMIN']}>
@@ -297,6 +312,47 @@ function AppContent() {
                 <AdminOrders />
               </ProtectedRoute>
             } 
+          />
+          <Route 
+            path="/admin/reservations" 
+            element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <AdminReservations />
+              </ProtectedRoute>
+            } 
+          />
+          {/* Admin Gift Card Routes */}
+          <Route
+            path="/admin/gift-cards/verifier"
+            element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <VerifierCarteCadeau />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/gift-cards/marquer-utilisee"
+            element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <MarquerCarteServiceUtilisee />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/gift-cards/expirer"
+            element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <ExpirerCartesCadeaux />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/gift-cards/par-payment-intent"
+            element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <TrouverParPaymentIntent />
+              </ProtectedRoute>
+            }
           />
 
 

@@ -29,6 +29,8 @@ import Button from '../../components/UI/Button';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
 import toast from 'react-hot-toast';
 
+const euroFormatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
+
 const AdminOrders = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -304,7 +306,7 @@ const AdminOrders = () => {
     },
     {
       label: 'Total de revenue',
-      value: `$${orders.reduce((sum, order) => sum + (order.total || 0), 0).toFixed(0)}`,
+      value: euroFormatter.format(orders.reduce((sum, order) => sum + (order.total || 0), 0)),
       icon: TrendingUp,
       color: 'bg-green-500',
       change: '+8%'
@@ -492,7 +494,7 @@ const AdminOrders = () => {
             </div>
             
             <p className="text-sm text-gray-600">
-              {filteredOrders.length} order{filteredOrders.length !== 1 ? 's' : ''} found
+              {filteredOrders.length} commande{filteredOrders.length !== 1 ? 's' : ''} trouvée
             </p>
           </div>
         </div>
@@ -503,7 +505,7 @@ const AdminOrders = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <span className="text-sm font-medium text-gray-700">
-                  {selectedOrders.size} commande{selectedOrders.size !== 1 ? 's' : ''} sélectioné
+                  {selectedOrders.size} commande{selectedOrders.size !== 1 ? 's' : ''} sélectionnée
                 </span>
                 <div className="flex space-x-2">
                   <Button
@@ -692,7 +694,7 @@ const AdminOrders = () => {
                       
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-semibold text-gray-900">
-                          ${order.total.toFixed(2)}
+                          {euroFormatter.format(order.total)}
                         </div>
                       </td>
                       
@@ -828,11 +830,11 @@ const AdminOrders = () => {
                         <div className="flex-1">
                           <h4 className="text-sm font-medium text-gray-900">{item.productName}</h4>
                           <p className="text-sm text-gray-500">Quantité: {item.quantity}</p>
-                          <p className="text-sm text-gray-500">Prix: ${item.unitPrice.toFixed(2)} par unité </p>
+                          <p className="text-sm text-gray-500">Prix: {euroFormatter.format(item.unitPrice)} par unité </p>
                         </div>
                         <div className="text-right">
                           <p className="text-sm font-medium text-gray-900">
-                            ${item.totalPrice.toFixed(2)}
+                            {euroFormatter.format(item.totalPrice)}
                           </p>
                         </div>
                       </div>
@@ -851,21 +853,21 @@ const AdminOrders = () => {
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Sous-total</span>
-                      <span className="text-gray-900">${selectedOrder.subtotal.toFixed(2)}</span>
+                      <span className="text-gray-900">{euroFormatter.format(selectedOrder.subtotal)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Taxes</span>
-                      <span className="text-gray-900">${(selectedOrder.subtotal * 0.1).toFixed(2)}</span>
+                      <span className="text-gray-900">{euroFormatter.format(selectedOrder.subtotal * 0.1)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Livraison</span>
                       <span className="text-gray-900">
-                        {selectedOrder.subtotal >= 50 ? 'Free' : '$5.00'}
+                        {selectedOrder.subtotal >= 50 ? 'Gratuit' : euroFormatter.format(5)}
                       </span>
                     </div>
                     <div className="flex justify-between text-base font-medium border-t border-gray-200 pt-2 mt-2">
                       <span className="text-gray-900">Total</span>
-                      <span className="text-gray-900">${selectedOrder.total.toFixed(2)}</span>
+                      <span className="text-gray-900">{euroFormatter.format(selectedOrder.total)}</span>
                     </div>
                   </div>
                 </div>
@@ -875,7 +877,7 @@ const AdminOrders = () => {
                     variant="outline"
                     onClick={() => setShowOrderModal(false)}
                   >
-                    Ferme
+                    Fermer
                   </Button>
                   {selectedOrder.orderStatus !== 'DELIVERED' && selectedOrder.orderStatus !== 'CANCELLED' && (
                     <select

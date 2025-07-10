@@ -331,13 +331,19 @@ public class EmailService {
         try {
             Context context = new Context(Locale.FRANCE);
             context.setVariable("giftCard", giftCard);
-            context.setVariable("code", code);
             context.setVariable("businessName", businessName);
             context.setVariable("frontendUrl", frontendUrl);
             context.setVariable("expirationDate", dateFormat.format(giftCard.getExpirationDate()));
             context.setVariable("amount", String.format("%.2f€", giftCard.getAmount()));
             context.setVariable("isBalanceType", "BALANCE".equals(giftCard.getType()));
             context.setVariable("isServiceType", "SERVICE".equals(giftCard.getType()));
+
+            // Set code for BALANCE type and token for SERVICE type
+            if ("BALANCE".equals(giftCard.getType())) {
+                context.setVariable("code", code);
+            } else if ("SERVICE".equals(giftCard.getType())) {
+                context.setVariable("token", giftCard.getId()); // Use the ID as token
+            }
 
             String htmlContent = templateEngine.process("gift-card-received", context);
             String subject = "🎁 Vous avez reçu une carte cadeau " + businessName;

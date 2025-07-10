@@ -419,16 +419,20 @@ export const giftCardsAPI = {
 
   // Admin endpoints
   adminVerify: (token) => {
-    console.log('Admin verifying gift card with token:', token);
+    console.log('Vérification de la carte cadeau avec le jeton :', token);
     return api.get(`/admin/gift-cards/verify?token=${encodeURIComponent(token)}`);
   },
   adminMarkUsed: (giftCardId) => {
-    console.log('Admin marking gift card as used:', giftCardId);
+    console.log('Marquage de la carte cadeau de service comme utilisée :', giftCardId);
     return api.post(`/admin/gift-cards/${giftCardId}/mark-used`);
   },
   adminExpire: () => {
-    console.log('Admin expiring gift cards...');
+    console.log('Expiration manuelle des cartes cadeaux...');
     return api.post('/admin/gift-cards/expire');
+  },
+  adminGetByPaymentIntent: (paymentIntentId) => {
+    console.log('Récupération de la carte cadeau par PaymentIntent :', paymentIntentId);
+    return api.get(`/admin/gift-cards/payment-intent/${paymentIntentId}`);
   }
 };
 

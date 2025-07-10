@@ -112,6 +112,9 @@ public class GiftCardService {
         try {
             emailService.sendGiftCardPurchaseConfirmation(request.getPurchaserEmail(), savedGiftCard, rawCode);
             emailService.sendGiftCardReceived(request.getRecipientEmail(), savedGiftCard, rawCode);
+            if ("SERVICE".equals(savedGiftCard.getType())) {
+                emailService.sendAdminServiceGiftCardNotification(savedGiftCard);
+            }
         } catch (Exception e) {
             log.error("Failed to send gift card emails for: {}", savedGiftCard.getId(), e);
             // Don't fail the transaction for email issues

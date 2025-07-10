@@ -22,13 +22,18 @@ import {
   Trash2,
   Eye,
   Download,
-  CreditCard
+  CreditCard,
+  Gift
 } from 'lucide-react';
+import { Menu, Transition} from '@headlessui/react';
+import { Fragment } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { usersAPI, ordersAPI, productsAPI } from '../../services/api';
 import Button from '../../components/UI/Button';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
 import toast from 'react-hot-toast';
+
+const euroFormatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -97,7 +102,7 @@ const AdminDashboard = () => {
     
     return [
       {
-        label: 'Total Users',
+        label: 'Total Utilisateurs',
         value: users.length,
         icon: Users,
         color: 'bg-blue-500',
@@ -106,7 +111,7 @@ const AdminDashboard = () => {
         link: '/admin/users'
       },
       {
-        label: 'Total Orders',
+        label: 'Total Commandes',
         value: orders.length,
         icon: ShoppingBag,
         color: 'bg-green-500',
@@ -115,8 +120,8 @@ const AdminDashboard = () => {
         link: '/admin/orders'
       },
       {
-        label: 'Revenue',
-        value: `${totalRevenue.toLocaleString()}`,
+        label: 'Revenu',
+        value: euroFormatter.format(totalRevenue),
         icon: DollarSign,
         color: 'bg-yellow-500',
         change: `${revenueChange >= 0 ? '+' : ''}${revenueChange.toFixed(1)}%`,
@@ -124,7 +129,7 @@ const AdminDashboard = () => {
         link: '/admin/orders'
       },
       {
-        label: 'Products',
+        label: 'Produits',
         value: products.length,
         icon: Package,
         color: 'bg-purple-500',
@@ -133,7 +138,7 @@ const AdminDashboard = () => {
         link: '/admin/products'
       },
       {
-        label: 'Customers',
+        label: 'Clients',
         value: customers.length,
         icon: UserCheck,
         color: 'bg-orange-500',
@@ -206,17 +211,17 @@ const AdminDashboard = () => {
   // Bulk actions
   const handleBulkAction = (action) => {
     if (selectedOrders.size === 0) {
-      toast.error('Please select orders first');
+      toast.error('Veuillez sélectionner des commandes d\'abord');
       return;
     }
 
     switch (action) {
       case 'export':
-        toast.success(`Exporting ${selectedOrders.size} orders...`);
+        toast.success(`Exportation de ${selectedOrders.size} commandes...`);
         break;
       case 'delete':
-        if (window.confirm(`Are you sure you want to delete ${selectedOrders.size} orders?`)) {
-          toast.success(`Deleted ${selectedOrders.size} orders`);
+        if (window.confirm(`Êtes-vous sûr de vouloir supprimer ${selectedOrders.size} commandes ?`)) {
+          toast.success(`Supprimées ${selectedOrders.size} commandes`);
           setSelectedOrders(new Set());
         }
         break;
@@ -238,26 +243,45 @@ const AdminDashboard = () => {
   // Quick actions
   const quickActions = [
     {
-      title: 'Manage Products',
-      description: 'Add, edit, or remove products',
+      title: 'Gérer les produits',
+      description: 'Ajouter, modifier ou supprimer des produits',
       icon: Package,
       link: '/admin/products',
       color: 'bg-blue-500'
     },
     {
-      title: 'Manage Users',
-      description: 'View and manage user accounts',
+      title: 'Gérer les utilisateurs',
+      description: 'Voir et gérer les comptes utilisateur',
       icon: UserCheck,
       link: '/admin/users',
       color: 'bg-green-500'
     },
     {
-      title: 'View Reports',
-      description: 'Analytics and business insights',
+      title: 'Voir les rapports',
+      description: 'Analyses et insights commerciaux',
       icon: TrendingUp,
       link: '/admin/reports',
       color: 'bg-orange-500'
     }
+  ];
+
+  const giftCardAdminLinks = [
+    {
+      label: 'Vérifier une carte cadeau',
+      to: '/admin/gift-cards/verifier',
+    },
+    {
+      label: 'Marquer une carte de service comme utilisée',
+      to: '/admin/gift-cards/marquer-utilisee',
+    },
+    {
+      label: 'Expirer les cartes cadeaux',
+      to: '/admin/gift-cards/expirer',
+    },
+    {
+      label: 'Trouver par PaymentIntent',
+      to: '/admin/gift-cards/par-payment-intent',
+    },
   ];
 
   const getStatusColor = (status) => {
@@ -303,6 +327,43 @@ const AdminDashboard = () => {
           <p className="text-gray-600 mt-2">
             Découvrez les nouveautés et activités du jour chez Succar Banat
           </p>
+        </div>
+
+        <div className="flex items-center space-x-4 mt-4 mb-8">
+          <Menu as="div" className="relative inline-block text-left">
+            <div>
+              <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">
+                <Gift className="h-5 w-5 mr-2 text-pink-500" />
+                Gestion des cartes cadeaux
+              </Menu.Button>
+            </div>
+            <Transition
+              as={Fragment}
+              enter="transition ease-out duration-100"
+              enterFrom="transform opacity-0 scale-95"
+              enterTo="transform opacity-100 scale-100"
+              leave="transition ease-in duration-75"
+              leaveFrom="transform opacity-100 scale-100"
+              leaveTo="transform opacity-0 scale-95"
+            >
+              <Menu.Items className="origin-top-left absolute left-0 mt-2 w-72 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                <div className="py-1">
+                  {giftCardAdminLinks.map((item, idx) => (
+                    <Menu.Item key={idx}>
+                      {({ active }) => (
+                        <Link
+                          to={item.to}
+                          className={`block px-4 py-2 text-sm ${active ? 'bg-pink-100 text-pink-900' : 'text-gray-700'}`}
+                        >
+                          {item.label}
+                        </Link>
+                      )}
+                    </Menu.Item>
+                  ))}
+                </div>
+              </Menu.Items>
+            </Transition>
+          </Menu>
         </div>
 
         {/* Stats Cards */}
@@ -404,7 +465,7 @@ const AdminDashboard = () => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-semibold text-gray-900">${order.total}</p>
+                        <p className="font-semibold text-gray-900">{euroFormatter.format(order.total)}</p>
                         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(order.orderStatus)}`}>
                           {order.orderStatus}
                         </span>
@@ -437,9 +498,11 @@ const AdminDashboard = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600">Valeur moyenne des commandes</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  ${ordersData?.data?.length > 0 ? 
-                    (ordersData.data.reduce((sum, order) => sum + (order.total || 0), 0) / ordersData.data.length).toFixed(0) : 
-                    '0'}
+                  {euroFormatter.format(
+                    ordersData?.data?.length > 0 ? 
+                      (ordersData.data.reduce((sum, order) => sum + (order.total || 0), 0) / ordersData.data.length) : 
+                      0
+                  )}
                 </p>
               </div>
             </div>
@@ -451,11 +514,13 @@ const AdminDashboard = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600">Revenu mensuel</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  ${ordersData?.data?.filter(order => {
-                    const orderDate = new Date(order.createdAt);
-                    const now = new Date();
-                    return orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
-                  }).reduce((sum, order) => sum + (order.total || 0), 0).toLocaleString() || '0'}
+                  {euroFormatter.format(
+                    ordersData?.data?.filter(order => {
+                      const orderDate = new Date(order.createdAt);
+                      const now = new Date();
+                      return orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
+                    }).reduce((sum, order) => sum + (order.total || 0), 0)
+                  )}
                 </p>
               </div>
             </div>

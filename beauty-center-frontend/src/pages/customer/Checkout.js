@@ -392,12 +392,7 @@ const Checkout = () => {
   ];
 
   const countryOptions = [
-    { value: "", label: t("select_country") },
-    { value: "US", label: "États-Unis" },
-    { value: "CA", label: "Canada" },
-    { value: "GB", label: "Royaume-Uni" },
-    { value: "FR", label: "France" },
-    { value: "DE", label: "Allemagne" },
+    { value: "FR", label: "France" }
   ];
 
   return (

@@ -20,6 +20,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/UI/Button';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
 import toast from 'react-hot-toast';
+import euroFormatter from '../../utils/euroFormatter';
 
 const BookService = () => {
   const { id } = useParams();
@@ -438,7 +439,7 @@ const BookService = () => {
                             {selectedAddons.map((addon) => (
                               <div key={addon.id} className="flex justify-between text-sm">
                                 <span>• {addon.name}</span>
-                                <span>+${addon.price.toFixed(2)}</span>
+                                <span>+{euroFormatter.format(addon.price)}</span>
                               </div>
                             ))}
                           </div>
@@ -462,8 +463,8 @@ const BookService = () => {
                   <div className="bg-blue-50 rounded-lg p-4">
                     <h4 className="font-medium text-blue-900 mb-2">Politique de réservation</h4>
                     <ul className="text-sm text-blue-800 space-y-1">
-                      <li>• Merci d’arriver 15 minutes avant votre rendez-vous</li>
-                      <li>• Annulation gratuite jusqu’à 24 heures avant votre réservation</li>
+                      <li>• Merci d'arriver 15 minutes avant votre rendez-vous</li>
+                      <li>• Annulation gratuite jusqu'à 24 heures avant votre réservation</li>
                       <li>• Vous recevrez des rappels par SMS avant votre rendez-vous</li>
                       <li>• Les retards peuvent entraîner une réduction du temps de service</li>
                     </ul>
@@ -524,7 +525,7 @@ const BookService = () => {
                   <div className="space-y-3 mb-6">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Prix de base</span>
-                      <span className="font-medium">${(serviceData.finalPrice || serviceData.price).toFixed(2)}</span>
+                      <span className="font-medium">{euroFormatter.format(serviceData.finalPrice || serviceData.price)}</span>
                     </div>
                     
                     <div className="flex justify-between text-sm">
@@ -569,7 +570,7 @@ const BookService = () => {
                                   </div>
                                 </div>
                                 <span className="text-sm font-medium text-gray-900">
-                                  +${addon.price.toFixed(2)}
+                                  +{euroFormatter.format(addon.price)}
                                 </span>
                               </div>
                             </div>
@@ -584,7 +585,7 @@ const BookService = () => {
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-medium text-gray-900">Total</span>
                       <span className="text-2xl font-bold text-primary-600">
-                        ${calculateTotal().toFixed(2)}
+                        {euroFormatter.format(calculateTotal())}
                       </span>
                     </div>
                     <p className="text-sm text-gray-600 mt-1">
@@ -596,7 +597,7 @@ const BookService = () => {
 
               {/* Contact Info */}
               <div className="mt-6 bg-white shadow-sm rounded-lg p-6">
-                <h4 className="font-medium text-gray-900 mb-4">Besoin d’aide ?</h4>
+                <h4 className="font-medium text-gray-900 mb-4">Besoin d'aide ?</h4>
                 <div className="space-y-3">
                   <div className="flex items-center text-sm text-gray-600">
                     <Phone className="h-4 w-4 mr-2" />

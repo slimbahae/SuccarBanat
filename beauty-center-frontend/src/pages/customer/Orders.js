@@ -265,7 +265,7 @@ const CustomerOrders = () => {
                         />
                       )}
                       <div className={`relative flex items-center justify-center w-8 h-8 rounded-full ${
-                        step.completed ? 'bg-green-500' : step.current ? 'bg-primary-500' : 'bg-gray-200'
+                        step.completed || step.current ? 'bg-green-500' : 'bg-gray-200'
                       }`}>
                         <step.icon className={`h-4 w-4 ${
                           step.completed || step.current ? 'text-white' : 'text-gray-400'
@@ -332,7 +332,7 @@ const CustomerOrders = () => {
                         <h4 className="font-medium text-gray-900 mb-1">{item.productName}</h4>
                         <div className="flex items-center space-x-4 text-sm text-gray-600">
                           <span>Qty: {item.quantity}</span>
-                          <span>${item.unitPrice.toFixed(2)} par unité</span>
+                          <span>{euroFormatter.format(item.unitPrice)} par unité</span>
                         </div>
                         {order.orderStatus === 'DELIVERED' && (
                           <div className="mt-2 flex items-center space-x-2">
@@ -347,7 +347,7 @@ const CustomerOrders = () => {
                         )}
                       </div>
                       <div className="text-right">
-                        <p className="font-semibold text-gray-900">${item.totalPrice.toFixed(2)}</p>
+                        <p className="font-semibold text-gray-900">{euroFormatter.format(item.totalPrice)}</p>
                       </div>
                     </div>
                   ))}
@@ -385,22 +385,22 @@ const CustomerOrders = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">{t('order.subtotal')}</span>
-                    <span className="text-gray-900">${order.subtotal.toFixed(2)}</span>
+                    <span className="text-gray-900">{euroFormatter.format(order.subtotal)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">{t('order.taxes')}</span>
-                    <span className="text-gray-900">${order.tax.toFixed(2)}</span>
+                    <span className="text-gray-900">{euroFormatter.format(order.tax)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">{t('order.shipping')}</span>
                     <span className="text-gray-900">
-                      {order.shippingCost === 0 ? 'Free' : `${order.shippingCost.toFixed(2)}`}
+                      {order.shippingCost === 0 ? 'Free' : euroFormatter.format(order.shippingCost)}
                     </span>
                   </div>
                   <div className="border-t border-gray-200 pt-3">
                     <div className="flex justify-between font-semibold">
                       <span className="text-gray-900">{t('order.total')}</span>
-                      <span className="text-primary-600">${order.total.toFixed(2)}</span>
+                      <span className="text-primary-600">{euroFormatter.format(order.total)}</span>
                     </div>
                   </div>
                 </div>
@@ -571,7 +571,7 @@ const CustomerOrders = () => {
                         <span className="ml-1">{order.orderStatus}</span>
                       </span>
                       <span className="text-lg font-bold text-gray-900">
-                        ${order.total.toFixed(2)}
+                        {euroFormatter.format(order.total)}
                       </span>
                     </div>
                   </div>

@@ -271,7 +271,7 @@ const Register = () => {
                 </div>
                 <input
                   id="confirmPassword"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
                   className={`block w-full pl-10 pr-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 ${
                     errors.confirmPassword ? 'border-red-300' : 'border-gray-300'

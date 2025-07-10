@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
+import java.util.Map;
 
 @Data
 public class PaymentIntentRequest {
@@ -22,4 +23,7 @@ public class PaymentIntentRequest {
     private String customerEmail;
     private String description;
     private String userId;
+
+    // ← new field
+    private Map<String, String> metadata;
 }
