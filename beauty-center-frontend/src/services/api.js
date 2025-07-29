@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 
 // Create axios instance
 const api = axios.create({
-  baseURL: 'http://localhost:8083/api',
+  baseURL: 'http://79.72.61.11:8083/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -27,6 +27,9 @@ api.interceptors.request.use(
       headers: config.headers,
       data: config.data
     });
+    
+    // Log the actual URL being called
+    console.log('Full API URL:', `${config.baseURL}${config.url}`);
     
     return config;
   },

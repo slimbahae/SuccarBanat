@@ -22,6 +22,8 @@ import Button from '../../components/UI/Button';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
 import toast from 'react-hot-toast';
 
+const euroFormatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
+
 const AdminReservations = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -356,7 +358,7 @@ const AdminReservations = () => {
                           {new Date(reservation.reservationDate).toLocaleDateString()}
                         </div>
                         <div className="text-sm text-gray-500 capitalize">
-                          {reservation.timeSlot.toLowerCase()} session
+                          {reservation.timeSlot.toLowerCase()} séance
                         </div>
                         {isUpcoming(reservation.reservationDate) && (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mt-1">
@@ -490,7 +492,7 @@ const AdminReservations = () => {
                     </div>
                     <div className="flex items-center">
                       <Calendar className="h-5 w-5 text-gray-400 mr-2" />
-                      <span>{new Date(selectedReservation.reservationDate).toLocaleDateString('en-US', {
+                      <span>{new Date(selectedReservation.reservationDate).toLocaleDateString('fr-FR', {
                         weekday: 'long',
                         year: 'numeric',
                         month: 'long',
@@ -499,7 +501,7 @@ const AdminReservations = () => {
                     </div>
                     <div className="flex items-center">
                       <Clock className="h-5 w-5 text-gray-400 mr-2" />
-                      <span className="capitalize">{selectedReservation.timeSlot.toLowerCase()} Session</span>
+                      <span className="capitalize">{selectedReservation.timeSlot.toLowerCase()} Séance</span>
                     </div>
                     <div className="flex items-center">
                       <User className="h-5 w-5 text-gray-400 mr-2" />
@@ -537,7 +539,7 @@ const AdminReservations = () => {
                     {selectedReservation.addons.map((addon) => (
                       <div key={addon.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
                         <span className="text-sm font-medium text-gray-900">{addon.name}</span>
-                        <span className="text-sm font-semibold text-gray-900">+${addon.price.toFixed(2)}</span>
+                        <span className="text-sm font-semibold text-gray-900">+{euroFormatter.format(addon.price)}</span>
                       </div>
                     ))}
                   </div>
@@ -549,7 +551,7 @@ const AdminReservations = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-medium text-gray-900">Montant total</span>
                   <span className="text-2xl font-bold text-primary-600">
-                    ${selectedReservation.totalAmount.toFixed(2)}
+                    {euroFormatter.format(selectedReservation.totalAmount)}
                   </span>
                 </div>
               </div>

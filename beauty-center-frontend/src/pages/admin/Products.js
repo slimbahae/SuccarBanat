@@ -23,6 +23,8 @@ import LoadingSpinner from '../../components/UI/LoadingSpinner';
 import ProductImageUpload from '../../components/ProductImageUpload';
 import toast from 'react-hot-toast';
 
+const euroFormatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
+
 const AdminProducts = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -238,17 +240,17 @@ const AdminProducts = () => {
                             {product.category}
                           </span>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900">
-                                {product.finalPrice !== product.price ? (
-                                    <>
-                                      <span className="font-semibold">${product.finalPrice}</span>
-                                      <span className="text-gray-500 line-through ml-1">${product.price}</span>
-                                    </>
-                                ) : (
-                                    <span className="font-semibold">${product.price}</span>
-                                )}
-                              </div>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">
+                            {product.finalPrice !== product.price ? (
+                              <>
+                                <span className="font-semibold">{euroFormatter.format(product.finalPrice)}</span>
+                                <span className="text-gray-500 line-through ml-1">{euroFormatter.format(product.price)}</span>
+                              </>
+                            ) : (
+                              <span className="font-semibold">{euroFormatter.format(product.price)}</span>
+                            )}
+                          </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className={`text-sm font-medium ${stockStatus.color}`}>
@@ -272,7 +274,7 @@ const AdminProducts = () => {
                                   ? 'bg-green-100 text-green-800'
                                   : 'bg-red-100 text-red-800'
                           }`}>
-                            {product.active ? 'Active' : 'Inactive'}
+                            {product.active ? 'Actif' : 'Inactif'}
                           </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

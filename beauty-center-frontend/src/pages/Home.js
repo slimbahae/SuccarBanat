@@ -23,6 +23,8 @@ import LoadingSpinner from '../components/UI/LoadingSpinner';
 import { productsAPI, servicesAPI, reviewsAPI } from '../services/api';
 import { useTranslation } from 'react-i18next';
 
+
+
 const euroFormatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
 
 const Home = () => {
@@ -242,7 +244,7 @@ const Home = () => {
             <div className="relative">
               <div className="aspect-square bg-gradient-to-br from-primary-200 to-primary-300 rounded-3xl overflow-hidden shadow-2xl">
                 <img
-                  src="/accueil_pic.jpeg"
+                  src="/orig/091024-09-09-22-dounia-asri-4532c-ludovic-godard-bd.jpg"
                   alt="Beauty salon interior"
                   className="w-full h-full object-cover"
                 />
@@ -273,7 +275,7 @@ const Home = () => {
             />
             <div className="rounded-3xl overflow-hidden shadow-2xl w-72 h-72 md:w-96 md:h-96 bg-gray-100 flex items-center justify-center relative z-10">
               <img
-                src="https://client.ludovic-godard-photo.com/wp-content/uploads/picu/collections/4227/091024-08-34-22-dounia-asri-4345%C2%A9-ludovic-godard-bd.jpg"
+                src="/dounia1.jpg"
                 alt="Dounia Asri, fondatrice de Succar Banat"
                 className="object-cover w-full h-full"
                 loading="lazy"
@@ -483,7 +485,7 @@ const Home = () => {
             {/* Photo de Dounia au premier plan */}
             <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl w-48 h-48 md:w-80 md:h-80 bg-gray-100 flex items-center justify-center">
               <img
-                src="https://client.ludovic-godard-photo.com/wp-content/uploads/picu/collections/4227/091024-09-03-13-dounia-asri-4509%C2%A9-ludovic-godard-bd.jpg"
+                src="/dounia2.jpg"
                 alt="Dounia Asri, fondatrice de Succar Banat"
                 className="object-cover w-full h-full"
                 loading="lazy"

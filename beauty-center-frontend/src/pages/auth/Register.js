@@ -64,7 +64,7 @@ const Register = () => {
       <div className="hidden lg:block relative w-0 flex-1">
         <img
           className="absolute inset-0 h-full w-full object-cover"
-          src="https://client.ludovic-godard-photo.com/wp-content/uploads/picu/collections/4227/091024-09-03-13-dounia-asri-4509%C2%A9-ludovic-godard-bd.jpg"
+          src="/orig/091024-08-33-55-dounia-asri-4339c-ludovic-godard-bd.jpg"
           alt="Dounia Asri"
         />
         <div className="absolute inset-0 bg-primary-600 opacity-75" />

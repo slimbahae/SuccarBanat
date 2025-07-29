@@ -22,6 +22,8 @@ import Button from '../../components/UI/Button';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
 import toast from 'react-hot-toast';
 
+const euroFormatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
+
 const AdminServices = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -252,11 +254,11 @@ const AdminServices = () => {
                           <div className="text-sm text-gray-900">
                             {service.finalPrice !== service.price ? (
                               <>
-                                <span className="font-semibold">${service.finalPrice}</span>
-                                <span className="text-gray-500 line-through ml-1">${service.price}</span>
+                                <span className="font-semibold">{euroFormatter.format(service.finalPrice)}</span>
+                                <span className="text-gray-500 line-through ml-1">{euroFormatter.format(service.price)}</span>
                               </>
                             ) : (
-                              <span className="font-semibold">${service.price}</span>
+                              <span className="font-semibold">{euroFormatter.format(service.price)}</span>
                             )}
                           </div>
                           <div className="text-sm text-gray-500 flex items-center">
@@ -279,25 +281,25 @@ const AdminServices = () => {
                             {service.availableMorning && (
                               <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
                                 <Sun className="h-3 w-3 mr-1" />
-                                AM
+                                Matin
                               </span>
                             )}
                             {service.availableEvening && (
                               <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
                                 <Moon className="h-3 w-3 mr-1" />
-                                PM
+                                Soir
                               </span>
                             )}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                            service.active 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {service.active ? 'Active' : 'Inactive'}
-                          </span>
+                                                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                              service.active 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {service.active ? 'Actif' : 'Inactif'}
+                            </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end space-x-2">

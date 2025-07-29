@@ -6,7 +6,7 @@ import {
   Package, 
   Calendar, 
   TrendingUp, 
-  DollarSign,
+  Euro,
   ShoppingBag,
   Clock,
   Star,
@@ -122,7 +122,7 @@ const AdminDashboard = () => {
       {
         label: 'Revenu',
         value: euroFormatter.format(totalRevenue),
-        icon: DollarSign,
+        icon: Euro,
         color: 'bg-yellow-500',
         change: `${revenueChange >= 0 ? '+' : ''}${revenueChange.toFixed(1)}%`,
         trend: revenueChange >= 0 ? 'up' : 'down',
