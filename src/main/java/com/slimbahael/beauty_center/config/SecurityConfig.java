@@ -4,6 +4,7 @@ import com.slimbahael.beauty_center.security.CustomUserDetailsService;
 import com.slimbahael.beauty_center.security.JwtAuthenticationEntryPoint;
 import com.slimbahael.beauty_center.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,6 +21,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,6 +33,10 @@ import java.util.List;
 )
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    @Value("#{'${spring.web.cors.allowed-origins}'.split(',')}")
+    private String[] allowedOrigins;
+
 
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthenticationEntryPoint unauthorizedHandler;
@@ -75,7 +81,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // Allow specific origins (your React app)
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000", "http://127.0.0.1:3000", "https://succarbanat.vercel.app"));
+        configuration.setAllowedOriginPatterns(Arrays.asList(allowedOrigins));
 
         // Allow all HTTP methods
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));

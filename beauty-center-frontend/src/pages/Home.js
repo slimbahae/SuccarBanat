@@ -47,7 +47,7 @@ const Home = () => {
   );
 
   const stats = [
-    { label: t('Clients Satisfaits'), value: '800+', icon: Users, color: 'from-[#DDCABC] to-[#B97230]', iconColor: 'text-[#3D2118]' },
+    { label: t('Clients Satisfaits'), value: '5000+', icon: Users, color: 'from-[#DDCABC] to-[#B97230]', iconColor: 'text-[#3D2118]' },
     { label: t('Naturel'), value: '100%', icon: Flower, color: 'from-[#B97230] to-[#936342]', iconColor: 'text-[#3D2118]' },
     { label: t('Traditionnel'), value: '100%', icon: Sparkles, color: 'from-[#936342] to-[#904913]', iconColor: 'text-[#DDCABC]' },
     { label: t("Années d'Expérience"), value: '10+', icon: Star, color: 'from-[#904913] to-[#3D2118]', iconColor: 'text-[#DDCABC]' },
@@ -284,19 +284,19 @@ const Home = () => {
           </div>
           <div className="md:w-1/2 w-full space-y-6">
             <h2 className="text-3xl lg:text-4xl font-serif font-extrabold text-primary-700 mb-2 tracking-tight">
-              <span className="block font-sans text-gray-900 text-2xl lg:text-3xl mb-1 uppercase tracking-widest">Rencontrer Dounia</span>
+              <span className="block font-sans text-gray-900 text-2xl lg:text-3xl mb-1 uppercase tracking-widest">Rencontrez Dounia</span>
               <span className="block font-serif italic text-primary-700 text-3xl lg:text-4xl">La femme derrière Succar Banat !</span>
             </h2>
             <h3 className="text-xl font-bold text-primary-800 font-sans uppercase tracking-wide">Dounia Asri</h3>
             <p className="text-gray-700 text-lg font-light font-sans">
-              Diplômée <span className="font-semibold">(BTS esthétique & management)</span> avec <span className="font-semibold">10 ans d'expérience</span>, Dounia est la fondatrice de l'institut de beauté et des produits Succar Banat. Véritable passionnée, elle a fait de sa vocation un art de vivre, en mettant son expertise et son cœur au service de chaque client(e).
+              Diplômée <span className="font-semibold">(BTS esthétique & management)</span> avec <span className="font-semibold">10 ans d'expérience</span>, Dounia est la fondatrice de l'institut de beauté et des produits Succar Banat. Véritable passionnée, elle allie son travail à sa passion, en mettant son expertise et son cœur au service de chaque cliente.
             </p>
             <p className="text-gray-700 text-lg font-sans">
-              <span className="font-semibold text-primary-700">Son objectif ?</span> Révéler l'éclat de votre peau, sublimer votre regard, prendre soin de votre corps et de vos cheveux, tout en respectant votre authenticité. Dounia croit que la beauté n'est pas une transformation, mais une révélation de ce qui est déjà là. Son approche bienveillante et personnalisée fait de chaque visite un moment unique, où l'on se sent compris(e), valorisé(e) et rayonnant(e).
+              <span className="font-semibold text-primary-700">Son objectif ?</span> Révéler l'éclat de votre peau, sublimer votre regard, prendre soin de votre corps et de vos cheveux, tout en respectant votre authenticité. Dounia croit que la beauté n'est pas une transformation, mais une révélation de ce qui est déjà là. Son approche bienveillante et personnalisée fait de chaque visite un moment unique, où l'on se sent comprise, valorisée et rayonnante.
             </p>
             <blockquote className="border-l-4 border-primary-400 bg-primary-50/60 p-6 rounded-xl shadow font-serif italic text-xl text-primary-800 relative">
               <svg className="absolute -left-4 -top-4 w-10 h-10 text-primary-200 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5h.01M15 5h.01M6.5 8.5a5.5 5.5 0 0111 0c0 2.485-2.015 4.5-4.5 4.5S8 10.985 8 8.5z" /></svg>
-              <span className="block">"Ma priorité, c'est de <span className="font-bold text-primary-700">sublimer chaque client(e)</span> tout en préservant sa véritable identité. Le <span className="font-bold text-primary-700">relooking beauté</span>, pour moi, c'est révéler la meilleure version de soi-même, sans jamais masquer l'essentiel : <span className="underline">votre personnalité</span>."</span>
+              <span className="block">"Ma priorité, c'est de <span className="font-bold text-primary-700">sublimer chaque cliente</span> tout en préservant sa véritable identité. Le <span className="font-bold text-primary-700">relooking beauté</span>, pour moi, c'est révéler la meilleure version de soi-même, sans jamais masquer l'essentiel : <span className="underline">votre personnalité</span>."</span>
             </blockquote>
           </div>
         </div>
@@ -442,7 +442,7 @@ const Home = () => {
                       {t('Mon promesse :')}
                     </span>
                     <span className="text-base text-gray-700">
-                      {t('vous rendre belles et confiantes chaque matin, même durant les périodes les plus délicates du mois.')}
+                      {t('Vous rendre belles et confiantes chaque matin, même lorsque la fatigue et les doutes s\’installent.')}
                     </span>
                   </div>
                 </div>
@@ -453,9 +453,7 @@ const Home = () => {
                       {t('Ma mission :')}
                     </span>
                     <span className="text-base text-gray-700">
-                      {t('transformer mes années d\'apprentissage et d\'expérience en prestations parfaites, répondant précisément à vos besoins, mêmes ceux qui restent silencieux.')}
-                      <br />
-                      {t('J\'ai appris à lire entre les lignes, à décoder vos souhaits, même s\'ils étaient timidement formulés.')}
+                      {t('Mettre à profit mes années d\’expérience pour répondre de façon personnalisée à vos besoins. Décoder vos souhaits et lire entre les lignes sont une philosophie chez SUCCAR Banat.')}
                     </span>
                   </div>
                 </div>
@@ -463,10 +461,10 @@ const Home = () => {
                   <Star className="h-6 w-6 text-primary-400 flex-shrink-0 mt-1" />
                   <div>
                     <span className="block text-base font-serif italic text-primary-800 mb-1">
-                      {t('Mon souhait :')}
+                      {t('Mon ambition :')}
                     </span>
                     <span className="text-base text-gray-700">
-                      {t('vous libérer du maquillage et faire en sorte qu\'ils deviennent un choix, une manière de sublimer votre beauté naturelle et non une nécessité.')}
+                      {t('Que le naturel devienne instinctif pour vous sublimer au quotidien et ainsi délaisser les produits nocifs à votre visage et à votre corps.')}
                     </span>
                   </div>
                 </div>
