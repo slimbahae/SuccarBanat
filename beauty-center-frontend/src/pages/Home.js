@@ -23,13 +23,23 @@ import LoadingSpinner from '../components/UI/LoadingSpinner';
 import { productsAPI, servicesAPI, reviewsAPI } from '../services/api';
 import { useTranslation } from 'react-i18next';
 
-
-
 const euroFormatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
 
 const Home = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  
+  // Référence pour la section cartes cadeaux
+  const giftCardSectionRef = useRef(null);
+  
+  // Fonction pour scroller vers la section cartes cadeaux
+  const scrollToGiftCards = () => {
+    giftCardSectionRef.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'center'
+    });
+  };
+
   // Fetch featured products and services
   const { data: featuredProducts, isLoading: productsLoading } = useQuery(
     'featured-products',
@@ -212,6 +222,7 @@ const Home = () => {
                 </p>
               </div>
               
+              {/* Boutons d'action principaux */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/customer/services" className="w-full sm:w-auto">
                   <Button 
@@ -232,6 +243,18 @@ const Home = () => {
                     <span className="whitespace-nowrap">{t('Explorer la boutique')}</span>
                   </Button>
                 </Link>
+              </div>
+
+              {/* Bouton raccourci vers cartes cadeaux */}
+              <div className="flex items-center justify-center sm:justify-start">
+                <button
+                  onClick={scrollToGiftCards}
+                  className="group flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold px-6 py-3 rounded-full shadow-lg transition-all duration-200 hover:scale-105 focus:ring-4 focus:ring-amber-300"
+                >
+                  <Gift className="h-5 w-5" />
+                  <span className="text-sm">Cartes Cadeaux</span>
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </button>
               </div>
 
               <div className="flex items-center space-x-2 text-sm text-gray-600">
@@ -260,7 +283,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
 
       {/* Meet Dounia Section */}
       <section className="py-20 bg-white">
@@ -442,7 +464,7 @@ const Home = () => {
                       {t('Mon promesse :')}
                     </span>
                     <span className="text-base text-gray-700">
-                      {t('Vous rendre belles et confiantes chaque matin, même lorsque la fatigue et les doutes s\’installent.')}
+                      {t('Vous rendre belles et confiantes chaque matin, même lorsque la fatigue et les doutes s\'installent.')}
                     </span>
                   </div>
                 </div>
@@ -453,7 +475,7 @@ const Home = () => {
                       {t('Ma mission :')}
                     </span>
                     <span className="text-base text-gray-700">
-                      {t('Mettre à profit mes années d\’expérience pour répondre de façon personnalisée à vos besoins. Décoder vos souhaits et lire entre les lignes sont une philosophie chez SUCCAR Banat.')}
+                      {t('Mettre à profit mes années d\'expérience pour répondre de façon personnalisée à vos besoins. Décoder vos souhaits et lire entre les lignes sont une philosophie chez SUCCAR Banat.')}
                     </span>
                   </div>
                 </div>
@@ -568,8 +590,8 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Gift Card Section */}
-      <section className="py-24 bg-white">
+      {/* Gift Card Section - Ajout de la référence */}
+      <section ref={giftCardSectionRef} className="py-24 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="rounded-2xl shadow-2xl p-12 flex flex-col md:flex-row items-center justify-between gap-12 bg-white">
             <div className="flex items-center gap-10 mb-10 md:mb-0">

@@ -23,6 +23,11 @@ import ResetPassword from './pages/auth/ResetPassword';
 import VerifyEmailNotice from './pages/auth/VerifyEmailNotice';
 import EmailVerificationResult from './pages/auth/EmailVerificationResult';
 
+// Legal pages
+import Terms from './pages/legal/Terms';
+import Privacy from './pages/legal/Privacy';
+import Cookies from './pages/legal/Cookies';
+
 // Customer pages
 import CustomerDashboard from './pages/customer/Dashboard';
 import OrderConfirmation from './pages/customer/OrderConfirmation';
@@ -129,6 +134,11 @@ function AppContent() {
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/services" element={<Services />} />
           <Route path="/contact" element={<Contact />} />
+
+          {/* Legal Routes */}
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/cookies" element={<Cookies />} />
 
           {/* Auth Routes */}
           <Route 
@@ -354,7 +364,6 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-
 
           {/* Catch all route */}
           <Route path="*" element={<Navigate to="/" replace />} />
